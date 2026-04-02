@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { systemIntegrator } from '@/core/SystemIntegrator';
 import { useRuntimeStore } from '@/runtime/runtimeStore';
 import type { CapabilityStatus } from '@/runtime/capabilities';
+import { formatRuntimeSourceLabel } from '@/runtime/runtimeVocabulary';
 
 interface SystemStatusPanelProps {
   isOpen: boolean;
@@ -23,6 +24,10 @@ function formatBytes(bytes: number): string {
 
 function capabilityTone(capability: CapabilityStatus): string {
   return capability.supported ? 'supported' : 'fallback';
+}
+
+function capabilityLabel(capability: CapabilityStatus): string {
+  return formatRuntimeSourceLabel(capability.source);
 }
 
 export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, onClose }) => {
@@ -132,7 +137,7 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
                     <strong>{capability.label}</strong>
                     <p>{capability.note}</p>
                   </div>
-                  <span>{capability.supported ? 'Native' : 'Fallback'}</span>
+                  <span>{capabilityLabel(capability)}</span>
                 </article>
               ))}
             </div>
@@ -148,7 +153,7 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
                     <span>{subsystem.state}</span>
                   </div>
                   <p>{subsystem.detail}</p>
-                  <small>{subsystem.source}</small>
+                  <small>{formatRuntimeSourceLabel(subsystem.source)}</small>
                 </article>
               ))}
             </div>

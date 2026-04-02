@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { CapabilityId, CapabilityProfile } from './capabilities';
+import type { RuntimePathSource } from './runtimeVocabulary';
 
 export type RuntimeSeverity = 'info' | 'success' | 'warning' | 'error';
 export type RuntimeBootPhase = 'cold' | 'probing' | 'hydrating' | 'ready' | 'error';
@@ -20,7 +21,7 @@ export interface SubsystemSnapshot {
   label: string;
   group: 'boot' | 'rendering' | 'simulation' | 'integration' | 'experience';
   state: RuntimeSubsystemState;
-  source: 'native' | 'fallback' | 'simulation' | 'deferred';
+  source: RuntimePathSource;
   detail: string;
   capabilityId?: CapabilityId;
   metrics?: Record<string, string | number | boolean>;

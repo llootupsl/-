@@ -147,7 +147,7 @@ const STEP_DEFINITIONS: StepDefinition[] = [
   {
     id: 'integrations',
     name: 'Immersive Integrations',
-    description: 'Preflight browser-native subsystems and orchestration.',
+    description: 'Preflight native-path subsystems and orchestration.',
     weight: 18,
     category: 'initialization',
     recoverable: true,
@@ -413,7 +413,7 @@ export function useAppInitialization() {
     updateStep(stepId, { status: 'error', progress: 100, error: error.message });
     patchSubsystem(stepId, {
       state: initError.recoverable ? 'degraded' : 'error',
-      source: initError.recoverable ? 'fallback' : 'simulation',
+      source: initError.recoverable ? 'fallback' : 'simulated',
       detail: initError.friendlyMessage,
     });
     pushRuntimeTrace({
@@ -497,7 +497,7 @@ export function useAppInitialization() {
       setCapabilityProfile(profile);
       completeStep(
         'profile',
-        `${Object.values(profile.capabilities).filter((item) => item.supported).length} browser-native paths available.`,
+        `${Object.values(profile.capabilities).filter((item) => item.supported).length} native paths available.`,
       );
       setBootPhase('hydrating');
 

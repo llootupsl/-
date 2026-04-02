@@ -7,6 +7,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { swManager } from './sw/ServiceWorkerManager';
 import { ErrorBoundary } from './ui/components/ErrorBoundary';
 import { errorReporter } from './utils/ErrorReporter';
 
@@ -40,3 +41,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
+if (import.meta.env.PROD) {
+  window.addEventListener(
+    'load',
+    () => {
+      void swManager.register();
+    },
+    { once: true }
+  );
+}

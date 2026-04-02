@@ -1,62 +1,159 @@
 # 世界文明模拟器 | OMNIS APIEN
 
-世界文明模拟器（OMNIS APIEN）是一个无后端优先的浏览器文明模拟项目。它把 WebGPU、WebRTC、WebAuthn、Service Worker、WASM 和本地存储组织成一条可运行、可验证、可部署的主链路：支持的环境走真实浏览器能力，不支持的环境自动降级，并明确展示当前来源、限制和恢复路径。
+世界文明模拟器（OMNIS APIEN）是一个无后端优先的浏览器文明模拟器。它不是把一堆功能堆进页面，而是把浏览器原生能力、运行时状态、降级策略和可验证门禁组织成一套可部署的系统。
 
-## 项目定位
+Civilization Simulator (OMNIS APIEN) is a backend-light browser civilization simulator. It is not a pile of features in a page; it is a deployable system that composes browser-native capabilities, runtime state, fallback policy, and verifiable release gates.
 
-- 无后端优先：主链路尽量只依赖浏览器能力、本地存储与公开 API，不依赖自建后端。
-- 真实能力优先：WebGPU、WebRTC、WebAuthn、Background Sync、WASM 等能力优先走真实浏览器路径。
-- 自动降级：浏览器或设备不支持时，系统会进入可解释、不中断的 fallback，而不是静默失败。
-- 工程可验证：类型检查、测试、构建与发布校验形成统一门禁，保证项目不是“只能在作者机器上运行”的演示。
-- 可直接部署：仓库已包含 Vercel、Netlify 与静态托管所需配置。
+## 项目速写 / At a Glance
 
-## 核心能力
+| 维度 | 结论 |
+| --- | --- |
+| 产品体验 | 首屏先探测能力、预热系统、解释状态，再进入世界。 |
+| 工程实现 | 浏览器能力、降级原因、子系统健康度和运行时观测共享同一套状态契约。 |
+| 发布方式 | `release-dist/` 是唯一生产产物，面向静态托管，不依赖自建后端。 |
+| 验证标准 | `lint`、`typecheck`、`vitest`、`playwright`、`build`、fresh clone 复验全部通过后再发布。 |
 
-- 启动壳与能力图谱：在首屏阶段完成能力探测、预热、初始化门禁和推荐模式判断。
-- 世界内核与运行时观测：用统一状态模型描述能力支持度、降级原因、同步来源和子系统健康度。
-- 浏览器原生集成：覆盖 WebGPU、WebRTC、WebAuthn、Web Speech、Gamepad、Service Worker、WebTorrent 等浏览器能力。
-- 本地计算与存储：结合 TypeScript、React、WASM、OPFS/IndexedDB、SQLite Wasm 构成本地运行闭环。
-- 离线与发布：支持 PWA 形态、静态托管、离线资源缓存和生产构建校验。
+| Dimension | Takeaway |
+| --- | --- |
+| Product experience | The app probes capabilities, warms systems, and explains state before the world opens. |
+| Engineering model | Capability support, fallback reasons, subsystem health, and runtime telemetry all share one contract. |
+| Delivery model | `release-dist/` is the only production artifact and is designed for static hosting. |
+| Verification bar | `lint`, `typecheck`, `vitest`, `playwright`, `build`, and fresh-clone validation all pass before publishing. |
 
-## 架构概览
+## 为什么值得看 / Why It Matters
 
-- Boot Shell：负责首屏、字体与主题资源、能力探测、加载反馈和启动门禁。
-- Runtime Kernel：负责仿真 tick、初始化顺序、事件流、性能模式和统一运行时状态。
-- Browser Integrations：负责 WebGPU、WebRTC、WebAuthn、Background Sync、语音、多模态等高级能力接入。
-- UI Telemetry：负责 HUD、系统状态面板、运行时追踪、降级说明和帮助信息。
+这套仓库值得打开，不是因为它“特效多”，而是因为它把前端应用最难讲清楚的部分讲清楚了：哪些能力是真实浏览器能力，哪些是显式回退，哪些是延迟加载，哪些只是本地模拟。对普通访客来说，它是一个可直接体验的文明模拟器；对前端工程师来说，它是一份能读出架构取舍的实现样本。
 
-## 浏览器优先策略
+This repository is worth reading because it makes the hard parts of frontend engineering explicit: which paths are real browser-native capabilities, which are visible fallbacks, which are deferred, and which are intentionally simulated. For general visitors it is a playable civilization simulator; for frontend engineers it is an implementation that exposes its architecture choices instead of hiding them behind visuals.
 
-| 能力                | 主路径                   | 回退路径                     |
-| ------------------- | ------------------------ | ---------------------------- |
-| WebGPU              | 原生 GPU 渲染与计算      | Canvas/WebGL 兼容渲染        |
-| WebRTC / 二维码连接 | 真实点对点连接与状态流转 | 可见的手动回退与本地演示路径 |
-| WebAuthn            | 设备级身份认证与信任锚点 | 本地信任策略与非阻断入口     |
-| Background Sync     | Service Worker 周期同步  | 前台同步或手动触发           |
-| 在线数据            | 真实公开 API 数据源      | 本地缓存或模拟来源并标注来源 |
+## 核心体验 / What You Experience
 
-## 快速开始
+- 首屏先做能力探测、预热和初始化门禁，再进入主界面。
+- 模式选择会根据设备和浏览器能力给出推荐，但用户始终可以手动切换。
+- 主 HUD、系统状态面板和运行时观测层会直接展示当前能力来源与降级原因。
+- 真实能力可用时走真实路径，不可用时保留可见、不中断、可解释的回退入口。
+
+- The boot shell probes capabilities, warms subsystems, and runs initialization gates before the main world opens.
+- Mode selection is capability-aware and recommended, but never forced.
+- The main HUD, system status panel, and runtime observatory surface capability sources and fallback reasons directly.
+- When a real path exists, the app uses it; when it does not, the app falls back visibly without breaking the flow.
+
+## 工程上真正不寻常的部分 / What Is Technically Unusual
+
+这个项目的炫技点不在“更花哨”，而在“更像一个真正的浏览器系统”：
+
+- `native`、`fallback`、`deferred`、`simulated` 是统一的公开词汇，不同模块不再各说各话。
+- 能力图谱是单一事实源，UI、初始化和系统观测面板都从同一份状态读数。
+- 高开销模块按需加载，热路径只保留启动壳和必要状态。
+- Service Worker 在最终产物完全落盘后由 `workbox-build` 生成，并由生产运行时显式注册，而不是依赖脆弱的自动注入。
+- 发布物和运行时代码都围绕静态托管设计，而不是依赖自建后端。
+- 验证门禁不是装饰品，`verify:release`、fresh clone 安装和部署配置都在交付链里。
+
+What makes this project unusual is not that it is louder, but that it behaves more like a real browser system:
+
+- `native`, `fallback`, `deferred`, and `simulated` are the shared public vocabulary across code, UI, and docs.
+- The capability graph is the single source of truth for boot, UI, and observability.
+- Heavy subsystems are loaded on demand, so the hot path stays lean.
+- The service worker is generated only after the final bundle exists, then registered explicitly in production instead of relying on fragile auto-injection.
+- The runtime and release flow are designed for static hosting rather than a custom backend.
+- Release gates are real gates: `verify:release`, fresh-clone install, and deployment config are all part of the contract.
+
+## 浏览器能力编排 / Browser Capability Orchestration
+
+| Capability | Native path | Fallback path | Inspect here |
+| --- | --- | --- | --- |
+| WebGPU | Native GPU rendering and compute | Canvas / WebGL rendering | `src/rendering/WebGPURenderer.ts` |
+| WebRTC + QR handshake | Real peer connection and connection-state flow | Manual handoff with visible recovery UI | `src/network/WebRTCManager.ts`, `src/network/p2p/QRHandshake.ts` |
+| WebAuthn | Hardware-backed passkey / trust anchor flow | Local trust mode with non-blocking entry | `src/auth/WebAuthnManager.ts` |
+| Service Worker sync | Background settlement and offline shell | Foreground/manual sync with explanation | `src/sw/BackgroundSync.ts` |
+| Weather / genesis data | Live public API source | Local cached or simulated source, explicitly labeled | `src/api/GenesisTwin.ts` |
+| Blockchain sync | Configurable real-node sync | Local or simulated fallback, explicitly labeled | `src/api/BlockchainSync.ts` |
+| WebTorrent | Real P2P distribution | UI-visible local-only mode | `src/network/TorrentClient.ts` |
+
+## 系统架构 / Architecture
+
+```text
+Boot Shell
+  -> capability probe, warmup, loading feedback, entry gates
+Runtime Kernel
+  -> simulation tick, state store, trace events, mode control
+Browser Integrations
+  -> WebGPU, WebRTC, WebAuthn, sync, voice, P2P, background work
+UI Telemetry
+  -> HUD, observatory, fallback explanation, help and status surfaces
+```
+
+- Boot Shell 负责让首屏可解释。
+- Runtime Kernel 负责让世界可持续。
+- Browser Integrations 负责把真实能力接入运行时。
+- UI Telemetry 负责把状态讲给用户和审阅者听。
+
+- Boot Shell makes the first screen explainable.
+- Runtime Kernel keeps the world running coherently.
+- Browser Integrations connect real browser capabilities to the runtime.
+- UI Telemetry explains the state to both users and reviewers.
+
+## 代码阅读路径 / Where To Read the Code
+
+如果你想快速判断这是不是“只是视觉包装”，建议按这个顺序读：
+
+1. `src/App.tsx`，看启动、模式选择、世界进入和紧急回退如何串起来。
+2. `src/hooks/useAppInitialization.ts`，看初始化门禁、能力图谱和子系统状态如何收口。
+3. `src/runtime/capabilities.ts` 和 `src/runtime/runtimeStore.ts`，看公开词汇和统一状态契约。
+4. `src/core/SystemIntegrator.ts`，看高阶系统如何被编排成可加载的子系统。
+5. `src/ui/components/SystemStatusPanel.tsx` 和 `src/ui/components/ModeSelect.tsx`，看状态如何直接映射到界面。
+
+If you want to verify that this is more than a visual shell, read in this order:
+
+1. `src/App.tsx` for boot, mode selection, world entry, and emergency fallback.
+2. `src/hooks/useAppInitialization.ts` for initialization gates, capability graph construction, and subsystem readiness.
+3. `src/runtime/capabilities.ts` and `src/runtime/runtimeStore.ts` for the shared vocabulary and state contract.
+4. `src/core/SystemIntegrator.ts` for subsystem orchestration and dynamic loading boundaries.
+5. `src/ui/components/SystemStatusPanel.tsx` and `src/ui/components/ModeSelect.tsx` for the UI reflection of runtime truth.
+
+## 质量证明 / Proof of Quality
+
+仓库以 `release-dist/` 作为 canonical production output。发布前会跑完整门禁，而不是只看本地启动是否成功：
 
 ```bash
 npm install
-npm run dev
-```
-
-## 工程门禁
-
-```bash
 npm run verify:release
 ```
 
-`verify:release` 会依次执行：
+`verify:release` 依次执行：
 
 - `npm run typecheck -- --pretty false`
 - `npm run test -- --run`
 - `npm run build`
 
-## 部署
+我们还要求 fresh clone 验证：在干净目录重新克隆、重新安装依赖，然后再跑一次 `verify:release`。这一步的意义是确认仓库可交付，而不是只是当前工作区可运行。
 
-项目已准备好直接部署到静态托管平台。
+The repository uses `release-dist/` as the canonical production output. Before publishing, we run the full gate rather than relying on a local dev launch:
+
+```bash
+npm install
+npm run verify:release
+```
+
+`verify:release` runs:
+
+- `npm run typecheck -- --pretty false`
+- `npm run test -- --run`
+- `npm run build`
+- `release-dist/` production bundle generation
+
+We also require a fresh-clone validation: clone the repo into a clean directory, install dependencies again, and run `verify:release` once more. That proves the repository is actually shippable.
+
+正式收尾时，我们还会额外复跑：
+
+- `npm run lint`
+- `npm run test:e2e`
+
+Those stay outside `verify:release` so the routine release command remains compact, while the final publication checklist still includes static analysis and browser smoke coverage.
+
+## 部署 / Deployment
+
+项目已经准备好部署到静态托管平台：
 
 ```bash
 # Vercel
@@ -66,38 +163,38 @@ npm run deploy:vercel
 npm run deploy:netlify
 ```
 
-补充说明：
+仓库当前已经在 [`public/_headers`](./public/_headers)、[`vercel.json`](./vercel.json) 和 [`netlify.toml`](./netlify.toml) 中提供了静态托管基线，包括 `COOP/COEP` 与缓存策略。部署时应保留这些头部，并在你启用更高权限浏览器路径时确认平台没有覆盖或剥离它们。
 
-- 生产环境需要正确下发 `COOP/COEP` 相关响应头，以支持 `SharedArrayBuffer` 等能力。
-- 仓库已包含 [`vercel.json`](./vercel.json)、[`netlify.toml`](./netlify.toml)、[`public/_headers`](./public/_headers) 和 [`public/_redirects`](./public/_redirects)。
+This project is ready for static hosting:
 
-## 目录结构
+```bash
+# Vercel
+npm run deploy:vercel
 
-```text
-src/
-  core/         核心系统编排与初始化
-  runtime/      运行时状态、能力图谱、主场景
-  ui/           交互界面、HUD、系统面板、样式
-  network/      WebRTC、P2P、WebTorrent、Nearby
-  rendering/    WebGPU、Canvas 回退、光照与可视化
-  sw/           后台同步与 Service Worker 相关逻辑
-  auth/         WebAuthn、生物认证、信任锚点
-  api/          外部公开数据接入与同步
-public/         PWA 清单、图标、静态资源、部署头
-tests/          单元测试、集成测试、验收链路
-docs/           需求矩阵、构建风险、审查与修复记录
-需求/            原始需求文档
-wasm/           Rust/WASM 源码与构建入口
+# Netlify
+npm run deploy:netlify
 ```
 
-## 文档
+The repository already ships a static-hosting baseline in [`public/_headers`](./public/_headers), [`vercel.json`](./vercel.json), and [`netlify.toml`](./netlify.toml), including `COOP/COEP` and cache policy. Keep those headers intact when deploying, and verify that your host does not strip them if you expose higher-privilege browser paths.
 
-- [`docs/REQUIREMENTS_MATRIX.md`](./docs/REQUIREMENTS_MATRIX.md)：需求文档与当前实现对照矩阵
-- [`docs/BUILD_RISK_REDUCTION.md`](./docs/BUILD_RISK_REDUCTION.md)：构建风险收敛记录
-- [`docs/REVIEW_REPORT.md`](./docs/REVIEW_REPORT.md)：当前版本审查结论
-- [`docs/V14_FIX_REPORT.md`](./docs/V14_FIX_REPORT.md)：本轮收尾与发布报告
+## 目录与文档 / Directory and Docs
 
-## 许可证
+```text
+src/         runtime, UI, integrations, simulation, and feature modules
+public/      PWA metadata, icons, and static hosting files
+tests/       unit, integration, and release verification tests
+wasm/        Rust/WASM sources and build entrypoints
+docs/        requirements matrix, risk notes, and release audits
+需求/         source requirement documents
+```
 
-- [`LICENSE`](./LICENSE)：MIT License
-- [`LICENSE-ENHANCED-CN.md`](./LICENSE-ENHANCED-CN.md)：中文补充说明
+- [`docs/REQUIREMENTS_MATRIX.md`](./docs/REQUIREMENTS_MATRIX.md) records the final requirement mapping and the public vocabulary.
+- [`docs/BUILD_RISK_REDUCTION.md`](./docs/BUILD_RISK_REDUCTION.md) records the release-risk cleanup.
+- [`docs/REVIEW_REPORT.md`](./docs/REVIEW_REPORT.md) records the final review conclusion.
+- [`docs/V14_FIX_REPORT.md`](./docs/V14_FIX_REPORT.md) records the release-tail closure.
+- [`docs/FINAL_RELEASE_AUDIT.md`](./docs/FINAL_RELEASE_AUDIT.md) records the final verified state and known residual debt.
+
+## 许可证 / License
+
+- [`LICENSE`](./LICENSE): MIT
+- [`LICENSE-ENHANCED-CN.md`](./LICENSE-ENHANCED-CN.md): Chinese supplement and repository-specific notice

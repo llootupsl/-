@@ -1,3 +1,5 @@
+import type { CapabilityPathSource } from './runtimeVocabulary';
+
 export type CapabilityId =
   | 'wasm'
   | 'webgl'
@@ -25,7 +27,7 @@ export interface CapabilityStatus {
   label: string;
   supported: boolean;
   grade: CapabilityGrade;
-  source: string;
+  source: CapabilityPathSource;
   note: string;
   impact: string;
 }
@@ -178,7 +180,7 @@ function capability(
     label,
     supported,
     grade: supported ? 'native' : 'fallback',
-    source: supported ? 'browser-native' : 'adaptive-fallback',
+    source: supported ? 'native' : 'fallback',
     note: supported ? nativeNote : fallbackNote,
     impact,
   };

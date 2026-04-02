@@ -1,13 +1,13 @@
 {
   "name": "omnis-apien",
   "version": "1.0.0",
-  "description": "世界文明模拟器 | OMNIS APIEN - 无后端优先的浏览器文明模拟器，强调真实浏览器能力、自动降级与可部署交付。",
+  "description": "Browser-native civilization simulator with real capability orchestration, explicit fallbacks, and static-host deployment readiness.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "clean:dist": "node -e \"const fs=require('fs');for(const t of ['dist','dev-dist','release-dist']){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
     "clean": "node -e \"const fs=require('fs');const targets=['dist','dev-dist','release-dist','tsconfig.tsbuildinfo','wasm/target','wasm/pkg','rustup-init.exe','wasm-pack-init.exe','vs_buildtools.exe'];for(const t of targets){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
-    "build": "npm run clean:dist && vite build",
+    "build": "node scripts/run-release-build.mjs",
     "build:clean": "npm run clean && npm run build",
     "serve:dist": "vite preview --host 0.0.0.0 --port 4173",
     "verify:release": "npm run typecheck -- --pretty false && npm run test -- --run && npm run build",
@@ -15,7 +15,6 @@
     "deploy:netlify": "npm run verify:release && npx netlify deploy --prod --dir=release-dist",
     "deploy:netlify:anon": "npm run verify:release && npx netlify deploy --prod --dir=release-dist --json --allow-anonymous",
     "deploy:now": "npm run deploy:netlify:anon",
-    "build:prod": "tsc -b && vite build --config vite.config.prod.ts",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
@@ -27,7 +26,6 @@
     "wasm:build": "cd wasm && wasm-pack build --target web --out-dir ../src/wasm --release",
     "wasm:build:debug": "cd wasm && wasm-pack build --target web --out-dir ../src/wasm --dev",
     "wasm:build:simd": "cd wasm && wasm-pack build --target web --out-dir ../src/wasm --release -- --features simd",
-    "prepare": "node scripts/prepare-husky.cjs",
     "postinstall": "echo 'WASM plugins integrated via Vite'"
   },
   "dependencies": {
@@ -35,9 +33,9 @@
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "^8.17.10",
     "date-fns": "^4.1.0",
+    "eventemitter3": "^5.0.1",
     "howler": "^2.2.4",
     "immer": "^10.1.1",
-    "lodash-es": "^4.17.21",
     "motion": "^11.15.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -51,7 +49,6 @@
   "devDependencies": {
     "@playwright/test": "^1.48.2",
     "@types/howler": "^2.2.12",
-    "@types/lodash-es": "^4.17.12",
     "@types/node": "^25.5.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -66,27 +63,16 @@
     "eslint": "^9.15.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
-    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
-    "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
     "vite": "^6.0.3",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.6.0",
     "vitest": "^4.1.2",
+    "workbox-build": "^7.4.0",
     "workbox-window": "^7.3.0"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{css,html,json}": [
-      "prettier --write"
-    ]
   },
   "engines": {
     "node": ">=20.0.0",

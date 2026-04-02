@@ -1,6 +1,6 @@
 # V14 收尾与发布报告
 
-发布日期：2026-04-02
+发布日期：2026-04-03
 
 ## 本轮目标
 
@@ -9,14 +9,16 @@
 - 仓库首页介绍专业、可信、不过度营销
 - PWA 清单、图标、页面元数据与实际资源一致
 - 中文补充许可证和关键文档可直接公开阅读
-- fresh clone、构建与静态部署流程保持可用
+- fresh-clone、构建与静态部署流程保持可用
+- 公共词汇统一为 `native`、`fallback`、`deferred`、`simulated`
 
 ## 本轮完成项
 
 ### 1. README 重写
 
 - 删除夸张表述，改为围绕“无后端优先、真实浏览器能力、自动降级、工程可验证、可直接部署”的项目介绍。
-- 将能力说明、架构概览、验证门禁、部署步骤与目录结构整理为 GitHub 首页可直接阅读的版本。
+- 改写为完整双语首页，前半段让普通访客看懂，后半段让前端工程师看懂。
+- 把公开词汇收口为 `native`、`fallback`、`deferred`、`simulated`，并把这些词直接写进首页文案。
 
 ### 2. PWA 与根元数据修复
 
@@ -24,6 +26,8 @@
 - 将运行时 manifest 统一收口到 `public/manifest.json`。
 - 新增真实图标资源，删除原先缺失的图标和截图引用。
 - 让 favicon、manifest、部署资源与仓库说明保持一致。
+- 将 Service Worker 改为在最终构建产物全部就位后由 `workbox-build` 生成，避免 precache 扫描时序错误。
+- 在生产运行时显式注册 `/sw.js`，不再依赖构建时自动注入注册脚本。
 
 ### 3. 文档与许可证收尾
 
@@ -31,15 +35,17 @@
 - 重写 `docs/BUILD_RISK_REDUCTION.md`
 - 重写 `docs/REVIEW_REPORT.md`
 - 重写 `docs/REQUIREMENTS_MATRIX.md`
+- 新增 `docs/FINAL_RELEASE_AUDIT.md`
 
-### 4. 安装链路修复
+### 4. 安装链路与事件系统收口
 
-- 将 `prepare` 脚本改为 `scripts/prepare-husky.cjs`
-- 在无 `.git` 环境下静默跳过 husky 初始化
-- 移除 `husky install` 的弃用用法
+- 安装链路不再依赖 husky 初始化脚本。
+- fresh clone 下 `npm install` 不再因为 husky 噪音失败。
+- 事件总线依赖 `eventemitter3` 已恢复为显式直接依赖，相关类型链路在 fresh clone 中可以正常解析。
+- `src/main.tsx` 直接引用 `ServiceWorkerManager`，不再通过 `src/sw/index.ts` 静态拖入 `BackgroundSync`，构建警告已清除。
 
 ## 结果
 
 当前版本已经完成代码面、文档面、部署面的统一收尾，适合直接同步到 GitHub 并接入静态部署平台。
 
-唯一仍需后续独立治理的部分是第三方依赖安全告警；这属于上游生态问题，不影响当前版本的主链路运行与静态部署。
+唯一仍需后续独立治理的部分是第三方依赖安全告警；这些属于上游生态问题，不影响当前版本的主链路运行、静态部署和 fresh-clone 验证。

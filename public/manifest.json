@@ -2,7 +2,7 @@
   "id": "omnis-apien",
   "name": "世界文明模拟器 | OMNIS APIEN",
   "short_name": "OMNIS",
-  "description": "无后端优先的浏览器文明模拟器，支持 WebGPU、WASM、本地存储、P2P 与自动降级。",
+  "description": "以浏览器原生能力驱动的文明模拟器，强调真实路径优先、明确降级与静态部署就绪。",
   "lang": "zh-CN",
   "dir": "ltr",
   "theme_color": "#050508",
@@ -13,6 +13,24 @@
   "start_url": "/",
   "categories": ["games", "simulation", "education", "productivity"],
   "icons": [
+    {
+      "src": "/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "/app-icon.svg",
       "sizes": "any",
