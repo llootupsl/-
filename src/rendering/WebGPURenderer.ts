@@ -1623,6 +1623,10 @@ export class WebGPURenderer {
     return this.maxParticles;
   }
 
+  public getDevice(): GPUDevice | null {
+    return this.device;
+  }
+
   /**
    * 获取市民面孔数据（集成程序化面孔生成器）
    */

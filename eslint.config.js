@@ -45,6 +45,7 @@ export default [
       '**/wasm/target/**',
       '**/wasm/pkg/**',
       '**/.netlify/**',
+      '**/.vercel/**',
       '**/*.d.ts',
       'local-*.png',
     ],

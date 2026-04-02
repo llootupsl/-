@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "clean:dist": "node -e \"const fs=require('fs');for(const t of ['dist','dev-dist']){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
     "clean": "node -e \"const fs=require('fs');const targets=['dist','dev-dist','tsconfig.tsbuildinfo','wasm/target','wasm/pkg','rustup-init.exe','wasm-pack-init.exe','vs_buildtools.exe'];for(const t of targets){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
-    "build": "vite build",
+    "build": "npm run clean:dist && vite build",
     "build:clean": "npm run clean && npm run build",
     "serve:dist": "vite preview --host 0.0.0.0 --port 4173",
     "verify:release": "npm run typecheck -- --pretty false && npm run test -- --run && npm run build",

@@ -1,17 +1,34 @@
-/**
- * 游戏主视图组件
- */
-import React, { useState, useEffect, useMemo } from 'react';
-import { useGameStore, useGamePhase, useResources, useEntropy, useEmotion, useCitizenStats, useTime, useNarrative, useWarnings } from '@/store/gameStore';
-import { ModeConfig } from './ModeSelect';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  useGamePhase,
+  useResources,
+  useEntropy,
+  useEmotion,
+  useCitizenStats,
+  useTime,
+  useNarrative,
+  useWarnings,
+  useGameStore,
+} from '@/store/gameStore';
+import { useRuntimeStore } from '@/runtime/runtimeStore';
+import type { ModeConfig } from './ModeSelect';
 
-const EPOCH_COLORS: Record<string, string> = {
-  '黄金时代': 'var(--color-epoch-golden)',
-  '稳定时代': 'var(--color-epoch-stable)',
-  '压力时代': 'var(--color-epoch-pressure)',
-  '危机时代': 'var(--color-epoch-crisis)',
-  '崩溃边缘': 'var(--color-epoch-collapse)',
-  '熵增纪元': 'var(--color-entropy)',
+const EPOCH_LABELS = {
+  golden: '黄金时代',
+  stable: '稳定时代',
+  pressure: '压力时代',
+  crisis: '危机时代',
+  collapse: '崩坏边缘',
+  entropy: '熵增纪元',
+} as const;
+
+const EPOCH_COLORS: Record<(typeof EPOCH_LABELS)[keyof typeof EPOCH_LABELS], string> = {
+  黄金时代: 'var(--color-epoch-golden)',
+  稳定时代: 'var(--color-epoch-stable)',
+  压力时代: 'var(--color-epoch-pressure)',
+  危机时代: 'var(--color-epoch-crisis)',
+  崩坏边缘: 'var(--color-epoch-collapse)',
+  熵增纪元: 'var(--color-entropy)',
 };
 
 export interface GameViewProps {
@@ -40,384 +57,460 @@ export const GameView: React.FC<GameViewProps> = ({
   const narrative = useNarrative();
   const warnings = useWarnings();
   const gameStore = useGameStore();
+  const bootPhase = useRuntimeStore((state) => state.bootPhase);
+  const runtimeTraces = useRuntimeStore((state) => state.traces);
+  const runtimeSubsystems = useRuntimeStore((state) => state.subsystems);
 
   const epoch = useMemo(() => {
-    if (entropy < 15) return '黄金时代';
-    if (entropy < 35) return '稳定时代';
-    if (entropy < 55) return '压力时代';
-    if (entropy < 75) return '危机时代';
-    if (entropy < 90) return '崩溃边缘';
-    return '熵增纪元';
+    if (entropy < 15) return EPOCH_LABELS.golden;
+    if (entropy < 35) return EPOCH_LABELS.stable;
+    if (entropy < 55) return EPOCH_LABELS.pressure;
+    if (entropy < 75) return EPOCH_LABELS.crisis;
+    if (entropy < 90) return EPOCH_LABELS.collapse;
+    return EPOCH_LABELS.entropy;
   }, [entropy]);
 
-  const epochColor = EPOCH_COLORS[epoch] || 'var(--color-epoch-stable)';
-
   const [fps, setFps] = useState(0);
+
   useEffect(() => {
     let lastTime = performance.now();
-    let frames = 0;
+    let frameCount = 0;
+    let rafId = 0;
+
     const loop = () => {
-      frames++;
+      frameCount += 1;
       const now = performance.now();
       if (now - lastTime >= 1000) {
-        setFps(frames);
-        frames = 0;
+        setFps(frameCount);
+        frameCount = 0;
         lastTime = now;
       }
-      requestAnimationFrame(loop);
+      rafId = requestAnimationFrame(loop);
     };
-    const raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
+  const readySubsystems = Object.values(runtimeSubsystems).filter((subsystem) => subsystem.state === 'ready');
+  const degradedSubsystems = Object.values(runtimeSubsystems).filter((subsystem) => subsystem.state === 'degraded');
+  const criticalSignals = runtimeTraces.slice(-3).reverse();
+
   return (
-    <div className="game-view">
-      <header className="game-header">
-        <div className="header-left">
-          <button className="icon-btn" onClick={onBack} aria-label="返回主菜单">
-            <span>⟵</span>
+    <div className="world-shell">
+      <header className="world-shell__topbar">
+        <div className="world-shell__brand">
+          <button type="button" className="world-shell__back" onClick={onBack} aria-label="Back to menu">
+            返回
           </button>
-          <span className="mode-badge" style={{ color: currentMode.color }}>{currentMode.nameCN}</span>
-        </div>
-        <div className="header-center">
-          <div className="header-title">永夜熵纪</div>
-          <div className="header-sub">
-            第 {time.year} 年 第 {time.day} 天 {time.hour.toString().padStart(2, '0')}:{time.minute.toString().padStart(2, '0')}
+          <div>
+            <div className="world-shell__mode" style={{ color: currentMode.color }}>
+              {currentMode.nameEN}
+            </div>
+            <div className="world-shell__title">文明指挥台</div>
           </div>
         </div>
-        <div className="header-right">
-          <button className="icon-btn" onClick={onOpenEightChars} aria-label="八字命理">🎯</button>
-          <button className="icon-btn" onClick={onOpenChat} aria-label="聊天">💬</button>
-          <span className="fps-badge">{fps} FPS</span>
+
+        <div className="world-shell__time">
+          <strong>Y{time.year} / D{time.day}</strong>
+          <span>
+            {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}
+          </span>
+        </div>
+
+        <div className="world-shell__runtime">
+          <span>Boot</span>
+          <strong>{bootPhase}</strong>
+          <span>FPS</span>
+          <strong>{fps}</strong>
         </div>
       </header>
 
       {(warnings.resourceDepleted.length > 0 || warnings.criticalEntropy || warnings.populationZero) && (
-        <div className="global-warning-banner">
-          <div className="warning-content">
-            <span className="warning-icon">⚠️</span>
-            <div className="warning-messages">
-              {warnings.resourceDepleted.length > 0 && (
-                <span className="warning-text">资源耗尽: {warnings.resourceDepleted.join(', ')}</span>
-              )}
-              {warnings.criticalEntropy && (
-                <span className="warning-text critical">熵值已达临界点!</span>
-              )}
-              {warnings.populationZero && (
-                <span className="warning-text critical">文明灭绝!</span>
-              )}
-            </div>
-            <button className="warning-dismiss" onClick={() => gameStore.clearWarning('resourceDepleted')}>
-              ✕
-            </button>
-          </div>
+        <div className="world-shell__alert">
+          <span>System Alert</span>
+          <strong>
+            {warnings.criticalEntropy
+              ? 'Entropy is reaching a critical threshold.'
+              : warnings.populationZero
+                ? 'Population has collapsed.'
+                : `Resources depleted: ${warnings.resourceDepleted.join(', ')}`}
+          </strong>
+          <button type="button" onClick={() => gameStore.clearWarning('resourceDepleted')}>
+            Dismiss
+          </button>
         </div>
       )}
 
-      <main className="game-main">
-        <div className="epoch-display">
-          <span className="epoch-icon">⏳</span>
-          <span className="epoch-name" style={{ color: epochColor }}>{epoch}</span>
-        </div>
+      <main className="world-shell__content">
+        <section className="world-shell__hero">
+          <div className="world-shell__epoch">
+            <span>Epoch</span>
+            <strong style={{ color: EPOCH_COLORS[epoch] }}>{epoch}</strong>
+          </div>
+          <div className="world-shell__hero-copy">
+            <h1>文明正在被浏览器原生能力实时编排</h1>
+            <p>
+              这不是静态大屏，而是一套会根据设备能力、系统装载状态和世界演化结果持续重构自己的文明控制界面。
+            </p>
+          </div>
+          <div className="world-shell__hero-actions">
+            <button type="button" onClick={onOpenCitizen}>市民层</button>
+            <button type="button" onClick={onOpenDivine}>神谕层</button>
+            <button type="button" onClick={onOpenChat}>运行时对话</button>
+            <button type="button" onClick={onOpenEightChars}>命理系统</button>
+          </div>
+        </section>
 
-        {citizenStats.total === 0 && phase === 'running' ? (
-          <div className="empty-citizen-warning">
-            <div className="warning-icon">👥</div>
-            <div className="warning-title">文明尚未诞生</div>
-            <div className="warning-desc">使用神力创造第一批市民，开启你的文明之旅</div>
-            <button className="warning-action" onClick={onOpenDivine}>
-              ✨ 开启神力
-            </button>
-          </div>
-        ) : (
-          <div className="resource-overview">
-            <div className="resource-item">
-              <span className="resource-icon">👥</span>
-              <span className="resource-value">{citizenStats.total.toLocaleString()}</span>
-              <span className="resource-label">市民总数</span>
-            </div>
-            <div className="resource-item">
-              <span className="resource-icon">⚡</span>
-              <span className="resource-value" style={{ color: resources.coreEnergy < 100 ? '#ef4444' : undefined }}>
-                {resources.coreEnergy.toFixed(1)}
-              </span>
-              <span className="resource-label">核心能源</span>
-              {resources.coreEnergy < 100 && <span className="resource-alert">⚠️</span>}
-            </div>
-            <div className="resource-item">
-              <span className="resource-icon">🌡️</span>
-              <span className="resource-value" style={{ color: epochColor }}>{entropy.toFixed(1)}%</span>
-              <span className="resource-label">熵值</span>
-            </div>
-            <div className="resource-item">
-              <span className="resource-icon">💻</span>
-              <span className="resource-value">{resources.computeQuota.toFixed(0)}</span>
-              <span className="resource-label">算力</span>
-            </div>
-          </div>
-        )}
-
-        <div className="entropy-bar-container">
-          <div className="entropy-bar-label">宇宙熵值</div>
-          <div className="entropy-bar" role="progressbar" aria-valuenow={Math.round(entropy)} aria-valuemin={0} aria-valuemax={100}>
-            <div className="entropy-fill" style={{ width: `${entropy}%`, backgroundColor: epochColor }} />
-          </div>
-        </div>
-
-        <div className="emotion-overview">
-          <div className="emotion-item">
-            <span className="emotion-label">希望</span>
-            <div className="emotion-bar">
-              <div className="emotion-fill hope" style={{ width: `${emotion.hope}%` }} />
-            </div>
-            <span className="emotion-value">{emotion.hope.toFixed(0)}%</span>
-          </div>
-          <div className="emotion-item">
-            <span className="emotion-label">不满</span>
-            <div className="emotion-bar">
-              <div className="emotion-fill discontent" style={{ width: `${emotion.discontent}%` }} />
-            </div>
-            <span className="emotion-value">{emotion.discontent.toFixed(0)}%</span>
-          </div>
-          <div className="emotion-item">
-            <span className="emotion-label">暴乱风险</span>
-            <div className="emotion-bar">
-              <div className="emotion-fill rebellion" style={{ width: `${emotion.rebellionRisk}%` }} />
-            </div>
-            <span className="emotion-value">{emotion.rebellionRisk.toFixed(0)}%</span>
-          </div>
-        </div>
-
-        <div className="narrative-panel">
-          <div className="narrative-header">叙事日志</div>
-          <div className="narrative-list">
-            {narrative.slice(-5).reverse().map((item) => (
-              <div key={item.id} className={`narrative-item ${item.type}`}>
-                <span className="narrative-time">[{new Date(item.timestamp).toLocaleTimeString()}]</span>
-                <span className="narrative-text">{item.text}</span>
+        <section className="world-shell__grid">
+          <article className="world-shell__card">
+            <div className="world-shell__card-kicker">Civilization KPIs</div>
+            <div className="world-shell__stats">
+              <div>
+                <span>Citizens</span>
+                <strong>{citizenStats.total.toLocaleString()}</strong>
               </div>
-            ))}
-          </div>
-        </div>
+              <div>
+                <span>Core energy</span>
+                <strong>{resources.coreEnergy.toFixed(0)}</strong>
+              </div>
+              <div>
+                <span>Compute</span>
+                <strong>{resources.computeQuota.toFixed(0)}</strong>
+              </div>
+              <div>
+                <span>Entropy</span>
+                <strong>{entropy.toFixed(1)}%</strong>
+              </div>
+            </div>
+          </article>
 
-        <nav className="quick-panel">
-          <button className="quick-btn" onClick={onOpenCitizen}>👥 市民</button>
-          <button className="quick-btn" onClick={onOpenDivine}>✨ 神力</button>
-          <button className="quick-btn" onClick={() => gameStore.togglePanel('dao')}>📜 治理</button>
-          <button className="quick-btn" onClick={() => gameStore.togglePanel('resource')}>📊 资源</button>
-        </nav>
+          <article className="world-shell__card">
+            <div className="world-shell__card-kicker">Emotion Mesh</div>
+            <div className="world-shell__bars">
+              <div>
+                <label>Hope</label>
+                <progress value={emotion.hope} max={100} />
+                <span>{emotion.hope.toFixed(0)}%</span>
+              </div>
+              <div>
+                <label>Discontent</label>
+                <progress value={emotion.discontent} max={100} />
+                <span>{emotion.discontent.toFixed(0)}%</span>
+              </div>
+              <div>
+                <label>Rebellion risk</label>
+                <progress value={emotion.rebellionRisk} max={100} />
+                <span>{emotion.rebellionRisk.toFixed(0)}%</span>
+              </div>
+            </div>
+          </article>
+
+          <article className="world-shell__card">
+            <div className="world-shell__card-kicker">Runtime Health</div>
+            <div className="world-shell__stats">
+              <div>
+                <span>Ready systems</span>
+                <strong>{readySubsystems.length}</strong>
+              </div>
+              <div>
+                <span>Fallback paths</span>
+                <strong>{degradedSubsystems.length}</strong>
+              </div>
+              <div>
+                <span>World phase</span>
+                <strong>{phase}</strong>
+              </div>
+              <div>
+                <span>Mode focus</span>
+                <strong>{currentMode.focus}</strong>
+              </div>
+            </div>
+            <p className="world-shell__summary">
+              主舞台只展示战略级信号，完整能力图谱、子系统健康度和调试控制已收纳到系统观测台。
+            </p>
+          </article>
+
+          <article className="world-shell__card">
+            <div className="world-shell__card-kicker">Strategic Signals</div>
+            <div className="world-shell__console">
+              {criticalSignals.map((trace) => (
+                <div key={trace.id} className={`world-shell__console-item world-shell__console-item--${trace.severity}`}>
+                  <span>{trace.stage}</span>
+                  <strong>{trace.title}</strong>
+                  {trace.detail && <p>{trace.detail}</p>}
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="world-shell__card world-shell__card--wide">
+            <div className="world-shell__card-kicker">Narrative Stream</div>
+            <div className="world-shell__timeline">
+              {narrative.slice(-6).reverse().map((item) => (
+                <div key={item.id} className={`world-shell__console-item world-shell__console-item--${item.type}`}>
+                  <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                  <strong>{item.text}</strong>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
       </main>
 
       <style>{`
-        .game-view {
+        .world-shell {
           position: fixed;
           inset: 0;
           display: flex;
           flex-direction: column;
-          background: linear-gradient(135deg, rgba(10,10,18,0.85), rgba(20,20,40,0.85));
+          color: var(--text-primary);
+          z-index: 8;
+          background: linear-gradient(180deg, rgba(3, 9, 19, 0.56), rgba(3, 9, 19, 0.18));
+          backdrop-filter: blur(4px);
         }
-        .game-header {
-          display: flex;
+
+        .world-shell__topbar,
+        .world-shell__hero,
+        .world-shell__card,
+        .world-shell__alert {
+          border: 1px solid rgba(var(--accent-rgb), 0.14);
+          background: rgba(6, 14, 26, 0.78);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+          backdrop-filter: blur(16px);
+        }
+
+        .world-shell__topbar {
+          margin: 1rem;
+          padding: 0.95rem 1.1rem;
+          border-radius: 24px;
+          display: grid;
+          grid-template-columns: 1.5fr auto auto;
+          gap: 1rem;
           align-items: center;
-          justify-content: space-between;
-          padding: 1rem 1.5rem;
-          background: rgba(10,10,18,0.95);
-          border-bottom: 1px solid rgba(0,240,255,0.2);
-          z-index: 100;
         }
-        .header-left, .header-right { display: flex; align-items: center; gap: 0.75rem; }
-        .header-center { text-align: center; }
-        .header-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--color-primary); letter-spacing: 0.1em; }
-        .header-sub { font-size: 0.7rem; color: var(--color-text-muted); }
-        .mode-badge { font-weight: 600; font-size: 0.85rem; }
-        .icon-btn {
-          width: 36px; height: 36px;
-          display: flex; align-items: center; justify-content: center;
-          background: transparent; border: 1px solid rgba(0,240,255,0.2);
-          border-radius: 8px; color: var(--color-text-primary); cursor: pointer;
-          transition: all 0.2s;
-        }
-        .icon-btn:hover { background: rgba(0,240,255,0.1); border-color: var(--color-primary); }
-        .icon-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
-        .fps-badge {
-          font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-success);
-          background: rgba(16,185,129,0.1); padding: 0.25rem 0.5rem; border-radius: 4px;
-        }
-        .global-warning-banner {
-          background: linear-gradient(90deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
-          border-bottom: 1px solid rgba(239,68,68,0.3);
-          padding: 0.5rem 1rem;
-        }
-        .warning-content {
+
+        .world-shell__brand {
           display: flex;
+          gap: 1rem;
           align-items: center;
-          gap: 0.75rem;
-          max-width: 1200px;
-          margin: 0 auto;
         }
-        .warning-content .warning-icon {
-          font-size: 1.25rem;
-          margin-bottom: 0;
-          opacity: 1;
+
+        .world-shell__back {
+          border: 1px solid rgba(var(--accent-rgb), 0.18);
+          border-radius: 999px;
+          background: transparent;
+          color: var(--text-primary);
+          padding: 0.55rem 0.8rem;
+          cursor: pointer;
         }
-        .warning-messages {
+
+        .world-shell__mode {
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
+          margin-bottom: 0.3rem;
+        }
+
+        .world-shell__title {
+          font-family: var(--font-display);
+          font-size: 1.15rem;
+          letter-spacing: 0.08em;
+        }
+
+        .world-shell__time,
+        .world-shell__runtime {
+          display: grid;
+          grid-template-columns: repeat(2, auto);
+          gap: 0.35rem 0.8rem;
+          align-items: center;
+          font-family: var(--font-mono);
+        }
+
+        .world-shell__time span,
+        .world-shell__runtime span {
+          color: var(--text-muted);
+          font-size: 0.74rem;
+        }
+
+        .world-shell__alert {
+          margin: 0 1rem;
+          border-radius: 18px;
+          padding: 0.75rem 1rem;
+          display: flex;
+          gap: 0.9rem;
+          align-items: center;
+        }
+
+        .world-shell__alert button {
+          margin-left: auto;
+          border: 0;
+          background: transparent;
+          color: var(--text-primary);
+          cursor: pointer;
+        }
+
+        .world-shell__content {
           flex: 1;
+          overflow: auto;
+          padding: 0 1rem 1rem;
+        }
+
+        .world-shell__hero {
+          border-radius: 28px;
+          padding: 1.2rem;
+          margin-bottom: 1rem;
+        }
+
+        .world-shell__epoch span,
+        .world-shell__card-kicker {
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: var(--text-muted);
+          margin-bottom: 0.35rem;
+          display: block;
+        }
+
+        .world-shell__epoch strong {
+          font-family: var(--font-display);
+          font-size: 1.5rem;
+          letter-spacing: 0.08em;
+        }
+
+        .world-shell__hero-copy h1 {
+          margin: 0.7rem 0 0.5rem;
+          font-size: clamp(1.6rem, 4.2vw, 3rem);
+          max-width: 15ch;
+        }
+
+        .world-shell__hero-copy p,
+        .world-shell__summary {
+          margin: 0;
+          max-width: 58ch;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        .world-shell__hero-actions {
           display: flex;
           flex-wrap: wrap;
-          gap: 0.5rem;
+          gap: 0.7rem;
+          margin-top: 1rem;
         }
-        .warning-text {
-          font-size: 0.8rem;
-          color: #fbbf24;
-          padding: 0.25rem 0.5rem;
-          background: rgba(251,191,36,0.1);
-          border-radius: 4px;
-        }
-        .warning-text.critical {
-          color: #ef4444;
-          background: rgba(239,68,68,0.1);
-          font-weight: 600;
-        }
-        .warning-dismiss {
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-          border: 1px solid rgba(239,68,68,0.3);
-          border-radius: 4px;
-          color: #ef4444;
+
+        .world-shell__hero-actions button {
+          border: 1px solid rgba(var(--accent-rgb), 0.18);
+          border-radius: 999px;
+          padding: 0.7rem 0.95rem;
+          background: rgba(var(--accent-rgb), 0.08);
+          color: var(--text-primary);
           cursor: pointer;
-          font-size: 0.75rem;
-          transition: all 0.2s;
         }
-        .warning-dismiss:hover {
-          background: rgba(239,68,68,0.2);
+
+        .world-shell__grid {
+          display: grid;
+          grid-template-columns: repeat(12, minmax(0, 1fr));
+          gap: 1rem;
         }
-        .game-main {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          padding: 1.5rem;
-          overflow-y: auto;
-          z-index: 10;
+
+        .world-shell__card {
+          grid-column: span 6;
+          border-radius: 24px;
+          padding: 1rem;
         }
-        .epoch-display {
-          display: flex; align-items: center; justify-content: center;
-          gap: 0.75rem; margin-bottom: 1.5rem;
+
+        .world-shell__card--wide {
+          grid-column: span 12;
         }
-        .epoch-icon { font-size: 2rem; }
-        .epoch-name {
-          font-family: var(--font-display); font-size: 1.75rem;
-          letter-spacing: 0.15em; text-shadow: 0 0 20px currentColor;
+
+        .world-shell__stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 0.75rem;
+          margin-top: 0.8rem;
         }
-        .resource-overview {
-          display: grid; grid-template-columns: repeat(4, 1fr);
-          gap: 1rem; margin-bottom: 1.5rem;
+
+        .world-shell__stats div,
+        .world-shell__console-item {
+          border-radius: 18px;
+          background: rgba(11, 22, 40, 0.74);
+          border: 1px solid rgba(var(--accent-rgb), 0.08);
+          padding: 0.85rem;
         }
-        .resource-item {
-          display: flex; flex-direction: column; align-items: center;
-          gap: 0.25rem; padding: 1rem;
-          background: rgba(10,10,18,0.8);
-          border: 1px solid rgba(0,240,255,0.15); border-radius: 12px;
-          position: relative;
+
+        .world-shell__stats span,
+        .world-shell__console-item span {
+          display: block;
+          font-size: 0.72rem;
+          color: var(--text-muted);
+          margin-bottom: 0.3rem;
         }
-        .resource-icon { font-size: 1.5rem; }
-        .resource-value { font-family: var(--font-mono); font-size: 1.25rem; font-weight: 600; }
-        .resource-label { font-size: 0.7rem; color: var(--color-text-muted); }
-        .resource-alert {
-          position: absolute; top: 0.5rem; right: 0.5rem;
-          animation: pulse 1s ease-in-out infinite;
+
+        .world-shell__stats strong,
+        .world-shell__console-item strong {
+          font-family: var(--font-mono);
         }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
+
+        .world-shell__bars {
+          display: grid;
+          gap: 0.7rem;
+          margin-top: 0.8rem;
         }
-        .empty-citizen-warning {
-          display: flex; flex-direction: column; align-items: center;
-          justify-content: center; padding: 2rem; margin-bottom: 1.5rem;
-          background: rgba(10,10,18,0.8);
-          border: 1px dashed rgba(0,240,255,0.3); border-radius: 12px;
-          text-align: center;
+
+        .world-shell__bars div {
+          display: grid;
+          grid-template-columns: 110px 1fr auto;
+          gap: 0.7rem;
+          align-items: center;
         }
-        .warning-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-        .warning-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--color-primary); margin-bottom: 0.5rem; }
-        .warning-desc { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1rem; }
-        .warning-action {
-          padding: 0.75rem 1.5rem; background: rgba(0,240,255,0.1);
-          border: 1px solid var(--color-primary); border-radius: 8px;
-          color: var(--color-primary); font-size: 0.9rem; cursor: pointer;
-          transition: all 0.2s;
+
+        .world-shell__bars label,
+        .world-shell__bars span {
+          color: var(--text-secondary);
         }
-        .warning-action:hover { background: rgba(0,240,255,0.2); }
-        .entropy-bar-container { margin-bottom: 1rem; }
-        .entropy-bar-label { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.5rem; }
-        .entropy-bar {
-          height: 8px; background: rgba(255,255,255,0.1);
-          border-radius: 4px; overflow: hidden;
+
+        .world-shell__bars progress {
+          width: 100%;
+          height: 7px;
         }
-        .entropy-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
-        .emotion-overview {
-          display: grid; grid-template-columns: repeat(3, 1fr);
-          gap: 0.75rem; margin-bottom: 1rem;
+
+        .world-shell__console,
+        .world-shell__timeline {
+          display: grid;
+          gap: 0.75rem;
+          margin-top: 0.85rem;
         }
-        .emotion-item {
-          display: flex; align-items: center; gap: 0.5rem;
-          font-size: 0.75rem;
+
+        .world-shell__console-item p {
+          margin: 0.35rem 0 0;
+          color: var(--text-secondary);
+          line-height: 1.5;
         }
-        .emotion-label { width: 50px; color: var(--color-text-muted); }
-        .emotion-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-        .emotion-fill { height: 100%; transition: width 0.3s ease; }
-        .emotion-fill.hope { background: var(--color-emotion-hope); }
-        .emotion-fill.discontent { background: var(--color-emotion-discontent); }
-        .emotion-fill.rebellion { background: var(--color-emotion-rebellion); }
-        .emotion-value { width: 35px; text-align: right; font-family: var(--font-mono); }
-        .narrative-panel {
-          flex: 1; min-height: 150px; margin-bottom: 1rem;
-          background: rgba(10,10,18,0.6); border: 1px solid rgba(0,240,255,0.1);
-          border-radius: 8px; overflow: hidden;
+
+        .world-shell__console-item--warning {
+          border-color: rgba(255, 214, 0, 0.24);
         }
-        .narrative-header {
-          padding: 0.5rem 1rem; background: rgba(0,240,255,0.05);
-          border-bottom: 1px solid rgba(0,240,255,0.1);
-          font-size: 0.75rem; color: var(--color-text-muted);
+
+        .world-shell__console-item--error {
+          border-color: rgba(255, 56, 103, 0.28);
         }
-        .narrative-list { padding: 0.5rem; max-height: 120px; overflow-y: auto; }
-        .narrative-item { display: flex; gap: 0.5rem; padding: 0.25rem 0; font-size: 0.75rem; }
-        .narrative-time { color: var(--color-text-muted); font-family: var(--font-mono); }
-        .narrative-text { color: var(--color-text-secondary); }
-        .narrative-item.event .narrative-text { color: var(--color-primary); }
-        .narrative-item.achievement .narrative-text { color: var(--color-rarity-cosmic); }
-        .narrative-item.divine .narrative-text { color: var(--color-rarity-mythic); }
-        .quick-panel {
-          display: flex; gap: 0.5rem; padding-top: 1rem;
-          border-top: 1px solid rgba(0,240,255,0.1);
-        }
-        .quick-btn {
-          flex: 1; padding: 0.75rem; background: transparent;
-          border: 1px solid rgba(0,240,255,0.2); border-radius: 8px;
-          color: var(--color-text-secondary); font-size: 0.85rem; cursor: pointer;
-          transition: all 0.2s;
-        }
-        .quick-btn:hover, .quick-btn:focus-visible {
-          background: rgba(0,240,255,0.1); border-color: var(--color-primary);
-          color: var(--color-primary);
-        }
-        .quick-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
-        @media (max-width: 768px) {
-          .resource-overview { grid-template-columns: repeat(2, 1fr); }
-          .emotion-overview { grid-template-columns: 1fr; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .icon-btn, .warning-action, .quick-btn {
-            transition: none !important;
+
+        @media (max-width: 1024px) {
+          .world-shell__card {
+            grid-column: span 12;
           }
-          .resource-alert {
-            animation: none !important;
+
+          .world-shell__topbar {
+            grid-template-columns: 1fr;
           }
-          .entropy-fill, .emotion-fill {
-            transition: none !important;
+        }
+
+        @media (max-width: 720px) {
+          .world-shell__bars div {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>

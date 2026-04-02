@@ -25,3 +25,5 @@ wasm/pkg/
 rustup-init.exe
 wasm-pack-init.exe
 vs_buildtools.exe
+
+.vercel

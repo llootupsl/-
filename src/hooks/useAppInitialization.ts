@@ -1,32 +1,46 @@
-/**
- * =============================================================================
- * 应用初始化 Hook - 增强版
- * 支持详细步骤跟踪、进度百分比、错误重试
- * 集成友好的错误提示和上报机制
- * =============================================================================
- */
-
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { logger } from '@/core/utils/Logger';
-import { audioEngine, SoundType } from '@/audio/AudioEngine';
-import { initWasm, wasmQuantum, wasmSNN, wasmPathFinder } from '@/wasm/WasmBridge';
-import { citizenManager } from '@/citizen/CitizenManager';
-import { LLMManager, LLMProvider } from '@/ai/LLMBridge';
-import { divineInterventionSystem } from '@/game/DivineInterventionSystem';
-import { webgpuContext } from '@/rendering/WebGPUContext';
-import { systemIntegrator } from '@/core/SystemIntegrator';
-import { economicSystemBinder } from '@/core/economy/EconomicSystemBinder';
-import { backgroundSync } from '@/sw/BackgroundSync';
-import { syncEmotionToUI } from '@/ui/EmotionSync';
-import { useGameStore } from '@/store/gameStore';
 import { toast } from '@/stores/toastStore';
-import { errorReporter, ErrorCategory } from '@/utils/ErrorReporter';
-import { eventCleanupManager } from '@/core/EventCleanupManager';
-import type { LoadingStep, LoadingStepStatus } from '@/ui/components/LoadingScreen';
+import { errorReporter, type ErrorCategory } from '@/utils/ErrorReporter';
+import { buildCapabilityProfile, type CapabilityProfile } from '@/runtime/capabilities';
+import {
+  patchSubsystem,
+  pushRuntimeTrace,
+  resetRuntimeStore,
+  setBootPhase,
+  setCapabilityProfile,
+  upsertSubsystem,
+  useRuntimeStore,
+  type RuntimeTraceEvent,
+  type SubsystemSnapshot,
+} from '@/runtime/runtimeStore';
+import type { LoadingStep } from '@/ui/components/LoadingScreen';
 import type { EntityId } from '@/core/types';
 
+type AudioModule = typeof import('@/audio/AudioEngine');
+type WasmModule = typeof import('@/wasm/WasmBridge');
+type CitizenModule = typeof import('@/citizen/CitizenManager');
+type EconomyModule = typeof import('@/core/economy/EconomicSystemBinder');
+type DivineModule = typeof import('@/game/DivineInterventionSystem');
+type BackgroundSyncModule = typeof import('@/sw/BackgroundSync');
+type EmotionSyncModule = typeof import('@/ui/EmotionSync');
+type GameStoreModule = typeof import('@/store/gameStore');
+type IntegratorModule = typeof import('@/core/SystemIntegrator');
+
+type StepId =
+  | 'profile'
+  | 'audio'
+  | 'wasm'
+  | 'citizen'
+  | 'economy'
+  | 'divine'
+  | 'kernel'
+  | 'integrations'
+  | 'sync'
+  | 'experience';
+
 export interface InitializationError {
-  stepId: string;
+  stepId: StepId | 'unknown';
   stepName: string;
   message: string;
   friendlyMessage: string;
@@ -42,547 +56,664 @@ export interface InitializationState {
   error: InitializationError | null;
   steps: LoadingStep[];
   isRetrying: boolean;
+  capabilityProfile: CapabilityProfile | null;
+  runtimeEvents: RuntimeTraceEvent[];
+  runtimeSubsystems: Record<string, SubsystemSnapshot>;
+  retry: () => Promise<void>;
 }
 
-interface StepConfig {
-  id: string;
+interface StepDefinition {
+  id: StepId;
   name: string;
   description: string;
   weight: number;
   category: ErrorCategory;
-  action: () => Promise<void>;
+  recoverable: boolean;
+  source: SubsystemSnapshot['source'];
+  group: SubsystemSnapshot['group'];
 }
 
-const FRIENDLY_ERROR_MESSAGES: Record<string, { message: string; suggestion: string; recoverable: boolean }> = {
-  audio: {
-    message: '音频系统初始化失败，游戏可能没有声音。',
-    suggestion: '请检查您的音频设备，或尝试刷新页面。',
+const STEP_DEFINITIONS: StepDefinition[] = [
+  {
+    id: 'profile',
+    name: 'Capability Graph',
+    description: 'Probe the browser and build the runtime capability map.',
+    weight: 8,
+    category: 'initialization',
+    recoverable: false,
+    source: 'native',
+    group: 'boot',
+  },
+  {
+    id: 'audio',
+    name: 'Audio Engine',
+    description: 'Warm up the audio graph and spatial sound layer.',
+    weight: 8,
+    category: 'audio',
     recoverable: true,
+    source: 'native',
+    group: 'experience',
+  },
+  {
+    id: 'wasm',
+    name: 'WASM Kernel',
+    description: 'Load the simulation accelerators for compute-heavy systems.',
+    weight: 14,
+    category: 'wasm',
+    recoverable: false,
+    source: 'native',
+    group: 'boot',
+  },
+  {
+    id: 'citizen',
+    name: 'Citizen Runtime',
+    description: 'Prime the citizen manager and world seed state.',
+    weight: 12,
+    category: 'citizen',
+    recoverable: false,
+    source: 'native',
+    group: 'simulation',
+  },
+  {
+    id: 'economy',
+    name: 'Economy Binder',
+    description: 'Hydrate resource flows and systemic feedback bindings.',
+    weight: 10,
+    category: 'economy',
+    recoverable: true,
+    source: 'native',
+    group: 'simulation',
+  },
+  {
+    id: 'divine',
+    name: 'Divine Layer',
+    description: 'Prepare intervention and observation systems.',
+    weight: 8,
+    category: 'governance',
+    recoverable: true,
+    source: 'native',
+    group: 'simulation',
+  },
+  {
+    id: 'kernel',
+    name: 'World Kernel',
+    description: 'Warm the main simulation store without entering the world.',
+    weight: 10,
+    category: 'initialization',
+    recoverable: false,
+    source: 'native',
+    group: 'simulation',
+  },
+  {
+    id: 'integrations',
+    name: 'Immersive Integrations',
+    description: 'Preflight browser-native subsystems and orchestration.',
+    weight: 18,
+    category: 'initialization',
+    recoverable: true,
+    source: 'native',
+    group: 'integration',
+  },
+  {
+    id: 'sync',
+    name: 'Background Sync',
+    description: 'Prepare local-first persistence and background settlement.',
+    weight: 5,
+    category: 'storage',
+    recoverable: true,
+    source: 'native',
+    group: 'integration',
+  },
+  {
+    id: 'experience',
+    name: 'UI Experience',
+    description: 'Sync visual telemetry and final boot-shell state.',
+    weight: 7,
+    category: 'rendering',
+    recoverable: true,
+    source: 'native',
+    group: 'experience',
+  },
+];
+
+const DEFAULT_STEPS: LoadingStep[] = STEP_DEFINITIONS.map((step) => ({
+  id: step.id,
+  name: step.name,
+  description: step.description,
+  status: 'pending',
+  progress: 0,
+}));
+
+const FRIENDLY_ERRORS: Record<
+  StepId | 'unknown',
+  Pick<InitializationError, 'friendlyMessage' | 'suggestion' | 'recoverable' | 'category'>
+> = {
+  profile: {
+    friendlyMessage: '能力探测阶段失败，无法可靠决定浏览器的运行路径。',
+    suggestion: '请刷新页面或更换兼容性更好的浏览器后重试。',
+    recoverable: false,
+    category: 'initialization',
+  },
+  audio: {
+    friendlyMessage: '音频引擎启动失败，系统会退回到静音模式。',
+    suggestion: '检查浏览器音频权限，或稍后在系统状态面板中再次激活。',
+    recoverable: true,
+    category: 'audio',
   },
   wasm: {
-    message: '核心计算模块加载失败，部分功能可能受限。',
-    suggestion: '请确保您的浏览器支持WebAssembly，或尝试刷新页面。',
+    friendlyMessage: 'WASM 核心没有就绪，主仿真内核无法安全启动。',
+    suggestion: '请使用支持 WebAssembly 的现代浏览器并刷新页面。',
     recoverable: false,
+    category: 'wasm',
   },
   citizen: {
-    message: '市民系统初始化失败，无法创建游戏世界。',
-    suggestion: '请刷新页面重试，如果问题持续请联系我们。',
+    friendlyMessage: '市民运行时未能完成初始化，世界内核无法创建。',
+    suggestion: '刷新页面后重试；如果问题持续，请清理缓存后再启动。',
     recoverable: false,
-  },
-  observation: {
-    message: '观测系统初始化失败。',
-    suggestion: '请刷新页面重试。',
-    recoverable: true,
-  },
-  ai: {
-    message: 'AI系统初始化失败，智能对话功能可能受限。',
-    suggestion: '您可以继续游戏，但AI对话可能无法使用。',
-    recoverable: true,
+    category: 'citizen',
   },
   economy: {
-    message: '经济系统初始化失败，资源管理可能异常。',
-    suggestion: '请刷新页面重试。',
+    friendlyMessage: '经济绑定层没有完全就绪，部分系统反馈将自动降级。',
+    suggestion: '你仍可进入世界，稍后可在运行时观测面板检查回退原因。',
     recoverable: true,
-  },
-  dao: {
-    message: '治理系统初始化失败。',
-    suggestion: '请刷新页面重试。',
-    recoverable: true,
-  },
-  tech: {
-    message: '科技树系统初始化失败。',
-    suggestion: '请刷新页面重试。',
-    recoverable: true,
-  },
-  social: {
-    message: '社交网络系统初始化失败。',
-    suggestion: '请刷新页面重试。',
-    recoverable: true,
-  },
-  genome: {
-    message: '基因系统初始化失败。',
-    suggestion: '请刷新页面重试。',
-    recoverable: true,
+    category: 'economy',
   },
   divine: {
-    message: '神力系统初始化失败。',
-    suggestion: '请刷新页面重试。',
+    friendlyMessage: '神力层初始化失败，部分干预功能将暂时降级。',
+    suggestion: '进入世界后可再次尝试启用，或重新加载页面。',
     recoverable: true,
+    category: 'governance',
   },
-  system: {
-    message: '系统集成失败，游戏可能无法正常运行。',
-    suggestion: '请刷新页面重试，如果问题持续请检查浏览器兼容性。',
+  kernel: {
+    friendlyMessage: '世界内核没有准备完成，无法安全进入主场景。',
+    suggestion: '请重试初始化，若仍失败请检查本地存储和浏览器权限。',
     recoverable: false,
+    category: 'initialization',
+  },
+  integrations: {
+    friendlyMessage: '部分沉浸式浏览器能力不可用，系统将自动切换到降级路径。',
+    suggestion: '这不会阻止启动，但你可以在系统观测面板查看详细原因。',
+    recoverable: true,
+    category: 'initialization',
   },
   sync: {
-    message: '后台同步服务初始化失败。',
-    suggestion: '您可以继续游戏，但数据可能无法自动同步。',
+    friendlyMessage: '后台同步层初始化失败，系统将回退到手动唤醒同步。',
+    suggestion: '进入世界后仍可正常运行，只是后台结算不会自动注册。',
     recoverable: true,
+    category: 'storage',
+  },
+  experience: {
+    friendlyMessage: '视觉同步层初始化失败，UI 将回落到基础主题状态。',
+    suggestion: '进入世界后可以刷新页面再次尝试同步主题。',
+    recoverable: true,
+    category: 'rendering',
+  },
+  unknown: {
+    friendlyMessage: '初始化流程遇到了未预期的问题。',
+    suggestion: '请刷新页面重试，如果持续发生请检查浏览器兼容性。',
+    recoverable: false,
+    category: 'unknown',
   },
 };
 
-const DEFAULT_STEPS: LoadingStep[] = [
-  { id: 'audio', name: '音频引擎', description: '初始化 Web Audio API', status: 'pending', progress: 0 },
-  { id: 'wasm', name: 'WASM 核心', description: '编译量子/SNN/寻路模块', status: 'pending', progress: 0 },
-  { id: 'citizen', name: '市民系统', description: '初始化市民管理器', status: 'pending', progress: 0 },
-  { id: 'observation', name: '观测系统', description: '初始化观测值系统', status: 'pending', progress: 0 },
-  { id: 'ai', name: 'AI 引擎', description: '初始化 LLM 管理器', status: 'pending', progress: 0 },
-  { id: 'economy', name: '经济系统', description: '初始化资源与市场', status: 'pending', progress: 0 },
-  { id: 'dao', name: 'DAO 治理', description: '初始化去中心化治理', status: 'pending', progress: 0 },
-  { id: 'tech', name: '科技树', description: '初始化科技研究系统', status: 'pending', progress: 0 },
-  { id: 'social', name: '社会网络', description: '初始化 GNN 社交网络', status: 'pending', progress: 0 },
-  { id: 'genome', name: '基因系统', description: '初始化基因组管理器', status: 'pending', progress: 0 },
-  { id: 'divine', name: '神力系统', description: '初始化神力干预系统', status: 'pending', progress: 0 },
-  { id: 'system', name: '系统集成', description: '初始化系统集成器', status: 'pending', progress: 0 },
-  { id: 'sync', name: '后台同步', description: '初始化后台同步服务', status: 'pending', progress: 0 },
-];
+function cloneSteps(): LoadingStep[] {
+  return DEFAULT_STEPS.map((step) => ({ ...step }));
+}
+
+function getStepById(stepId: StepId): StepDefinition {
+  const step = STEP_DEFINITIONS.find((candidate) => candidate.id === stepId);
+  if (!step) {
+    throw new Error(`Unknown initialization step: ${stepId}`);
+  }
+  return step;
+}
+
+function createSubsystem(step: StepDefinition): SubsystemSnapshot {
+  return {
+    id: step.id,
+    label: step.name,
+    group: step.group,
+    state: 'idle',
+    source: step.source,
+    detail: step.description,
+    updatedAt: Date.now(),
+  };
+}
+
+function calculateTotalProgress(steps: LoadingStep[]): number {
+  const totalWeight = STEP_DEFINITIONS.reduce((sum, step) => sum + step.weight, 0);
+  const progress = steps.reduce((sum, step) => {
+    const definition = getStepById(step.id as StepId);
+    if (step.status === 'success') {
+      return sum + definition.weight;
+    }
+
+    if (step.status === 'loading') {
+      return sum + definition.weight * (step.progress / 100);
+    }
+
+    return sum;
+  }, 0);
+
+  return Math.round((progress / totalWeight) * 100);
+}
+
+function toInitializationError(stepId: StepId | 'unknown', stepName: string, error: Error): InitializationError {
+  const friendly = FRIENDLY_ERRORS[stepId] ?? FRIENDLY_ERRORS.unknown;
+
+  return {
+    stepId,
+    stepName,
+    message: error.message,
+    friendlyMessage: friendly.friendlyMessage,
+    suggestion: friendly.suggestion,
+    recoverable: friendly.recoverable,
+    category: friendly.category,
+  };
+}
+
+function isInitializationError(error: unknown): error is InitializationError {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  const candidate = error as Partial<InitializationError>;
+  return typeof candidate.stepId === 'string' && typeof candidate.message === 'string';
+}
 
 export function useAppInitialization() {
-  const [state, setState] = useState<InitializationState>({
+  const capabilityProfile = useRuntimeStore((state) => state.capabilityProfile);
+  const runtimeEvents = useRuntimeStore((state) => state.traces);
+  const runtimeSubsystems = useRuntimeStore((state) => state.subsystems);
+
+  const [state, setState] = useState<Omit<InitializationState, 'capabilityProfile' | 'runtimeEvents' | 'runtimeSubsystems' | 'retry'>>({
     progress: 0,
-    status: '正在初始化...',
+    status: 'Preparing boot shell...',
     isComplete: false,
     error: null,
-    steps: DEFAULT_STEPS.map(s => ({ ...s })),
+    steps: cloneSteps(),
     isRetrying: false,
   });
 
-  const gameStore = useGameStore();
-  const isInitializedRef = useRef(false);
+  const initializedRef = useRef(false);
+  const modulesRef = useRef<{
+    audio: AudioModule | null;
+    citizen: CitizenModule | null;
+    economy: EconomyModule | null;
+    experience: EmotionSyncModule | null;
+    sync: BackgroundSyncModule | null;
+    integrator: IntegratorModule | null;
+  }>({
+    audio: null,
+    citizen: null,
+    economy: null,
+    experience: null,
+    sync: null,
+    integrator: null,
+  });
 
-  const updateStep = useCallback((stepId: string, updates: Partial<LoadingStep>) => {
-    setState(prev => ({
-      ...prev,
-      steps: prev.steps.map(step => 
-        step.id === stepId ? { ...step, ...updates } : step
-      ),
-    }));
+  const updateStep = useCallback((stepId: StepId, patch: Partial<LoadingStep>) => {
+    setState((prev) => {
+      const steps = prev.steps.map((step) =>
+        step.id === stepId ? { ...step, ...patch } : step,
+      );
+
+      return {
+        ...prev,
+        steps,
+        progress: calculateTotalProgress(steps),
+      };
+    });
   }, []);
 
-  const updateProgress = useCallback((stepId: string, progress: number) => {
-    updateStep(stepId, { progress: Math.round(progress) });
+  const beginStep = useCallback((stepId: StepId) => {
+    const step = getStepById(stepId);
+    updateStep(stepId, { status: 'loading', progress: 5 });
+    upsertSubsystem({
+      ...createSubsystem(step),
+      state: 'loading',
+      source: step.source,
+      detail: step.description,
+    });
+    pushRuntimeTrace({
+      stage: 'boot',
+      severity: 'info',
+      title: `${step.name} started`,
+      detail: step.description,
+      subsystemId: step.id,
+    });
+    setState((prev) => ({
+      ...prev,
+      status: `Booting ${step.name}...`,
+    }));
   }, [updateStep]);
 
-  const calculateTotalProgress = useCallback((steps: LoadingStep[]): number => {
-    const weights: Record<string, number> = {
-      audio: 8,
-      wasm: 12,
-      citizen: 10,
-      observation: 6,
-      ai: 10,
-      economy: 10,
-      dao: 8,
-      tech: 8,
-      social: 8,
-      genome: 6,
-      divine: 6,
-      system: 5,
-      sync: 3,
-    };
+  const completeStep = useCallback((
+    stepId: StepId,
+    detail: string,
+    options: { state?: SubsystemSnapshot['state']; source?: SubsystemSnapshot['source'] } = {},
+  ) => {
+    updateStep(stepId, { status: 'success', progress: 100, error: undefined });
+    patchSubsystem(stepId, {
+      state: options.state ?? 'ready',
+      source: options.source,
+      detail,
+    });
+    pushRuntimeTrace({
+      stage: 'boot',
+      severity: options.state === 'degraded' ? 'warning' : 'success',
+      title: `${getStepById(stepId).name} ready`,
+      detail,
+      subsystemId: stepId,
+    });
+  }, [updateStep]);
 
-    let totalWeight = 0;
-    let completedWeight = 0;
+  const failStep = useCallback((stepId: StepId, error: Error) => {
+    const initError = toInitializationError(stepId, getStepById(stepId).name, error);
+    updateStep(stepId, { status: 'error', progress: 100, error: error.message });
+    patchSubsystem(stepId, {
+      state: initError.recoverable ? 'degraded' : 'error',
+      source: initError.recoverable ? 'fallback' : 'simulation',
+      detail: initError.friendlyMessage,
+    });
+    pushRuntimeTrace({
+      stage: 'boot',
+      severity: initError.recoverable ? 'warning' : 'error',
+      title: `${getStepById(stepId).name} failed`,
+      detail: initError.friendlyMessage,
+      subsystemId: stepId,
+    });
+    return initError;
+  }, [updateStep]);
 
-    for (const step of steps) {
-      const weight = weights[step.id] || 5;
-      totalWeight += weight;
-      
-      if (step.status === 'success') {
-        completedWeight += weight;
-      } else if (step.status === 'loading') {
-        completedWeight += weight * (step.progress / 100);
-      }
+  const loadAudioModule = useCallback(async () => {
+    if (!modulesRef.current.audio) {
+      modulesRef.current.audio = await import('@/audio/AudioEngine');
     }
 
-    return totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+    return modulesRef.current.audio;
   }, []);
 
-  const createInitializationError = useCallback((
-    stepId: string,
-    stepName: string,
-    originalError: Error
-  ): InitializationError => {
-    const friendlyInfo = FRIENDLY_ERROR_MESSAGES[stepId] || {
-      message: `${stepName}初始化失败。`,
-      suggestion: '请刷新页面重试。',
-      recoverable: true,
-    };
+  const loadCitizenModule = useCallback(async () => {
+    if (!modulesRef.current.citizen) {
+      modulesRef.current.citizen = await import('@/citizen/CitizenManager');
+    }
 
-    return {
-      stepId,
-      stepName,
-      message: originalError.message,
-      friendlyMessage: friendlyInfo.message,
-      category: stepId as ErrorCategory,
-      recoverable: friendlyInfo.recoverable,
-      suggestion: friendlyInfo.suggestion,
-    };
+    return modulesRef.current.citizen;
+  }, []);
+
+  const loadEconomyModule = useCallback(async () => {
+    if (!modulesRef.current.economy) {
+      modulesRef.current.economy = await import('@/core/economy/EconomicSystemBinder');
+    }
+
+    return modulesRef.current.economy;
+  }, []);
+
+  const loadExperienceModule = useCallback(async () => {
+    if (!modulesRef.current.experience) {
+      modulesRef.current.experience = await import('@/ui/EmotionSync');
+    }
+
+    return modulesRef.current.experience;
+  }, []);
+
+  const loadSyncModule = useCallback(async () => {
+    if (!modulesRef.current.sync) {
+      modulesRef.current.sync = await import('@/sw/BackgroundSync');
+    }
+
+    return modulesRef.current.sync;
+  }, []);
+
+  const loadIntegratorModule = useCallback(async () => {
+    if (!modulesRef.current.integrator) {
+      modulesRef.current.integrator = await import('@/core/SystemIntegrator');
+    }
+
+    return modulesRef.current.integrator;
   }, []);
 
   const initialize = useCallback(async () => {
-    if (isInitializedRef.current && !state.isRetrying) return;
-    
-    isInitializedRef.current = true;
-    setState(prev => ({ 
-      ...prev, 
-      isRetrying: false,
+    if (initializedRef.current && !state.isRetrying) {
+      return;
+    }
+
+    initializedRef.current = true;
+    resetRuntimeStore();
+    setBootPhase('probing');
+    setState({
+      progress: 0,
+      status: 'Preparing boot shell...',
+      isComplete: false,
       error: null,
-      steps: DEFAULT_STEPS.map(s => ({ ...s, status: 'pending', progress: 0 })),
-    }));
-
-    const steps: StepConfig[] = [
-      {
-        id: 'audio',
-        name: '音频引擎',
-        description: '初始化 Web Audio API',
-        weight: 8,
-        category: 'audio',
-        action: async () => {
-          updateStep('audio', { status: 'loading', progress: 0 });
-          for (let i = 0; i <= 100; i += 20) {
-            updateProgress('audio', i);
-            await new Promise(r => setTimeout(r, 50));
-          }
-          await audioEngine.init();
-          updateStep('audio', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'wasm',
-        name: 'WASM 核心',
-        description: '编译量子/SNN/寻路模块',
-        weight: 12,
-        category: 'wasm',
-        action: async () => {
-          updateStep('wasm', { status: 'loading', progress: 0 });
-          updateProgress('wasm', 10);
-          const wasmReady = await initWasm();
-          updateProgress('wasm', 50);
-          if (wasmReady) {
-            wasmQuantum.init(16);
-            updateProgress('wasm', 65);
-            wasmSNN.init(256, 64);
-            updateProgress('wasm', 80);
-            wasmPathFinder.init(100, 100);
-            updateProgress('wasm', 95);
-          }
-          updateStep('wasm', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'citizen',
-        name: '市民系统',
-        description: '初始化市民管理器',
-        weight: 10,
-        category: 'citizen',
-        action: async () => {
-          updateStep('citizen', { status: 'loading', progress: 0 });
-          updateProgress('citizen', 20);
-          await citizenManager.init('world-1' as EntityId);
-          updateProgress('citizen', 80);
-          await new Promise(r => setTimeout(r, 100));
-          updateStep('citizen', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'observation',
-        name: '观测系统',
-        description: '初始化观测值系统',
-        weight: 6,
-        category: 'unknown',
-        action: async () => {
-          updateStep('observation', { status: 'loading', progress: 0 });
-          await new Promise(r => setTimeout(r, 100));
-          updateStep('observation', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'ai',
-        name: 'AI 引擎',
-        description: '初始化 LLM 管理器',
-        weight: 10,
-        category: 'unknown',
-        action: async () => {
-          updateStep('ai', { status: 'loading', progress: 0 });
-          updateProgress('ai', 20);
-          const llm = LLMManager.getInstance({ provider: 'mock' as LLMProvider });
-          updateProgress('ai', 50);
-          await llm.init();
-          updateProgress('ai', 90);
-          updateStep('ai', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'economy',
-        name: '经济系统',
-        description: '初始化资源与市场',
-        weight: 10,
-        category: 'economy',
-        action: async () => {
-          updateStep('economy', { status: 'loading', progress: 0 });
-          updateProgress('economy', 20);
-          economicSystemBinder.initResources([
-            { id: 'food', type: 'food', amount: 1000, productionRate: 10, consumptionRate: 5, price: 1.0 },
-            { id: 'materials', type: 'materials', amount: 500, productionRate: 5, consumptionRate: 3, price: 2.0 },
-            { id: 'energy', type: 'energy', amount: 2000, productionRate: 20, consumptionRate: 15, price: 0.5 },
-            { id: 'technology', type: 'technology', amount: 100, productionRate: 1, consumptionRate: 0.5, price: 5.0 },
-            { id: 'culture', type: 'culture', amount: 50, productionRate: 0.5, consumptionRate: 0.2, price: 10.0 },
-          ]);
-          updateProgress('economy', 60);
-          
-          economicSystemBinder.on('economicEvent', (event: { type: string; details: Record<string, unknown> }) => {
-            const messages: Record<string, string> = {
-              'crisis': `经济危机：${event.details.resource}`,
-              'boom': `经济繁荣：${event.details.resource}`,
-              'shortage': `资源短缺：${event.details.resource}`,
-            };
-            gameStore.addNarrative(messages[event.type] || '经济事件', 'event');
-          });
-
-          economicSystemBinder.on('shortage', (resource: string) => {
-            gameStore.addNarrative(`警告：${resource} 供应不足`, 'event');
-          });
-          
-          updateProgress('economy', 90);
-          updateStep('economy', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'dao',
-        name: 'DAO 治理',
-        description: '初始化去中心化治理',
-        weight: 8,
-        category: 'governance',
-        action: async () => {
-          updateStep('dao', { status: 'loading', progress: 0 });
-          await new Promise(r => setTimeout(r, 80));
-          updateStep('dao', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'tech',
-        name: '科技树',
-        description: '初始化科技研究系统',
-        weight: 8,
-        category: 'unknown',
-        action: async () => {
-          updateStep('tech', { status: 'loading', progress: 0 });
-          await new Promise(r => setTimeout(r, 80));
-          updateStep('tech', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'social',
-        name: '社会网络',
-        description: '初始化 GNN 社交网络',
-        weight: 8,
-        category: 'unknown',
-        action: async () => {
-          updateStep('social', { status: 'loading', progress: 0 });
-          await new Promise(r => setTimeout(r, 80));
-          updateStep('social', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'genome',
-        name: '基因系统',
-        description: '初始化基因组管理器',
-        weight: 6,
-        category: 'citizen',
-        action: async () => {
-          updateStep('genome', { status: 'loading', progress: 0 });
-          await new Promise(r => setTimeout(r, 80));
-          updateStep('genome', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'divine',
-        name: '神力系统',
-        description: '初始化神力干预系统',
-        weight: 6,
-        category: 'unknown',
-        action: async () => {
-          updateStep('divine', { status: 'loading', progress: 0 });
-          updateProgress('divine', 30);
-          divineInterventionSystem.init();
-          updateProgress('divine', 90);
-          updateStep('divine', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'system',
-        name: '系统集成',
-        description: '初始化系统集成器',
-        weight: 5,
-        category: 'unknown',
-        action: async () => {
-          updateStep('system', { status: 'loading', progress: 0 });
-          try {
-            const device = webgpuContext.getDevice();
-            if (device) {
-              updateProgress('system', 30);
-              await systemIntegrator.init(device);
-              updateProgress('system', 80);
-            }
-          } catch (err) {
-            logger.warn('AppInit', 'SystemIntegrator init failed', err as Error);
-          }
-          
-          citizenManager.on('citizenBorn', (citizen: { id: string; needs: Record<string, unknown> }) => {
-            economicSystemBinder.handleGameStateChange({
-              source: 'population',
-              type: 'citizenBorn',
-              data: { id: citizen.id, needs: citizen.needs },
-              economicImpact: 0.1,
-            });
-          });
-
-          citizenManager.on('citizenDied', (citizenId: string) => {
-            economicSystemBinder.handleGameStateChange({
-              source: 'population',
-              type: 'citizenDied',
-              data: { id: citizenId },
-              economicImpact: -0.1,
-            });
-          });
-          
-          updateStep('system', { status: 'success', progress: 100 });
-        },
-      },
-      {
-        id: 'sync',
-        name: '后台同步',
-        description: '初始化后台同步服务',
-        weight: 3,
-        category: 'storage',
-        action: async () => {
-          updateStep('sync', { status: 'loading', progress: 0 });
-          try {
-            updateProgress('sync', 30);
-            await backgroundSync.init();
-            updateProgress('sync', 60);
-            void backgroundSync.registerPeriodicSync().catch((err) => {
-              logger.warn('AppInit', 'Periodic sync registration failed', err as Error);
-            });
-            updateProgress('sync', 90);
-          } catch (err) {
-            logger.warn('AppInit', 'BackgroundSync init failed', err as Error);
-          }
-          updateStep('sync', { status: 'success', progress: 100 });
-        },
-      },
-    ];
+      steps: cloneSteps(),
+      isRetrying: false,
+    });
 
     try {
-      for (const step of steps) {
-        setState(prev => ({
-          ...prev,
-          status: `正在${step.name.toLowerCase()}...`,
-        }));
-        
-        try {
-          await step.action();
-        } catch (err) {
-          const error = err instanceof Error ? err : new Error(String(err));
-          
-          errorReporter.report(error, step.category, {
-            type: 'error',
-            title: `${step.name}初始化失败`,
-            additionalData: { stepId: step.id },
-          });
+      beginStep('profile');
+      const profile = buildCapabilityProfile();
+      setCapabilityProfile(profile);
+      completeStep(
+        'profile',
+        `${Object.values(profile.capabilities).filter((item) => item.supported).length} browser-native paths available.`,
+      );
+      setBootPhase('hydrating');
 
-          const initError = createInitializationError(step.id, step.name, error);
-          
-          updateStep(step.id, { 
-            status: 'error', 
-            error: error.message,
-          });
-
-          toast.error(`${step.name}初始化失败`, initError.friendlyMessage);
-
-          if (!initError.recoverable) {
-            throw initError;
-          }
-          
-          logger.warn('AppInit', `${step.name}初始化失败，但可继续: ${error.message}`);
-        }
+      beginStep('audio');
+      try {
+        const audioModule = await loadAudioModule();
+        await audioModule.audioEngine.init();
+        updateStep('audio', { progress: 80 });
+        completeStep('audio', 'Spatial audio graph is warm and ready.');
+      } catch (error) {
+        const initError = failStep('audio', error instanceof Error ? error : new Error(String(error)));
+        logger.warn('AppInit', initError.message);
       }
 
-      syncEmotionToUI(0.5, 0.2, 0.3);
+      beginStep('wasm');
+      {
+        const wasmModule: WasmModule = await import('@/wasm/WasmBridge');
+        updateStep('wasm', { progress: 35 });
+        const ready = await wasmModule.initWasm();
+        if (!ready) {
+          throw new Error('WASM bridge reported unavailable.');
+        }
+        wasmModule.wasmQuantum.init(16);
+        updateStep('wasm', { progress: 70 });
+        wasmModule.wasmSNN.init(256, 64);
+        wasmModule.wasmPathFinder.init(100, 100);
+        completeStep('wasm', 'Quantum, SNN and pathfinding kernels are active.');
+      }
 
-      setState(prev => ({
+      beginStep('citizen');
+      {
+        const citizenModule = await loadCitizenModule();
+        updateStep('citizen', { progress: 55 });
+        await citizenModule.citizenManager.init('world-boot' as EntityId);
+        completeStep('citizen', 'Citizen runtime seeded for the world kernel.');
+      }
+
+      beginStep('economy');
+      try {
+        const economyModule = await loadEconomyModule();
+        economyModule.economicSystemBinder.initResources([
+          { id: 'food', type: 'food', amount: 1000, productionRate: 10, consumptionRate: 5, price: 1 },
+          { id: 'materials', type: 'materials', amount: 650, productionRate: 6, consumptionRate: 3, price: 2 },
+          { id: 'energy', type: 'energy', amount: 1800, productionRate: 16, consumptionRate: 11, price: 0.8 },
+          { id: 'technology', type: 'technology', amount: 120, productionRate: 1.25, consumptionRate: 0.45, price: 5 },
+        ]);
+        completeStep('economy', 'Economic feedback loops are hydrated with fallback-safe resources.');
+      } catch (error) {
+        const initError = failStep('economy', error instanceof Error ? error : new Error(String(error)));
+        logger.warn('AppInit', initError.message);
+      }
+
+      beginStep('divine');
+      try {
+        const divineModule: DivineModule = await import('@/game/DivineInterventionSystem');
+        divineModule.divineInterventionSystem.init();
+        completeStep('divine', 'Observation and intervention layer is standing by.');
+      } catch (error) {
+        const initError = failStep('divine', error instanceof Error ? error : new Error(String(error)));
+        logger.warn('AppInit', initError.message);
+      }
+
+      beginStep('kernel');
+      {
+        const kernelModule: GameStoreModule = await import('@/store/gameStore');
+        if (!kernelModule.useGameStore?.getState) {
+          throw new Error('World kernel store is not available.');
+        }
+        completeStep('kernel', 'World kernel store is warmed without entering the simulation.');
+      }
+
+      beginStep('integrations');
+      try {
+        const integratorModule = await loadIntegratorModule();
+        await integratorModule.systemIntegrator.init(undefined);
+        const stats = integratorModule.systemIntegrator.getStats();
+        completeStep(
+          'integrations',
+          `${stats.activeSystems.length} immersive subsystems are already live; the rest will attach on demand.`,
+          {
+            state: stats.activeSystems.length > 0 ? 'ready' : 'degraded',
+            source: stats.activeSystems.length > 0 ? 'native' : 'fallback',
+          },
+        );
+      } catch (error) {
+        const initError = failStep(
+          'integrations',
+          error instanceof Error ? error : new Error(String(error)),
+        );
+        logger.warn('AppInit', initError.message);
+      }
+
+      beginStep('sync');
+      try {
+        const syncModule = await loadSyncModule();
+        await syncModule.backgroundSync.init();
+        updateStep('sync', { progress: 70 });
+        void syncModule.backgroundSync.registerPeriodicSync();
+        completeStep('sync', 'Background settlement is registered with an adaptive fallback strategy.', {
+          state: profile.capabilities.periodicSync.supported ? 'ready' : 'degraded',
+          source: profile.capabilities.periodicSync.supported ? 'native' : 'fallback',
+        });
+      } catch (error) {
+        const initError = failStep('sync', error instanceof Error ? error : new Error(String(error)));
+        logger.warn('AppInit', initError.message);
+      }
+
+      beginStep('experience');
+      try {
+        const [experienceModule, audioModule] = await Promise.all([
+          loadExperienceModule(),
+          loadAudioModule(),
+        ]);
+        experienceModule.syncEmotionToUI(0.58, 0.22, 0.18);
+        updateStep('experience', { progress: 85 });
+        audioModule.audioEngine.play(audioModule.SoundType.NOTIFICATION);
+        completeStep('experience', 'Boot shell theme synchronized with runtime telemetry.');
+      } catch (error) {
+        const initError = failStep(
+          'experience',
+          error instanceof Error ? error : new Error(String(error)),
+        );
+        logger.warn('AppInit', initError.message);
+      }
+
+      setBootPhase('ready');
+      pushRuntimeTrace({
+        stage: 'boot',
+        severity: 'success',
+        title: 'Boot shell complete',
+        detail: 'The world kernel is ready to enter the simulation.',
+      });
+      toast.success('启动完成', '文明内核已经准备就绪。');
+
+      setState((prev) => ({
         ...prev,
         progress: 100,
-        status: '准备就绪...',
+        status: 'World kernel standing by...',
         isComplete: true,
         error: null,
       }));
-      
-      audioEngine.play(SoundType.NOTIFICATION);
-      toast.success('初始化完成', '欢迎来到永夜熵纪');
-
     } catch (error) {
-      logger.error('AppInit', '初始化失败', error instanceof Error ? error : new Error(String(error)));
-      
-      const initError = error instanceof Error 
-        ? createInitializationError('unknown', '未知', error)
-        : error as InitializationError;
-      
-      errorReporter.report(
-        initError.message,
-        initError.category,
-        { type: 'critical', title: '应用初始化失败' }
-      );
+      setBootPhase('error');
+      const initError = isInitializationError(error)
+        ? error
+        : toInitializationError(
+            'unknown',
+            'Unknown step',
+            error instanceof Error ? error : new Error(String(error)),
+          );
 
-      setState(prev => ({
+      const reportableError =
+        error instanceof Error
+          ? error
+          : new Error(initError.message);
+      errorReporter.report(reportableError, initError.category, {
+        type: 'critical',
+        title: `${initError.stepName} boot failed`,
+        additionalData: { stepId: initError.stepId },
+      });
+
+      pushRuntimeTrace({
+        stage: 'boot',
+        severity: 'error',
+        title: 'Boot shell halted',
+        detail: initError.friendlyMessage,
+        subsystemId: initError.stepId,
+      });
+
+      logger.error('AppInit', 'Initialization failed', reportableError);
+      toast.error('启动失败', initError.suggestion);
+
+      setState((prev) => ({
         ...prev,
-        status: '初始化失败',
+        status: 'Boot shell halted',
         isComplete: false,
         error: initError,
         isRetrying: false,
       }));
-
-      toast.error('初始化失败', initError.suggestion);
     }
-  }, [gameStore, state.isRetrying, updateStep, updateProgress, createInitializationError]);
+  }, [
+    beginStep,
+    completeStep,
+    failStep,
+    loadAudioModule,
+    loadCitizenModule,
+    loadEconomyModule,
+    loadExperienceModule,
+    loadIntegratorModule,
+    loadSyncModule,
+    state.isRetrying,
+    updateStep,
+  ]);
 
   const retry = useCallback(async () => {
-    setState(prev => ({
+    initializedRef.current = false;
+    setState((prev) => ({
       ...prev,
       isRetrying: true,
       error: null,
+      status: 'Retrying boot shell...',
     }));
-    
-    isInitializedRef.current = false;
     await initialize();
   }, [initialize]);
 
   useEffect(() => {
-    initialize();
+    void initialize();
   }, [initialize]);
 
-  useEffect(() => {
-    setState(prev => ({
-      ...prev,
-      progress: calculateTotalProgress(prev.steps),
-    }));
-  }, [state.steps, calculateTotalProgress]);
-
-  useEffect(() => {
-    return () => {
-      citizenManager.removeAllListeners('citizenBorn');
-      citizenManager.removeAllListeners('citizenDied');
-      economicSystemBinder.removeAllListeners('economicEvent');
-      economicSystemBinder.removeAllListeners('shortage');
-      const cleanedCount = eventCleanupManager.cleanupAll();
-      logger.debug('AppInit', `Cleaned up event listeners: ${cleanedCount}`);
-    };
-  }, []);
-
-  return { 
-    ...state, 
+  return useMemo<InitializationState>(() => ({
+    ...state,
+    capabilityProfile,
+    runtimeEvents,
+    runtimeSubsystems,
     retry,
-  };
+  }), [capabilityProfile, retry, runtimeEvents, runtimeSubsystems, state]);
 }
 
 export default useAppInitialization;

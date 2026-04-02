@@ -1,12 +1,8 @@
-/**
- * WebGPU 渲染画布组件
- */
-import React, { useRef, useEffect } from 'react';
-import { webGPURenderer } from '@/rendering/WebGPURenderer';
-import { citizenManager } from '@/citizen';
+import React, { useEffect, useRef } from 'react';
 import { PerformanceMode } from '@/core/constants/PerformanceMode';
-import { ModeConfig, AppPerformanceMode } from './ModeSelect';
+import type { AppPerformanceMode, ModeConfig } from './ModeSelect';
 import { logger } from '@/core/utils/Logger';
+import { pushRuntimeTrace } from '@/runtime/runtimeStore';
 
 function toSystemMode(appMode: AppPerformanceMode): PerformanceMode {
   const map: Record<AppPerformanceMode, PerformanceMode> = {
@@ -15,6 +11,7 @@ function toSystemMode(appMode: AppPerformanceMode): PerformanceMode {
     balanced: PerformanceMode.BALANCED,
     eco: PerformanceMode.ECO,
   };
+
   return map[appMode];
 }
 
@@ -23,48 +20,26 @@ export interface WebGPUCanvasProps {
   isActive: boolean;
 }
 
+type RendererModule = typeof import('@/rendering/WebGPURenderer');
+type CitizenModule = typeof import('@/citizen/CitizenManager');
+type IntegratorModule = typeof import('@/core/SystemIntegrator');
+
 export const WebGPUCanvas: React.FC<WebGPUCanvasProps> = ({ mode, isActive }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
-  const initializedRef = useRef(false);
+  const rendererModuleRef = useRef<RendererModule | null>(null);
+  const integratorModuleRef = useRef<IntegratorModule | null>(null);
 
   useEffect(() => {
-    if (!isActive || !canvasRef.current || initializedRef.current) return;
+    if (!isActive || !canvasRef.current) {
+      return;
+    }
 
-    let initialized = false;
+    let disposed = false;
 
-    const initAndRender = async () => {
-      if (initialized) return;
-      
-      const success = await webGPURenderer.init(canvasRef.current!);
-      if (success) {
-        initialized = true;
-        initializedRef.current = true;
-        webGPURenderer.setPerformanceMode(toSystemMode(mode.id));
-        
-        const citizens = citizenManager.getAll().slice(0, 1000).map(c => ({
-          id: c.id,
-          position: c.position.world,
-          lodLevel: c.getLODLevel(),
-          visible: true,
-          energy: c.state.energy,
-          health: c.state.health,
-          mood: c.state.mood,
-          neuralActivity: c.getAverageFiringRate(),
-        }));
-        webGPURenderer.setCitizens(citizens);
-        
-        lastTimeRef.current = performance.now();
-        render();
-      } else {
-        logger.warn('WebGPUCanvas', 'WebGPU 初始化失败');
-      }
-    };
-
-    const render = () => {
-      if (!initialized) {
-        initAndRender();
+    const renderFrame = () => {
+      if (disposed || !rendererModuleRef.current) {
         return;
       }
 
@@ -72,21 +47,77 @@ export const WebGPUCanvas: React.FC<WebGPUCanvasProps> = ({ mode, isActive }) =>
       const deltaTime = now - lastTimeRef.current;
       lastTimeRef.current = now;
 
-      webGPURenderer.render(deltaTime);
-
-      rafRef.current = requestAnimationFrame(render);
+      rendererModuleRef.current.webGPURenderer.render(deltaTime);
+      rafRef.current = requestAnimationFrame(renderFrame);
     };
 
-    initAndRender();
+    const bootRenderer = async () => {
+      const [rendererModule, citizenModule, integratorModule] = await Promise.all([
+        import('@/rendering/WebGPURenderer'),
+        import('@/citizen/CitizenManager'),
+        import('@/core/SystemIntegrator'),
+      ]);
+
+      if (disposed || !canvasRef.current) {
+        return;
+      }
+
+      rendererModuleRef.current = rendererModule;
+      integratorModuleRef.current = integratorModule;
+
+      const renderer = rendererModule.webGPURenderer;
+      const initialized = renderer.isInitialized() || (await renderer.init(canvasRef.current));
+
+      if (!initialized) {
+        logger.warn('WebGPUCanvas', 'Renderer initialization failed.');
+        pushRuntimeTrace({
+          stage: 'world',
+          severity: 'warning',
+          title: 'Renderer degraded',
+          detail: 'WebGPU renderer could not initialize and fell back to the shell.',
+          subsystemId: 'gi',
+        });
+        return;
+      }
+
+      renderer.setPerformanceMode(toSystemMode(mode.id));
+      renderer.setCitizens(
+        citizenModule.citizenManager.getAll().slice(0, 1000).map((citizen) => ({
+          id: citizen.id,
+          position: citizen.position.world,
+          lodLevel: citizen.getLODLevel(),
+          visible: citizen.visible,
+          energy: citizen.state.energy,
+          health: citizen.state.health,
+          mood: citizen.state.mood,
+          neuralActivity: citizen.getAverageFiringRate(),
+        })),
+      );
+
+      const device = renderer.getDevice();
+      if (device && !integratorModule.systemIntegrator.getStats().initialized) {
+        await integratorModule.systemIntegrator.init(device);
+      }
+
+      lastTimeRef.current = performance.now();
+      pushRuntimeTrace({
+        stage: 'world',
+        severity: 'success',
+        title: 'World renderer online',
+        detail: `Mode ${mode.nameEN} is driving the live canvas.`,
+        subsystemId: 'gi',
+      });
+      rafRef.current = requestAnimationFrame(renderFrame);
+    };
+
+    void bootRenderer();
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(rafRef.current);
-      if (initialized) {
-        webGPURenderer.dispose();
-        initializedRef.current = false;
-      }
+      rendererModuleRef.current?.webGPURenderer.dispose();
     };
-  }, [isActive, mode.id]);
+  }, [isActive, mode.id, mode.nameEN]);
 
   return (
     <canvas

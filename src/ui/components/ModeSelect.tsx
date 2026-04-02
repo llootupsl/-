@@ -1,9 +1,5 @@
-/**
- * 模式选择组件
- * 优化版：用户友好描述 + 设备性能检测 + 推荐模式
- */
-import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
-import { isLabFeatureEnabled } from '@/core/config/FeatureFlags';
+import React, { useCallback, useMemo, useRef } from 'react';
+import type { CapabilityProfile } from '@/runtime/capabilities';
 
 export type AppPerformanceMode = 'apex' | 'extreme' | 'balanced' | 'eco';
 
@@ -13,69 +9,46 @@ export interface ModeConfig {
   nameEN: string;
   desc: string;
   color: string;
-  userFriendlyDesc: string;
-  deviceRequirement: string;
-  performanceLevel: string;
-  visualEffect: string;
-  recommended?: boolean;
-}
-
-export interface DevicePerformance {
-  level: 'high' | 'medium' | 'low';
-  score: number;
-  cpuCores: number;
-  memoryGB: number;
-  hasWebGPU: boolean;
-  hasWebGL: boolean;
-  gpuVendor: string;
-  deviceType: 'desktop' | 'mobile' | 'tablet';
+  focus: string;
+  payoff: string;
 }
 
 export const MODES: ModeConfig[] = [
   {
     id: 'apex',
-    nameCN: '神之领域',
+    nameCN: '神谕映射',
     nameEN: 'APEX',
-    desc: '超越物理极限，解锁宇宙法则',
+    desc: '最大化 WebGPU、沉浸式整合与运行时观测层，让浏览器应用看起来像一台正在演化的文明引擎。',
     color: 'var(--color-mode-apex)',
-    userFriendlyDesc: '适合顶级硬件设备',
-    deviceRequirement: '需要高端显卡与充足内存',
-    performanceLevel: '极致流畅',
-    visualEffect: '全特效 + 光线追踪',
+    focus: '旗舰视觉 + 全能力编排',
+    payoff: '适合高性能桌面设备与演示场景',
   },
   {
     id: 'extreme',
-    nameCN: '极致性能',
+    nameCN: '极限编排',
     nameEN: 'EXTREME',
-    desc: '压榨硬件潜能，追求极致体验',
+    desc: '保留高强度沉浸路径，同时更强调动态装载、热路径控制与稳定帧率之间的平衡。',
     color: 'var(--color-mode-extreme)',
-    userFriendlyDesc: '适合高性能设备',
-    deviceRequirement: '推荐独立显卡',
-    performanceLevel: '超流畅',
-    visualEffect: '高级特效',
+    focus: '动态装载 + 性能压榨',
+    payoff: '适合现代桌面与中高配笔记本',
   },
   {
     id: 'balanced',
-    nameCN: '均衡模式',
+    nameCN: '均衡主线',
     nameEN: 'BALANCED',
-    desc: '性能与体验的完美平衡',
+    desc: '真实能力优先，自动降级完整且可解释，是大多数设备上的旗舰默认方案。',
     color: 'var(--color-mode-balanced)',
-    userFriendlyDesc: '适合主流设备',
-    deviceRequirement: '普通电脑即可运行',
-    performanceLevel: '流畅',
-    visualEffect: '标准特效',
-    recommended: true,
+    focus: '体验与稳定并重',
+    payoff: '适合绝大多数设备',
   },
   {
     id: 'eco',
-    nameCN: '节能模式',
+    nameCN: '低耗生存',
     nameEN: 'ECO',
-    desc: '降低资源占用，延长设备寿命',
+    desc: '优先保证连续性、兼容性和能耗占用，让文明内核在轻设备上也能优雅运转。',
     color: 'var(--color-mode-eco)',
-    userFriendlyDesc: '适合低配设备或笔记本',
-    deviceRequirement: '低功耗运行',
-    performanceLevel: '省电优先',
-    visualEffect: '基础特效',
+    focus: '兼容性 + 连续运行',
+    payoff: '适合移动端和低配设备',
   },
 ];
 
@@ -84,293 +57,131 @@ export interface ModeSelectProps {
   onSelect: (mode: AppPerformanceMode) => void;
   onStart: () => void;
   currentMode: ModeConfig;
+  capabilityProfile?: CapabilityProfile | null;
 }
 
-function detectDevicePerformance(): DevicePerformance {
-  const ua = navigator.userAgent;
-  
-  const cpuCores = navigator.hardwareConcurrency || 4;
-  
-  const memoryGB = navigator.deviceMemory 
-    ? navigator.deviceMemory 
-    : Math.round((performance as Performance & { memory?: { jsHeapSizeLimit: number } }).memory?.jsHeapSizeLimit / 1e9) || 8;
-
-  const hasWebGPU = 'gpu' in navigator;
-
-  const canvas = document.createElement('canvas');
-  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl') as WebGLRenderingContext | null;
-  const hasWebGL = !!gl;
-
-  let gpuVendor = 'Unknown';
-  if (gl) {
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-    if (debugInfo) {
-      gpuVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || 'Unknown';
-    }
-  }
-
-  let deviceType: 'desktop' | 'mobile' | 'tablet' = 'desktop';
-  if (/mobile|android|iphone/i.test(ua)) {
-    deviceType = 'mobile';
-  } else if (/tablet|ipad/i.test(ua)) {
-    deviceType = 'tablet';
-  }
-
-  let score = 0;
-  score += Math.min(cpuCores * 10, 40);
-  score += Math.min(memoryGB * 5, 30);
-  if (hasWebGPU) score += 20;
-  if (hasWebGL) score += 10;
-  if (deviceType === 'desktop') score += 10;
-  if (gpuVendor.toLowerCase().includes('nvidia') || 
-      gpuVendor.toLowerCase().includes('amd') ||
-      gpuVendor.toLowerCase().includes('radeon')) {
-    score += 15;
-  }
-
-  let level: 'high' | 'medium' | 'low';
-  if (score >= 80) {
-    level = 'high';
-  } else if (score >= 50) {
-    level = 'medium';
-  } else {
-    level = 'low';
-  }
-
-  return {
-    level,
-    score,
-    cpuCores,
-    memoryGB,
-    hasWebGPU,
-    hasWebGL,
-    gpuVendor,
-    deviceType,
-  };
+function getRecommendedMode(profile?: CapabilityProfile | null): AppPerformanceMode {
+  return profile?.device.recommendedMode ?? 'balanced';
 }
 
-function getRecommendedMode(performance: DevicePerformance): AppPerformanceMode {
-  switch (performance.level) {
-    case 'high':
-      return 'extreme';
-    case 'medium':
-      return 'balanced';
-    case 'low':
-      return 'eco';
-  }
-}
-
-const ModePreview: React.FC<{ mode: ModeConfig; isActive: boolean }> = ({ mode, isActive }) => {
-  const particleCount = useMemo(() => {
-    switch (mode.id) {
-      case 'apex': return 50;
-      case 'extreme': return 35;
-      case 'balanced': return 20;
-      case 'eco': return 10;
-    }
-  }, [mode.id]);
-
-  return (
-    <div className={`mode-preview ${isActive ? 'active' : ''}`}>
-      <div className="preview-particles">
-        {Array.from({ length: particleCount }).map((_, i) => (
-          <div
-            key={i}
-            className="preview-particle"
-            style={{
-              '--delay': `${Math.random() * 3}s`,
-              '--x': `${Math.random() * 100}%`,
-              '--y': `${Math.random() * 100}%`,
-              '--size': `${2 + Math.random() * 4}px`,
-              '--color': mode.color,
-            } as React.CSSProperties}
-          />
-        ))}
-      </div>
-      <div className="preview-glow" style={{ background: mode.color }} />
-    </div>
-  );
-};
-
-const DeviceInfo: React.FC<{ performance: DevicePerformance }> = ({ performance }) => {
-  const levelText = {
-    high: '高性能',
-    medium: '中等性能',
-    low: '基础性能',
-  };
-
-  const levelColor = {
-    high: 'var(--color-hope)',
-    medium: 'var(--color-energy)',
-    low: 'var(--color-unrest)',
-  };
-
-  return (
-    <div className="device-info-panel">
-      <div className="device-info-header">
-        <span className="device-info-icon">⚡</span>
-        <span className="device-info-title">设备性能检测</span>
-      </div>
-      <div className="device-info-content">
-        <div className="device-info-row">
-          <span className="device-info-label">性能等级</span>
-          <span 
-            className="device-info-value" 
-            style={{ color: levelColor[performance.level] }}
-          >
-            {levelText[performance.level]}
-          </span>
-        </div>
-        <div className="device-info-row">
-          <span className="device-info-label">CPU 核心</span>
-          <span className="device-info-value">{performance.cpuCores} 核</span>
-        </div>
-        <div className="device-info-row">
-          <span className="device-info-label">内存</span>
-          <span className="device-info-value">{performance.memoryGB} GB</span>
-        </div>
-        <div className="device-info-row">
-          <span className="device-info-label">WebGPU</span>
-          <span className="device-info-value">
-            {performance.hasWebGPU ? '✓ 支持' : '✗ 不支持'}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const RecommendedBadge: React.FC = () => (
-  <div className="recommended-badge">
-    <span className="recommended-icon">★</span>
-    <span className="recommended-text">推荐</span>
-  </div>
-);
-
-export const ModeSelect: React.FC<ModeSelectProps> = ({ selectedMode, onSelect, onStart, currentMode }) => {
+export const ModeSelect: React.FC<ModeSelectProps> = ({
+  selectedMode,
+  onSelect,
+  onStart,
+  currentMode,
+  capabilityProfile,
+}) => {
   const gridRef = useRef<HTMLDivElement>(null);
-  const [devicePerformance, setDevicePerformance] = useState<DevicePerformance | null>(null);
-  const [recommendedMode, setRecommendedMode] = useState<AppPerformanceMode>('balanced');
-  const availableModes = useMemo(() => {
-    const apexEnabled = isLabFeatureEnabled('extremeStress_4_8');
-    return MODES.filter((mode) => {
-      if (mode.id === 'apex') {
-        return apexEnabled;
+  const recommendedMode = getRecommendedMode(capabilityProfile);
+
+  const capabilityHighlights = useMemo(() => {
+    if (!capabilityProfile) {
+      return [];
+    }
+
+    return Object.values(capabilityProfile.capabilities)
+      .filter((capability) => capability.supported)
+      .slice(0, 6);
+  }, [capabilityProfile]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent, mode: AppPerformanceMode, index: number) => {
+      let nextIndex = index;
+
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          nextIndex = (index + 1) % MODES.length;
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          nextIndex = (index - 1 + MODES.length) % MODES.length;
+          break;
+        case 'Enter':
+        case ' ':
+          event.preventDefault();
+          onSelect(mode);
+          return;
+        default:
+          return;
       }
-      return true;
-    });
-  }, []);
 
-  useEffect(() => {
-    const performance = detectDevicePerformance();
-    setDevicePerformance(performance);
-    const autoRecommended = getRecommendedMode(performance);
-    const recommended = availableModes.some((mode) => mode.id === autoRecommended)
-      ? autoRecommended
-      : 'balanced';
-    setRecommendedMode(recommended);
-    
-    if (!sessionStorage.getItem('modeSelected')) {
-      onSelect(recommended);
-    }
-  }, [availableModes, onSelect]);
-
-  useEffect(() => {
-    if (!availableModes.some((mode) => mode.id === selectedMode)) {
-      onSelect('balanced');
-    }
-  }, [availableModes, onSelect, selectedMode]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, mode: AppPerformanceMode, index: number) => {
-    let nextIndex = index;
-    switch (e.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        nextIndex = (index + 1) % availableModes.length;
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        nextIndex = (index - 1 + availableModes.length) % availableModes.length;
-        break;
-      case 'Enter':
-      case ' ':
-        e.preventDefault();
-        onSelect(mode);
-        return;
-      default:
-        return;
-    }
-    e.preventDefault();
-    const buttons = gridRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]');
-    buttons?.[nextIndex]?.focus();
-  }, [availableModes.length, onSelect]);
-
-  const handleStart = useCallback(() => {
-    sessionStorage.setItem('modeSelected', 'true');
-    onStart();
-  }, [onStart]);
+      event.preventDefault();
+      const cards = gridRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]');
+      cards?.[nextIndex]?.focus();
+    },
+    [onSelect],
+  );
 
   return (
-    <div className="mode-select-screen">
-      <header className="mode-select-header">
-        <div>
-          <div className="header-title">OMNIS APIEN</div>
-          <p className="header-subtitle">选择你的性能模式</p>
-        </div>
-      </header>
+    <div className="mode-stage">
+      <section className="mode-stage__hero">
+        <div className="mode-stage__badge">Flagship Runtime Select</div>
+        <h1>选择文明主线策略</h1>
+        <p>
+          这不是单纯的画质开关，而是一套浏览器能力编排策略。每种模式共享同一个文明内核，
+          只是对沉浸演出、子系统装载强度和自动降级阈值有不同取舍。
+        </p>
 
-      {devicePerformance && (
-        <div className="recommendation-banner">
-          <span className="recommendation-icon">💡</span>
-          <span className="recommendation-text">
-            根据您的设备性能，推荐选择 
-            <strong style={{ color: availableModes.find(m => m.id === recommendedMode)?.color }}>
-              {availableModes.find(m => m.id === recommendedMode)?.nameCN}
-            </strong>
-            模式
-          </span>
+        <div className="mode-stage__metrics">
+          <div>
+            <span>Device tier</span>
+            <strong>{capabilityProfile?.device.level ?? '--'}</strong>
+          </div>
+          <div>
+            <span>Recommended</span>
+            <strong>{recommendedMode.toUpperCase()}</strong>
+          </div>
+          <div>
+            <span>GPU</span>
+            <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>
+          </div>
+          <div>
+            <span>Native paths</span>
+            <strong>{capabilityHighlights.length}</strong>
+          </div>
         </div>
-      )}
 
-      <div ref={gridRef} className="mode-grid" role="listbox" aria-label="性能模式选择" aria-activedescendant={`mode-${selectedMode}`}>
-        {availableModes.map((mode, index) => {
-          const isRecommended = mode.id === recommendedMode;
+        <div className="mode-stage__chips">
+          {capabilityHighlights.map((capability) => (
+            <span key={capability.id} className="mode-stage__chip">
+              {capability.label}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <div ref={gridRef} className="mode-stage__grid" role="listbox" aria-label="Performance modes">
+        {MODES.map((mode, index) => {
           const isSelected = selectedMode === mode.id;
-          
+          const isRecommended = recommendedMode === mode.id;
+
           return (
             <button
               key={mode.id}
               id={`mode-${mode.id}`}
-              className={`mode-card ${isSelected ? 'selected' : ''} ${isRecommended ? 'recommended' : ''}`}
-              onClick={() => onSelect(mode.id)}
-              onKeyDown={(e) => handleKeyDown(e, mode.id, index)}
+              type="button"
               role="option"
               aria-selected={isSelected}
-              tabIndex={isSelected ? 0 : -1}
-              style={{ '--mode-color': mode.color } as React.CSSProperties}
+              className={`mode-card ${isSelected ? 'mode-card--selected' : ''} ${isRecommended ? 'mode-card--recommended' : ''}`}
+              onClick={() => onSelect(mode.id)}
+              onKeyDown={(event) => handleKeyDown(event, mode.id, index)}
+              style={{ '--mode-accent': mode.color } as React.CSSProperties}
             >
-              <ModePreview mode={mode} isActive={isSelected} />
-              
-              {isRecommended && <RecommendedBadge />}
-              
-              <div className="mode-card-inner">
-                <div className="mode-name">{mode.nameCN}</div>
-                <div className="mode-name-en">{mode.nameEN}</div>
-                <div className="mode-desc">{mode.desc}</div>
-                
-                <div className="mode-user-info">
-                  <div className="mode-info-item">
-                    <span className="info-icon">📱</span>
-                    <span className="info-text">{mode.userFriendlyDesc}</span>
-                  </div>
-                  <div className="mode-info-item">
-                    <span className="info-icon">⚡</span>
-                    <span className="info-text">{mode.performanceLevel}</span>
-                  </div>
-                  <div className="mode-info-item">
-                    <span className="info-icon">✨</span>
-                    <span className="info-text">{mode.visualEffect}</span>
-                  </div>
+              <div className="mode-card__topline">
+                <span>{mode.nameEN}</span>
+                {isRecommended && <strong>Recommended</strong>}
+              </div>
+              <div className="mode-card__title">{mode.nameCN}</div>
+              <p className="mode-card__desc">{mode.desc}</p>
+              <div className="mode-card__meta">
+                <div>
+                  <span>Focus</span>
+                  <strong>{mode.focus}</strong>
+                </div>
+                <div>
+                  <span>Payoff</span>
+                  <strong>{mode.payoff}</strong>
                 </div>
               </div>
             </button>
@@ -378,17 +189,201 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({ selectedMode, onSelect, 
         })}
       </div>
 
-      {devicePerformance && <DeviceInfo performance={devicePerformance} />}
+      <div className="mode-stage__footer">
+        <div className="mode-stage__current">
+          <span>Current strategy</span>
+          <strong style={{ color: currentMode.color }}>{currentMode.nameCN}</strong>
+        </div>
+        <button type="button" className="mode-stage__start" onClick={onStart}>
+          Enter Civilization
+        </button>
+      </div>
 
-      <button
-        className="start-button"
-        onClick={handleStart}
-        style={{ '--btn-color': currentMode.color } as React.CSSProperties}
-        aria-label={`进入永夜熵纪，当前选择${currentMode.nameCN}模式`}
-      >
-        <span>进入永夜熵纪</span>
-        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z" /></svg>
-      </button>
+      <style>{`
+        .mode-stage {
+          min-height: 100%;
+          padding: 1.5rem;
+          display: grid;
+          gap: 1rem;
+          background:
+            radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.18), transparent 34%),
+            radial-gradient(circle at bottom right, rgba(255, 56, 103, 0.16), transparent 28%),
+            linear-gradient(180deg, #040913 0%, #050b14 100%);
+        }
+
+        .mode-stage__hero,
+        .mode-card,
+        .mode-stage__footer {
+          border-radius: 28px;
+          border: 1px solid rgba(var(--accent-rgb), 0.16);
+          background: rgba(6, 14, 26, 0.84);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+          backdrop-filter: blur(16px);
+        }
+
+        .mode-stage__hero {
+          padding: 1.4rem;
+        }
+
+        .mode-stage__badge {
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: var(--text-muted);
+          margin-bottom: 0.55rem;
+        }
+
+        .mode-stage__hero h1 {
+          margin: 0;
+          font-family: var(--font-display);
+          font-size: clamp(2rem, 6vw, 4rem);
+          letter-spacing: 0.08em;
+        }
+
+        .mode-stage__hero p {
+          max-width: 68ch;
+          color: var(--text-secondary);
+          line-height: 1.7;
+          margin-top: 0.85rem;
+        }
+
+        .mode-stage__metrics {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 0.8rem;
+          margin-top: 1rem;
+        }
+
+        .mode-stage__metrics div,
+        .mode-card__meta div {
+          border-radius: 18px;
+          background: rgba(11, 22, 40, 0.74);
+          padding: 0.85rem;
+        }
+
+        .mode-stage__metrics span,
+        .mode-card__meta span,
+        .mode-stage__current span {
+          display: block;
+          font-size: 0.72rem;
+          color: var(--text-muted);
+          margin-bottom: 0.3rem;
+        }
+
+        .mode-stage__metrics strong,
+        .mode-card__meta strong,
+        .mode-stage__current strong {
+          font-family: var(--font-mono);
+          font-size: 1rem;
+        }
+
+        .mode-stage__chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.55rem;
+          margin-top: 1rem;
+        }
+
+        .mode-stage__chip {
+          padding: 0.45rem 0.7rem;
+          border-radius: 999px;
+          background: rgba(var(--accent-rgb), 0.08);
+          border: 1px solid rgba(var(--accent-rgb), 0.14);
+          color: var(--text-secondary);
+          font-size: 0.78rem;
+        }
+
+        .mode-stage__grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .mode-card {
+          padding: 1rem;
+          text-align: left;
+          cursor: pointer;
+          transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .mode-card:hover,
+        .mode-card:focus-visible,
+        .mode-card--selected {
+          transform: translateY(-2px);
+          border-color: rgba(var(--accent-rgb), 0.3);
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-card__topline {
+          display: flex;
+          justify-content: space-between;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+          font-family: var(--font-mono);
+          font-size: 0.74rem;
+          text-transform: uppercase;
+          color: var(--text-muted);
+        }
+
+        .mode-card__topline strong {
+          color: var(--mode-accent);
+        }
+
+        .mode-card__title {
+          font-family: var(--font-display);
+          font-size: 1.35rem;
+          letter-spacing: 0.06em;
+          color: var(--mode-accent);
+          margin-bottom: 0.6rem;
+        }
+
+        .mode-card__desc {
+          min-height: 108px;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        .mode-card__meta {
+          display: grid;
+          gap: 0.7rem;
+          margin-top: 1rem;
+        }
+
+        .mode-stage__footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding: 1rem 1.2rem;
+        }
+
+        .mode-stage__start {
+          border: 1px solid rgba(var(--accent-rgb), 0.24);
+          border-radius: 999px;
+          padding: 0.85rem 1.25rem;
+          background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.18), rgba(255, 56, 103, 0.18));
+          color: var(--text-primary);
+          cursor: pointer;
+        }
+
+        @media (max-width: 1100px) {
+          .mode-stage__grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 720px) {
+          .mode-stage__grid {
+            grid-template-columns: 1fr;
+          }
+
+          .mode-stage__footer {
+            flex-direction: column;
+            align-items: stretch;
+          }
+        }
+      `}</style>
     </div>
   );
 };
