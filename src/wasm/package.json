@@ -1,0 +1,19 @@
+{
+  "name": "omnis-apien-wasm",
+  "type": "module",
+  "collaborators": [
+    "OMNIS APIEN Team"
+  ],
+  "description": "永夜熵纪 - 核心计算 WASM 模块",
+  "version": "1.0.0",
+  "files": [
+    "omnis_apien_wasm_bg.wasm",
+    "omnis_apien_wasm.js",
+    "omnis_apien_wasm.d.ts"
+  ],
+  "main": "omnis_apien_wasm.js",
+  "types": "omnis_apien_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

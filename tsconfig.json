@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "useUnknownInCatchVariables": true,
+
+    // 路径别名
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@core/*": ["src/core/*"],
+      "@storage/*": ["src/storage/*"],
+      "@warmup/*": ["src/warmup/*"],
+      "@bench/*": ["src/bench/*"],
+      "@monitor/*": ["src/monitor/*"],
+      "@citizen/*": ["src/citizen/*"],
+      "@neural/*": ["src/neural/*"],
+      "@economy/*": ["src/economy/*"],
+      "@governance/*": ["src/governance/*"],
+      "@world/*": ["src/world/*"],
+      "@bazi/*": ["src/bazi/*"],
+      "@gamification/*": ["src/gamification/*"],
+      "@ai/*": ["src/ai/*"],
+      "@network/*": ["src/network/*"],
+      "@rendering/*": ["src/rendering/*"],
+      "@audio/*": ["src/audio/*"],
+      "@advanced/*": ["src/advanced/*"],
+      "@ui/*": ["src/ui/*"],
+      "@workers/*": ["src/workers/*"]
+    },
+
+    // 类型根目录
+    "typeRoots": ["./node_modules/@types", "./node_modules/@webgpu", "./src/types"],
+
+    // 实验性功能
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src", "tests", "vite-env.d.ts", "sw.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

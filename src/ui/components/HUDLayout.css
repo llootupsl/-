@@ -1,0 +1,312 @@
+/**
+ * =============================================================================
+ * HUD Layout 样式 - 统一游戏界面布局
+ * =============================================================================
+ */
+
+/* ==========================================================================
+   HUD 布局容器
+   ========================================================================== */
+
+.hud-layout {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+  z-index: var(--z-panel);
+}
+
+.hud-layout > * {
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   侧边栏
+   ========================================================================== */
+
+.hud-sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 10, 18, 0.95);
+  border-right: 1px solid rgba(0, 240, 255, 0.15);
+  backdrop-filter: blur(12px);
+  transition: width var(--transition-normal);
+  z-index: 100;
+}
+
+.hud-layout.collapsed .hud-sidebar {
+  width: 60px;
+}
+
+.sidebar-header {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+  text-align: center;
+}
+
+.sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-primary);
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 10px var(--color-primary);
+}
+
+.logo-sub {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.3em;
+}
+
+.sidebar-panels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0.5rem;
+  gap: 0.25rem;
+  overflow-y: auto;
+}
+
+.panel-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.panel-btn:hover {
+  background: var(--color-bg-surface);
+  border-color: rgba(0, 240, 255, 0.2);
+}
+
+.panel-btn.active {
+  background: var(--color-bg-elevated);
+  border-color: var(--btn-accent, var(--color-primary));
+  color: var(--btn-accent, var(--color-primary));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--btn-accent, var(--color-primary)) 30%, transparent);
+}
+
+.panel-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.panel-label {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border-top: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid rgba(0, 240, 255, 0.1);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: var(--color-bg-surface);
+  border-color: var(--color-primary);
+}
+
+.action-btn.collapse-btn {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   主面板区域
+   ========================================================================== */
+
+.hud-main-area {
+  position: absolute;
+  left: 70px;
+  top: 1rem;
+  bottom: 1rem;
+  width: clamp(320px, 25vw, 400px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.hud-main-area > * {
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   面板容器
+   ========================================================================== */
+
+.panel-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 10, 18, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  animation: panelSlideIn 0.3s ease;
+}
+
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panel-header {
+  padding: 1rem 1.25rem;
+  background: rgba(0, 240, 255, 0.03);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+.panel-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.panel-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.panel-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   小地图区域
+   ========================================================================== */
+
+.hud-minimap-area {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 100;
+}
+
+/* ==========================================================================
+   响应式适配
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hud-sidebar {
+    width: 50px;
+  }
+
+  .hud-main-area {
+    left: 60px;
+    width: clamp(280px, 40vw, 320px);
+  }
+
+  .panel-label {
+    display: none;
+  }
+
+  .hud-minimap-area {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hud-sidebar {
+    width: 100%;
+    height: 60px;
+    top: auto;
+    bottom: 0;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid rgba(0, 240, 255, 0.15);
+  }
+
+  .sidebar-header,
+  .sidebar-actions {
+    display: none;
+  }
+
+  .sidebar-panels {
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0.5rem;
+  }
+
+  .hud-main-area {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 70px;
+    width: 100%;
+    height: 50vh;
+  }
+
+  .hud-layout.collapsed .hud-sidebar {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   减少动画偏好支持
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-sidebar {
+    transition: none !important;
+  }
+
+  .panel-btn,
+  .action-btn {
+    transition: none !important;
+  }
+
+  .panel-container {
+    animation: none !important;
+  }
+}

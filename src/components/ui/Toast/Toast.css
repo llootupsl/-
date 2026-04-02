@@ -1,0 +1,263 @@
+/**
+ * =============================================================================
+ * Toast 样式 - 赛博朋克风格
+ * 霓虹蓝 #00fff9 / 荧光紫 #ff00ff
+ * =============================================================================
+ */
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: var(--z-toast, 40);
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100% - 2rem);
+}
+
+.toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(7, 21, 37, 0.95);
+  border: 1px solid rgba(0, 255, 249, 0.15);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 255, 249, 0.1);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+}
+
+.toast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--toast-color, #00fff9),
+    transparent
+  );
+  opacity: 0.5;
+}
+
+.toast-exit {
+  animation: toastSlideOut 0.2s ease-in forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+}
+
+/* 类型样式 */
+.toast-success {
+  --toast-color: #00fff9;
+  border-left: 3px solid #00fff9;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 255, 249, 0.15),
+    inset 0 0 30px rgba(0, 255, 249, 0.03);
+}
+
+.toast-success .toast-icon {
+  color: #00fff9;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 249, 0.6));
+}
+
+.toast-warning {
+  --toast-color: #ffd600;
+  border-left: 3px solid #ffd600;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(255, 214, 0, 0.15),
+    inset 0 0 30px rgba(255, 214, 0, 0.03);
+}
+
+.toast-warning .toast-icon {
+  color: #ffd600;
+  filter: drop-shadow(0 0 6px rgba(255, 214, 0, 0.6));
+}
+
+.toast-error {
+  --toast-color: #ff00ff;
+  border-left: 3px solid #ff00ff;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(255, 0, 255, 0.15),
+    inset 0 0 30px rgba(255, 0, 255, 0.03);
+}
+
+.toast-error .toast-icon {
+  color: #ff00ff;
+  filter: drop-shadow(0 0 6px rgba(255, 0, 255, 0.6));
+}
+
+.toast-info {
+  --toast-color: #1aeffb;
+  border-left: 3px solid #1aeffb;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(26, 239, 251, 0.1),
+    inset 0 0 30px rgba(26, 239, 251, 0.02);
+}
+
+.toast-info .toast-icon {
+  color: #1aeffb;
+  filter: drop-shadow(0 0 6px rgba(26, 239, 251, 0.5));
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.toast-title {
+  font-weight: 600;
+  color: var(--text-primary, #d6f8ff);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.toast-message {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary, rgba(214, 248, 255, 0.65));
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted, #3a6b80);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm, 4px);
+  transition: all 150ms ease-out;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -0.25rem -0.25rem -0.25rem 0;
+}
+
+.toast-close:hover {
+  background: rgba(255, 0, 255, 0.1);
+  color: #ff00ff;
+}
+
+.toast-close:focus-visible {
+  outline: 2px solid #00fff9;
+  outline-offset: 2px;
+}
+
+.toast-progress-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.toast-progress {
+  height: 100%;
+  background: var(--toast-color, #00fff9);
+  box-shadow: 0 0 10px var(--toast-color, #00fff9);
+  transition: width 50ms linear;
+}
+
+/* 鼠标悬停时暂停动画提示 */
+.toast:hover .toast-progress {
+  opacity: 0.7;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .toast-container {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    max-width: none;
+    width: auto;
+  }
+
+  .toast {
+    padding: 0.875rem 1rem;
+  }
+
+  .toast-title {
+    font-size: 0.85rem;
+  }
+
+  .toast-message {
+    font-size: 0.75rem;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+
+  .toast-exit {
+    animation: none;
+    opacity: 0;
+  }
+
+  .toast-progress {
+    transition: none;
+  }
+}
+
+/* 深色模式增强 */
+@media (prefers-color-scheme: dark) {
+  .toast {
+    background: rgba(4, 12, 20, 0.98);
+  }
+}
