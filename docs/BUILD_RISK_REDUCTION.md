@@ -1,44 +1,49 @@
-# 构建风险收敛记录（2026-04-02）
+# 构建风险收敛记录
+
+更新日期：2026-04-02
 
 ## 目标
 
-- 处理构建告警中的两个高频风险点：
-  - 动态导入与静态导入重叠
-  - 单个 chunk 过大
-- 同步整理项目目录与产物管理策略。
+本轮收敛的目标不是“只要能打包就算完成”，而是降低生产包在真实部署环境中的不确定性，重点处理：
 
-## 本次改动
+- 动态导入与同步引用重叠导致的分块风险
+- 主入口热路径过重带来的首屏和缓存压力
+- PWA 元数据漂移、缺失资源与乱码带来的发布面风险
+- 默认 `dist/` 目录在当前工作区的句柄污染问题
 
-### 1) 动态导入重叠修复
+## 已完成调整
 
-- `src/audio/AudioEngine.ts`
-  - 去除对 `@/wasm/WasmBridge` 的动态导入，改为静态可用性检查（`isWasmReady`）。
-  - 目的：消除 `WasmBridge` “动态 + 静态重复导入”告警。
+### 1. 热路径按需装载
 
-- `src/warmup/StoragePreheater.ts`
-  - 去除 `sql.js` 动态导入，改为模块级缓存初始化（`getSqlModule`）。
-  - 目的：与 `StorageManager` 的静态导入策略统一，消除 `sql.js` 重叠告警。
+- `src/runtime/UniverseScene.tsx` 改为缓存式动态加载重型渲染模块。
+- `src/ui/components/SystemStatusPanel.tsx` 通过 `lazy()` 按需加载，避免主路径同步拖入。
+- `src/ui/components/WebGPUCanvas.tsx` 与 `src/rendering/WebGPURenderer.ts` 的依赖边界收紧，避免动态导入与静态导入重叠。
+- `src/core/SystemIntegrator.ts` 将高阶浏览器能力接入拆成描述符驱动的异步初始化路径。
 
-### 2) 分块策略优化
+### 2. 构建输出清理
 
-- `vite.config.ts`
-  - 将 `manualChunks` 从静态对象改为函数分桶策略：
-    - `vendor-*`（React/Three/LLM/SQL/Audio/Motion/其他依赖）
-    - `chunk-simulation / chunk-rendering / chunk-network / chunk-performance / chunk-intelligence / chunk-wasm`
-  - 目的：降低单包风险、提升缓存复用与增量发布稳定性。
+- `package.json` 的 `build` 先执行 `clean:dist`，统一清理旧的 `dist/`、`dev-dist/` 和 `release-dist/`。
+- 正式产物目录切换为 `release-dist/`，绕开当前工作区对默认 `dist/` 目录的句柄污染问题。
+- 生产验证统一走 `npm run verify:release`，避免遗漏单独门禁。
 
-### 3) 文件夹整理
+### 3. PWA 面统一
 
-- 新增 `.gitignore`：
-  - 忽略 `node_modules/`, `dist/`, `dev-dist/`, `wasm/target/` 等构建与本地产物。
-- 新增脚本：
-  - `npm run clean`
-  - `npm run build:clean`
+- 以 `public/manifest.json` 作为唯一运行时清单来源，移除 `vite-plugin-pwa` 内重复的 manifest 配置。
+- 补齐真实存在的图标资源：`public/favicon.svg`、`public/app-icon.svg`、`public/app-icon-maskable.svg`。
+- 删除原先不存在的图标、截图和 `favicon.ico` 虚假引用，避免线上 404 与安装元数据异常。
 
-## 验证
+### 4. 根文件元数据修正
 
-- `npm run typecheck -- --pretty false` 通过
-- `npm run test -- --run` 通过（152 passed）
-- `npm run build` 通过
+- `index.html`、`package.json`、`README.md`、关键文档均已清理乱码并统一产品说明。
+- `prepare` 脚本改为显式 Node 脚本，避免 `husky install` 弃用提示和无 `.git` 环境报错。
 
-> 备注：如果后续仍有 `chunk size` 提示，可在下一轮继续做路由级/面板级懒加载拆分，以进一步缩小主入口包。
+## 当前效果
+
+- 生产构建链路更稳定，主入口只承载启动壳和必要路径。
+- 发布资源不再引用缺失文件，PWA 安装面与仓库首页保持一致。
+- `release-dist/` 可稳定生成干净产物，适合静态托管与 fresh clone 验证。
+
+## 后续观察项
+
+- `npm audit` 仍会报告来自 `webtorrent` 和 `vite-plugin-pwa/workbox-build` 依赖链的上游漏洞告警。
+- 这两项不阻断当前版本的静态部署，但属于后续依赖治理议题，应在不破坏功能闭环的前提下单独处理。

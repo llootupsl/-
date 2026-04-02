@@ -1,19 +1,19 @@
 {
   "name": "omnis-apien",
   "version": "1.0.0",
-  "description": "永夜熵纪 - 史上最强纯前端数字文明模拟器 | OMNIS APIEN - Decentralized Neural Morphological Civilization Simulator",
+  "description": "世界文明模拟器 | OMNIS APIEN - 无后端优先的浏览器文明模拟器，强调真实浏览器能力、自动降级与可部署交付。",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "clean:dist": "node -e \"const fs=require('fs');for(const t of ['dist','dev-dist']){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
-    "clean": "node -e \"const fs=require('fs');const targets=['dist','dev-dist','tsconfig.tsbuildinfo','wasm/target','wasm/pkg','rustup-init.exe','wasm-pack-init.exe','vs_buildtools.exe'];for(const t of targets){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
+    "clean:dist": "node -e \"const fs=require('fs');for(const t of ['dist','dev-dist','release-dist']){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
+    "clean": "node -e \"const fs=require('fs');const targets=['dist','dev-dist','release-dist','tsconfig.tsbuildinfo','wasm/target','wasm/pkg','rustup-init.exe','wasm-pack-init.exe','vs_buildtools.exe'];for(const t of targets){if(fs.existsSync(t))fs.rmSync(t,{recursive:true,force:true});}\"",
     "build": "npm run clean:dist && vite build",
     "build:clean": "npm run clean && npm run build",
     "serve:dist": "vite preview --host 0.0.0.0 --port 4173",
     "verify:release": "npm run typecheck -- --pretty false && npm run test -- --run && npm run build",
     "deploy:vercel": "npm run verify:release && npx vercel deploy --prod --yes",
-    "deploy:netlify": "npm run verify:release && npx netlify deploy --prod --dir=dist",
-    "deploy:netlify:anon": "npm run verify:release && npx netlify deploy --prod --dir=dist --json --allow-anonymous",
+    "deploy:netlify": "npm run verify:release && npx netlify deploy --prod --dir=release-dist",
+    "deploy:netlify:anon": "npm run verify:release && npx netlify deploy --prod --dir=release-dist --json --allow-anonymous",
     "deploy:now": "npm run deploy:netlify:anon",
     "build:prod": "tsc -b && vite build --config vite.config.prod.ts",
     "preview": "vite preview",
@@ -27,7 +27,7 @@
     "wasm:build": "cd wasm && wasm-pack build --target web --out-dir ../src/wasm --release",
     "wasm:build:debug": "cd wasm && wasm-pack build --target web --out-dir ../src/wasm --dev",
     "wasm:build:simd": "cd wasm && wasm-pack build --target web --out-dir ../src/wasm --release -- --features simd",
-    "prepare": "husky install",
+    "prepare": "node scripts/prepare-husky.cjs",
     "postinstall": "echo 'WASM plugins integrated via Vite'"
   },
   "dependencies": {

@@ -45,12 +45,16 @@
     },
 
     // 类型根目录
-    "typeRoots": ["./node_modules/@types", "./node_modules/@webgpu", "./src/types"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@webgpu",
+      "./src/types"
+    ],
 
     // 实验性功能
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src", "tests", "vite-env.d.ts", "sw.ts"],
+  "include": ["src", "tests", "vite-env.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
