@@ -42,6 +42,18 @@ const GameOverScreen = lazy(() =>
 const SystemStatusPanel = lazy(() =>
   import('@/ui/components/SystemStatusPanel').then((module) => ({ default: module.SystemStatusPanel })),
 );
+const GenesisTwinPanel = lazy(() =>
+  import('@/api/GenesisTwinPanel').then((module) => ({ default: module.GenesisTwinPanel })),
+);
+const BenchmarkPanel = lazy(() =>
+  import('@/bench/BenchmarkPanel').then((module) => ({ default: module.BenchmarkPanel })),
+);
+const DAOPanel = lazy(() =>
+  import('@/ui/components/DAOPanel').then((module) => ({ default: module.DAOPanel })),
+);
+const SpaceWarpPanel = lazy(() =>
+  import('@/network/p2p/SpaceWarpPanel').then((module) => ({ default: module.SpaceWarpPanel })),
+);
 
 let lastGnnUpdateTime = 0;
 let webGpuRendererModulePromise: Promise<typeof import('@/rendering/WebGPURenderer')> | null = null;
@@ -137,7 +149,15 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
   const [showDivine, setShowDivine] = useState(false);
   const [showCitizen, setShowCitizen] = useState(false);
   const [showSystemStatus, setShowSystemStatus] = useState(false);
+  const [showGenesisTwin, setShowGenesisTwin] = useState(false);
+  const [showBenchmark, setShowBenchmark] = useState(false);
+  const [showDao, setShowDao] = useState(false);
+  const [showSpaceWarp, setShowSpaceWarp] = useState(false);
   const [llmManager, setLlmManager] = useState<LLMManager | null>(null);
+  const peerIdentityRef = useRef({
+    id: `observer-${Math.random().toString(36).slice(2, 10)}`,
+    name: '高维监察者',
+  });
 
   const gamePhase = useGameStore((state) => state.phase);
   const resetGame = useGameStore((state) => state.resetGame);
@@ -535,6 +555,26 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
     setShowSystemStatus(true);
   }, [playClick]);
 
+  const handleOpenGenesisTwin = useCallback(() => {
+    playClick();
+    setShowGenesisTwin(true);
+  }, [playClick]);
+
+  const handleOpenBenchmark = useCallback(() => {
+    playClick();
+    setShowBenchmark(true);
+  }, [playClick]);
+
+  const handleOpenDao = useCallback(() => {
+    playClick();
+    setShowDao(true);
+  }, [playClick]);
+
+  const handleOpenSpaceWarp = useCallback(() => {
+    playClick();
+    setShowSpaceWarp(true);
+  }, [playClick]);
+
   const handleToggleHelp = useCallback(() => {
     playClick();
     toggleHelp();
@@ -563,7 +603,7 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         setShowDivine(true);
         break;
       case 'openDAO':
-        useGameStore.getState().togglePanel('dao');
+        setShowDao(true);
         break;
       default:
         break;
@@ -598,6 +638,11 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         onOpenEightChars={handleOpenEightChars}
         onOpenDivine={handleOpenDivine}
         onOpenCitizen={handleOpenCitizen}
+        onOpenGenesisTwin={handleOpenGenesisTwin}
+        onOpenBenchmark={handleOpenBenchmark}
+        onOpenDao={handleOpenDao}
+        onOpenSpaceWarp={handleOpenSpaceWarp}
+        onOpenSystemStatus={handleOpenSystemStatus}
       />
 
       <div className="universe-utility-bar">
@@ -633,6 +678,28 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         </Suspense>
       )}
 
+      {showGenesisTwin && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <GenesisTwinPanel />
+            <button className="feature-overlay__close" onClick={() => setShowGenesisTwin(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showBenchmark && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <BenchmarkPanel />
+            <button className="feature-overlay__close" onClick={() => setShowBenchmark(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
       <Suspense fallback={panelFallback}>
         {showDivine && <DivinePanel isOpen={showDivine} onClose={() => setShowDivine(false)} />}
       </Suspense>
@@ -640,6 +707,25 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
       <Suspense fallback={panelFallback}>
         {showCitizen && <CitizenPanel isOpen={showCitizen} onClose={() => setShowCitizen(false)} />}
       </Suspense>
+
+      <Suspense fallback={panelFallback}>
+        {showDao && <DAOPanel isOpen={showDao} onClose={() => setShowDao(false)} />}
+      </Suspense>
+
+      {showSpaceWarp && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <SpaceWarpPanel
+              peerId={peerIdentityRef.current.id}
+              peerName={peerIdentityRef.current.name}
+              onDisconnect={() => setShowSpaceWarp(false)}
+            />
+            <button className="feature-overlay__close" onClick={() => setShowSpaceWarp(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
 
       <Suspense fallback={null}>
         {showSystemStatus && (
@@ -703,9 +789,35 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
           gap: 0.75rem;
         }
 
+        .feature-overlay {
+          position: fixed;
+          inset: 1rem;
+          z-index: 245;
+          display: grid;
+          grid-template-rows: 1fr auto;
+          gap: 0.75rem;
+          padding: 1rem;
+          border-radius: 28px;
+          border: 1px solid rgba(26, 239, 251, 0.18);
+          background: rgba(4, 10, 18, 0.94);
+          box-shadow: 0 28px 72px rgba(0, 0, 0, 0.38);
+          backdrop-filter: blur(18px);
+          overflow: auto;
+        }
+
         .chat-close {
           align-self: flex-end;
           padding: 0.45rem 0.75rem;
+          border-radius: 999px;
+          border: 1px solid rgba(26, 239, 251, 0.2);
+          background: rgba(7, 21, 37, 0.92);
+          color: rgba(214, 248, 255, 0.78);
+          cursor: pointer;
+        }
+
+        .feature-overlay__close {
+          justify-self: end;
+          padding: 0.55rem 0.9rem;
           border-radius: 999px;
           border: 1px solid rgba(26, 239, 251, 0.2);
           background: rgba(7, 21, 37, 0.92);
@@ -740,6 +852,10 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
           .chat-overlay {
             inset: auto 1rem 5rem 1rem;
             width: auto;
+          }
+
+          .feature-overlay {
+            inset: 0.75rem 0.75rem 4.75rem;
           }
         }
       `}</style>

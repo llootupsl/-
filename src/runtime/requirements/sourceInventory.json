@@ -1,0 +1,1034 @@
+[
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1",
+    "title": "市民个体模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.1",
+    "title": "三态市民模型（逻辑LOD）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.2",
+    "title": "量子-神经混合架构"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.3",
+    "title": "可编程基因插件"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.4",
+    "title": "生物基因与表观遗传学"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.5",
+    "title": "元认知与自我意识"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.6",
+    "title": "加密身份与资产钱包"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.7",
+    "title": "动态语言模型与强化学习"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.1.8",
+    "title": "生物物理模拟"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.2",
+    "title": "社会与文化模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.2.1",
+    "title": "媒体与舆论"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.2.2",
+    "title": "教育体系"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.2.3",
+    "title": "宗教与意识形态"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.3",
+    "title": "经济与产业模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.3.1",
+    "title": "科技树系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.3.2",
+    "title": "产业分工与供应链"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.3.3",
+    "title": "基础设施"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.3.4",
+    "title": "虚拟经济与现实锚定"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.4",
+    "title": "治理与法律模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.4.1",
+    "title": "DAO 宪法与立法"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.4.2",
+    "title": "经济治理"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.4.3",
+    "title": "司法系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.4.4",
+    "title": "AI 对齐与伦理约束"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.4.5",
+    "title": "二次方投票与流动民主"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.5",
+    "title": "安全与冲突模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.5.1",
+    "title": "犯罪与执法"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.5.2",
+    "title": "战争与外交"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.6",
+    "title": "环境与科学模拟模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.6.1",
+    "title": "流行病模型"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.6.2",
+    "title": "气候变化模型"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.6.3",
+    "title": "生态系统与物质循环"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.6.4",
+    "title": "混沌预测"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.6.5",
+    "title": "马克思主义经济学模型"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.7",
+    "title": "跨文明交互与星际殖民模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.7.1",
+    "title": "多文明实例"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.7.2",
+    "title": "国际组织"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.7.3",
+    "title": "星际殖民"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.8",
+    "title": "复杂网络与图神经网络"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.8.1",
+    "title": "社会网络分析"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.8.2",
+    "title": "网络演化"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.9",
+    "title": "数字孪生与反事实模拟"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.9.1",
+    "title": "现实数据接入"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.9.2",
+    "title": "反事实模拟"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.10",
+    "title": "可验证计算与可信执行环境"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.10.1",
+    "title": "可验证随机数"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.10.2",
+    "title": "零知识证明身份"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.11",
+    "title": "硬件加速"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.11.1",
+    "title": "WebNN API 集成"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.11.2",
+    "title": "GPU/NPU 混合调度"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.12",
+    "title": "边缘计算与 P2P 计算卸载"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.12.1",
+    "title": "自愿计算节点"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.12.2",
+    "title": "任务分片"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.12.3",
+    "title": "信誉系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.13",
+    "title": "开源协作与插件市场"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.13.1",
+    "title": "插件市场"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.13.2",
+    "title": "去中心化版本控制"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14",
+    "title": "用户交互与可视化模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.1",
+    "title": "中文赛博朋克视觉系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.2",
+    "title": "全中文环境"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.3",
+    "title": "交互界面"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.4",
+    "title": "硬件集成"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.5",
+    "title": "眼动追踪驱动的观察者效应"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.6",
+    "title": "3D 高斯溅射记忆可视化"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.7",
+    "title": "程序化音频文明交响乐"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.14.8",
+    "title": "时空裂隙（Web Bluetooth 近场）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.15",
+    "title": "基础设施与持久化"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.15.1",
+    "title": "OPFS + Wasm SQLite"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.15.2",
+    "title": "去中心化存储"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.15.3",
+    "title": "时间旅行与多宇宙"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.16",
+    "title": "动态叙事引擎"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.17",
+    "title": "移动端高性能策略"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.18",
+    "title": "隐私保护与合规性"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.19",
+    "title": "教育与文档"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.20",
+    "title": "元宇宙互操作性"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.21",
+    "title": "休眠挂机模式与算力挖矿"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.22",
+    "title": "外部 API 低频集成"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.22.1",
+    "title": "设计原则"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.22.2",
+    "title": "“创世纪”数据孪生（世界初始化）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.22.3",
+    "title": "宏观经济“神迹干预”（低频异步）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.22.4",
+    "title": "跨次元身份认证（文明快照上链）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.22.5",
+    "title": "外部 API 管理模块"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.23",
+    "title": "游戏化机制（基础版）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.23.1",
+    "title": "核心循环：观测值与神力干预系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.23.2",
+    "title": "Roguelike 轮回与局外成长"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.23.3",
+    "title": "“黑暗森林” P2P 社交对抗"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.23.4",
+    "title": "时代纪元里程碑与成就系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24",
+    "title": "游戏化模组：熵增纪元"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.1",
+    "title": "灾变背景与角色设定"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.2",
+    "title": "核心生存资源"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.3",
+    "title": "SNN 情感网络：希望与暴乱"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.4",
+    "title": "DAO 末世法典（道德抉择系统）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.5",
+    "title": "纪元跃迁与 Roguelike 轮回"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.6",
+    "title": "与基础游戏化机制的融合"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.24.7",
+    "title": "视觉与音频风格"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25",
+    "title": "八字命理系统"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.1",
+    "title": "概述"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.2",
+    "title": "八字生成与录入"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.3",
+    "title": "八字与市民属性的映射"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.4",
+    "title": "八字驱动的命运轨迹"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.5",
+    "title": "八字与游戏机制的融合（熵增纪元）"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.6",
+    "title": "实现技术"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.7",
+    "title": "用户界面与视觉"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.25.8",
+    "title": "可选性说明"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26",
+    "title": "自定义 AI 模型 API"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.1",
+    "title": "概述"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.2",
+    "title": "用户配置界面"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.3",
+    "title": "与现有 LLM 服务的集成"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.4",
+    "title": "使用场景与功能"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.5",
+    "title": "降级与容错"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.6",
+    "title": "安全与隐私"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.7",
+    "title": "性能与限流"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "3.26.8",
+    "title": "UI 与用户体验"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "4.1",
+    "title": "零拷贝架构"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "4.2",
+    "title": "SharedWorker 统一内核"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "4.3",
+    "title": "WebTransport 网络同步"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "4.4",
+    "title": "WebCodecs 硬件视频录制"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "4.5",
+    "title": "View Transitions 原生动画"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "5.1",
+    "title": "性能"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "5.2",
+    "title": "兼容性"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "5.3",
+    "title": "功耗与散热"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "5.4",
+    "title": "安全性"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "5.5",
+    "title": "可扩展性"
+  },
+  {
+    "docId": "v12",
+    "docTitle": "OMNIS APIEN v12.2",
+    "clause": "5.6",
+    "title": "用户体验"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6",
+    "title": "极速启动与硬件资源预热模块"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.1",
+    "title": "设计目标"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.2",
+    "title": "预热资源清单与技术要求（必选实现）"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.3",
+    "title": "性能模式选项与参数控制"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.4",
+    "title": "启动流程与时间点"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.5",
+    "title": "合规性与透明性"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.6",
+    "title": "性能验收指标"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.6.7",
+    "title": "与现有模块的集成"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7",
+    "title": "其他极致性能优化措施（必选）"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.1",
+    "title": "代码与资源加载优化"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.2",
+    "title": "渲染与动画优化"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.3",
+    "title": "计算与线程调度优化"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.4",
+    "title": "存储与网络优化"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.5",
+    "title": "硬件特性深度利用"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.6",
+    "title": "首屏体验与感知优化"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.7",
+    "title": "与性能模式的联动"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.7.8",
+    "title": "合规性重申"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27",
+    "title": "性能基准测试模块（新增）"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.1",
+    "title": "概述"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.2",
+    "title": "测试模式与触发方式"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.3",
+    "title": "测试项目与指标"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.4",
+    "title": "测试执行策略"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.5",
+    "title": "结果展示与导出"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.6",
+    "title": "性能模式联动"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "3.27.7",
+    "title": "稳定性与合规"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.8",
+    "title": "极限性能压榨措施（性能测试场景专用）"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.8.1",
+    "title": "资源无节制抢占"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.8.2",
+    "title": "消除所有节流机制"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.8.3",
+    "title": "模拟硬件中断"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.8.4",
+    "title": "极速 I/O 压测"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.8.5",
+    "title": "崩溃与稳定性测试"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.9",
+    "title": "性能监控与反馈系统"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.9.1",
+    "title": "实时性能仪表盘"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.9.2",
+    "title": "性能日志与历史记录"
+  },
+  {
+    "docId": "supplement",
+    "docTitle": "Performance Supplement",
+    "clause": "4.9.3",
+    "title": "性能警告与建议"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "4.10",
+    "title": "WebTorrent 驱动的 P2P 联邦大模型分发引擎"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "4.10.1",
+    "title": "核心机制"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "4.11",
+    "title": "基于 WebRTC 的局域网“无缝空间折跃”"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "4.11.1",
+    "title": "功能流程"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "4.12",
+    "title": "Service Worker “幽灵时间”后台结算（Periodic Background Sync）"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "4.12.1",
+    "title": "实现机制"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.28",
+    "title": "强硬核生物识别加密系统（WebAuthn / Passkeys）"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.28.1",
+    "title": "设计痛点与方案"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.29",
+    "title": "多模态全景交互体验深化"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.29.1",
+    "title": "Web Speech API (零延迟静默发声)"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.29.2",
+    "title": "A11y “盲眼先知”模式（硬核听觉玩法）"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.29.3",
+    "title": "Gamepad API 四维触觉反馈"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.30",
+    "title": "WebGPU Compute 实时全局光照计算（极致视觉）"
+  },
+  {
+    "docId": "v13",
+    "docTitle": "V13 Advanced Supplement",
+    "clause": "3.30.1",
+    "title": "实现路径"
+  }
+]

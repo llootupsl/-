@@ -413,7 +413,7 @@ export function useAppInitialization() {
     updateStep(stepId, { status: 'error', progress: 100, error: error.message });
     patchSubsystem(stepId, {
       state: initError.recoverable ? 'degraded' : 'error',
-      source: initError.recoverable ? 'fallback' : 'simulated',
+      source: initError.recoverable ? 'fallback' : 'unavailable-with-reason',
       detail: initError.friendlyMessage,
     });
     pushRuntimeTrace({

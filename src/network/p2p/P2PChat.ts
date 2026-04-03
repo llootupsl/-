@@ -5,7 +5,7 @@
  * =============================================================================
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from '@/core/EventEmitter';
 import { logger } from '../../core/utils/Logger';
 
 export type MessageType = 'text' | 'emoji' | 'file' | 'system' | 'image';

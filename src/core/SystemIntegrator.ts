@@ -226,7 +226,7 @@ export class SystemIntegrator extends EventEmitter<IntegratorEvents> {
     try {
       for (const descriptor of this.descriptors) {
         if (!descriptor.enabled(this.config)) {
-          this.markDeferred(descriptor, 'Disabled by runtime configuration.');
+          this.markUnavailable(descriptor, 'Disabled by runtime configuration.');
           continue;
         }
 
@@ -283,13 +283,13 @@ export class SystemIntegrator extends EventEmitter<IntegratorEvents> {
     patchSubsystem(descriptor.id, { state: 'degraded', source: 'fallback', detail });
   }
 
-  private markDeferred(descriptor: SubsystemDescriptor, detail: string): void {
+  private markUnavailable(descriptor: SubsystemDescriptor, detail: string): void {
     upsertSubsystem({
       id: descriptor.id,
       label: descriptor.label,
       group: descriptor.id === 'governance' ? 'simulation' : 'integration',
       state: 'degraded',
-      source: 'deferred',
+      source: 'unavailable-with-reason',
       capabilityId: descriptor.capabilityId,
       detail,
       updatedAt: Date.now(),

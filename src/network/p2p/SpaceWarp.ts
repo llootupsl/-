@@ -5,7 +5,7 @@
  * =============================================================================
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from '@/core/EventEmitter';
 import { logger } from '../../core/utils/Logger';
 
 // ICE 服务器配置

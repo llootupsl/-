@@ -1,4 +1,8 @@
-export type RuntimePathSource = 'native' | 'fallback' | 'simulated' | 'deferred';
+export type RuntimePathSource =
+  | 'native'
+  | 'fallback'
+  | 'simulated'
+  | 'unavailable-with-reason';
 export type CapabilityPathSource = Extract<RuntimePathSource, 'native' | 'fallback'>;
 
 export function formatRuntimeSourceLabel(source: RuntimePathSource): string {
@@ -9,8 +13,8 @@ export function formatRuntimeSourceLabel(source: RuntimePathSource): string {
       return 'Fallback path';
     case 'simulated':
       return 'Simulated path';
-    case 'deferred':
-      return 'Deferred path';
+    case 'unavailable-with-reason':
+      return 'Unavailable with reason';
     default:
       return source;
   }

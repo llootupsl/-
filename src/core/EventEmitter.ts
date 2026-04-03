@@ -37,6 +37,10 @@ export class EventEmitter {
     return this;
   }
 
+  removeListener(event: string, listener: EventListener): this {
+    return this.off(event, listener);
+  }
+
   emit(event: string, ...args: any[]): boolean {
     // 一次性监听器
     const onceListeners = this.onceEvents.get(event);

@@ -4,7 +4,7 @@
  * =============================================================================
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from '@/core/EventEmitter';
 import { logger } from '../../core/utils/Logger';
 
 export interface SyncPacket {

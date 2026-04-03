@@ -1,0 +1,42 @@
+[
+  {
+    "id": "civilization-systems",
+    "title": "文明系统层",
+    "titleEN": "Civilization Systems",
+    "summary": "市民、社会、经济、治理、冲突与熵增纪元共同构成文明主循环。",
+    "summaryEN": "Citizens, society, economy, governance, conflict, and entropy loops form the main civilization cycle.",
+    "accentToken": "--color-mode-balanced"
+  },
+  {
+    "id": "perception-and-input",
+    "title": "感知与输入层",
+    "titleEN": "Perception and Input",
+    "summary": "视觉、语言、多模态、教程与观察者效应让体验和系统状态实时耦合。",
+    "summaryEN": "Visuals, language, multimodal input, tutorials, and observer effects bind the experience to live runtime state.",
+    "accentToken": "--color-mode-extreme"
+  },
+  {
+    "id": "reality-sync",
+    "title": "现实同步层",
+    "titleEN": "Reality Sync",
+    "summary": "现实数据、身份确权、链上证据、存储回溯与幽灵时间让文明与现实发生锚定。",
+    "summaryEN": "Real-world data, identity proofs, chain evidence, persistence, and ghost-time settlement anchor the simulation to reality.",
+    "accentToken": "--color-mode-apex"
+  },
+  {
+    "id": "space-and-network",
+    "title": "空间连接层",
+    "titleEN": "Space and Network",
+    "summary": "跨文明网络、设备接力、P2P 联邦与开放生态负责文明之间的扩展与流动。",
+    "summaryEN": "Cross-civilization networking, device handoff, P2P federation, and the open ecosystem expand the world beyond one browser tab.",
+    "accentToken": "--color-epoch-pressure"
+  },
+  {
+    "id": "rendering-and-performance",
+    "title": "渲染与性能层",
+    "titleEN": "Rendering and Performance",
+    "summary": "WebGPU、预热、基准、录制和性能监控决定这套系统能跑到什么上限。",
+    "summaryEN": "WebGPU, warmup, benchmarking, recording, and runtime telemetry define the system's performance ceiling.",
+    "accentToken": "--color-mode-eco"
+  }
+]

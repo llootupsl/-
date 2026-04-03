@@ -1,34 +1,36 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  useGamePhase,
-  useResources,
-  useEntropy,
-  useEmotion,
   useCitizenStats,
-  useTime,
-  useNarrative,
-  useWarnings,
+  useEmotion,
+  useEntropy,
+  useGamePhase,
   useGameStore,
+  useNarrative,
+  useResources,
+  useTime,
+  useWarnings,
 } from '@/store/gameStore';
 import { useRuntimeStore } from '@/runtime/runtimeStore';
+import CivilizationCapabilityUniverse from '@/ui/components/CivilizationCapabilityUniverse';
+import type { RequirementPanelAction } from '@/runtime/requirements';
 import type { ModeConfig } from './ModeSelect';
 
 const EPOCH_LABELS = {
-  golden: '黄金时代',
-  stable: '稳定时代',
-  pressure: '压力时代',
-  crisis: '危机时代',
-  collapse: '崩坏边缘',
-  entropy: '熵增纪元',
+  golden: 'Golden Era',
+  stable: 'Stable Era',
+  pressure: 'Pressure Era',
+  crisis: 'Crisis Era',
+  collapse: 'Collapse Edge',
+  entropy: 'Entropy Era',
 } as const;
 
 const EPOCH_COLORS: Record<(typeof EPOCH_LABELS)[keyof typeof EPOCH_LABELS], string> = {
-  黄金时代: 'var(--color-epoch-golden)',
-  稳定时代: 'var(--color-epoch-stable)',
-  压力时代: 'var(--color-epoch-pressure)',
-  危机时代: 'var(--color-epoch-crisis)',
-  崩坏边缘: 'var(--color-epoch-collapse)',
-  熵增纪元: 'var(--color-entropy)',
+  'Golden Era': 'var(--color-epoch-golden)',
+  'Stable Era': 'var(--color-epoch-stable)',
+  'Pressure Era': 'var(--color-epoch-pressure)',
+  'Crisis Era': 'var(--color-epoch-crisis)',
+  'Collapse Edge': 'var(--color-epoch-collapse)',
+  'Entropy Era': 'var(--color-entropy)',
 };
 
 export interface GameViewProps {
@@ -38,6 +40,11 @@ export interface GameViewProps {
   onOpenEightChars: () => void;
   onOpenDivine: () => void;
   onOpenCitizen: () => void;
+  onOpenGenesisTwin: () => void;
+  onOpenBenchmark: () => void;
+  onOpenDao: () => void;
+  onOpenSpaceWarp: () => void;
+  onOpenSystemStatus: () => void;
 }
 
 export const GameView: React.FC<GameViewProps> = ({
@@ -47,6 +54,11 @@ export const GameView: React.FC<GameViewProps> = ({
   onOpenEightChars,
   onOpenDivine,
   onOpenCitizen,
+  onOpenGenesisTwin,
+  onOpenBenchmark,
+  onOpenDao,
+  onOpenSpaceWarp,
+  onOpenSystemStatus,
 }) => {
   const phase = useGamePhase();
   const resources = useResources();
@@ -56,8 +68,9 @@ export const GameView: React.FC<GameViewProps> = ({
   const time = useTime();
   const narrative = useNarrative();
   const warnings = useWarnings();
-  const gameStore = useGameStore();
+  const clearWarning = useGameStore((state) => state.clearWarning);
   const bootPhase = useRuntimeStore((state) => state.bootPhase);
+  const capabilityProfile = useRuntimeStore((state) => state.capabilityProfile);
   const runtimeTraces = useRuntimeStore((state) => state.traces);
   const runtimeSubsystems = useRuntimeStore((state) => state.subsystems);
 
@@ -93,21 +106,53 @@ export const GameView: React.FC<GameViewProps> = ({
   }, []);
 
   const readySubsystems = Object.values(runtimeSubsystems).filter((subsystem) => subsystem.state === 'ready');
-  const degradedSubsystems = Object.values(runtimeSubsystems).filter((subsystem) => subsystem.state === 'degraded');
-  const criticalSignals = runtimeTraces.slice(-3).reverse();
+  const degradedSubsystems = Object.values(runtimeSubsystems).filter(
+    (subsystem) => subsystem.state === 'degraded' || subsystem.state === 'error',
+  );
+  const criticalSignals = runtimeTraces.slice(-4).reverse();
+
+  const handleUniverseAction = (action: RequirementPanelAction) => {
+    switch (action) {
+      case 'citizens':
+        onOpenCitizen();
+        break;
+      case 'dao':
+        onOpenDao();
+        break;
+      case 'divine':
+        onOpenDivine();
+        break;
+      case 'chat':
+        onOpenChat();
+        break;
+      case 'observatory':
+        onOpenSystemStatus();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const alertMessage = warnings.criticalEntropy
+    ? 'Entropy is approaching the critical threshold.'
+    : warnings.populationZero
+      ? 'Population has collapsed to zero.'
+      : warnings.resourceDepleted.length > 0
+        ? `Depleted resources: ${warnings.resourceDepleted.join(', ')}`
+        : '';
 
   return (
     <div className="world-shell">
       <header className="world-shell__topbar">
         <div className="world-shell__brand">
-          <button type="button" className="world-shell__back" onClick={onBack} aria-label="Back to menu">
-            返回
+          <button type="button" className="world-shell__back" onClick={onBack} aria-label="Back to mode select">
+            Back
           </button>
           <div>
             <div className="world-shell__mode" style={{ color: currentMode.color }}>
               {currentMode.nameEN}
             </div>
-            <div className="world-shell__title">文明指挥台</div>
+            <div className="world-shell__title">Civilization Command</div>
           </div>
         </div>
 
@@ -126,17 +171,11 @@ export const GameView: React.FC<GameViewProps> = ({
         </div>
       </header>
 
-      {(warnings.resourceDepleted.length > 0 || warnings.criticalEntropy || warnings.populationZero) && (
+      {alertMessage && (
         <div className="world-shell__alert">
           <span>System Alert</span>
-          <strong>
-            {warnings.criticalEntropy
-              ? 'Entropy is reaching a critical threshold.'
-              : warnings.populationZero
-                ? 'Population has collapsed.'
-                : `Resources depleted: ${warnings.resourceDepleted.join(', ')}`}
-          </strong>
-          <button type="button" onClick={() => gameStore.clearWarning('resourceDepleted')}>
+          <strong>{alertMessage}</strong>
+          <button type="button" onClick={() => clearWarning('resourceDepleted')}>
             Dismiss
           </button>
         </div>
@@ -149,17 +188,34 @@ export const GameView: React.FC<GameViewProps> = ({
             <strong style={{ color: EPOCH_COLORS[epoch] }}>{epoch}</strong>
           </div>
           <div className="world-shell__hero-copy">
-            <h1>文明正在被浏览器原生能力实时编排</h1>
+            <h1>The requirement universe is now a live runtime surface.</h1>
             <p>
-              这不是静态大屏，而是一套会根据设备能力、系统装载状态和世界演化结果持续重构自己的文明控制界面。
+              Capability clusters, strategic signals, emotional pressure, and subsystem truth live
+              together on the main stage so both players and reviewers can see what is native,
+              what is gracefully falling back, and what remains explicitly simulated.
             </p>
           </div>
           <div className="world-shell__hero-actions">
-            <button type="button" onClick={onOpenCitizen}>市民层</button>
-            <button type="button" onClick={onOpenDivine}>神谕层</button>
-            <button type="button" onClick={onOpenChat}>运行时对话</button>
-            <button type="button" onClick={onOpenEightChars}>命理系统</button>
+            <button type="button" onClick={onOpenCitizen}>Citizen Kernel</button>
+            <button type="button" onClick={onOpenDivine}>Divine Layer</button>
+            <button type="button" onClick={onOpenChat}>Runtime Chat</button>
+            <button type="button" onClick={onOpenEightChars}>Identity and Fate</button>
+            <button type="button" onClick={onOpenGenesisTwin}>Genesis Twin</button>
+            <button type="button" onClick={onOpenBenchmark}>Benchmark</button>
+            <button type="button" onClick={onOpenDao}>DAO Center</button>
+            <button type="button" onClick={onOpenSpaceWarp}>Space Warp</button>
+            <button type="button" onClick={onOpenSystemStatus}>Observatory</button>
           </div>
+        </section>
+
+        <section className="world-shell__universe-card">
+          <CivilizationCapabilityUniverse
+            capabilityProfile={capabilityProfile}
+            subsystems={runtimeSubsystems}
+            variant="world"
+            onInspectObservatory={onOpenSystemStatus}
+            onAction={handleUniverseAction}
+          />
         </section>
 
         <section className="world-shell__grid">
@@ -227,7 +283,8 @@ export const GameView: React.FC<GameViewProps> = ({
               </div>
             </div>
             <p className="world-shell__summary">
-              主舞台只展示战略级信号，完整能力图谱、子系统健康度和调试控制已收纳到系统观测台。
+              The main stage keeps only strategic signals. Deep telemetry and runtime proof stay in
+              the observatory instead of crowding the front page.
             </p>
           </article>
 
@@ -273,7 +330,8 @@ export const GameView: React.FC<GameViewProps> = ({
         .world-shell__topbar,
         .world-shell__hero,
         .world-shell__card,
-        .world-shell__alert {
+        .world-shell__alert,
+        .world-shell__universe-card {
           border: 1px solid rgba(var(--accent-rgb), 0.14);
           background: rgba(6, 14, 26, 0.78);
           box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
@@ -322,32 +380,47 @@ export const GameView: React.FC<GameViewProps> = ({
         .world-shell__time,
         .world-shell__runtime {
           display: grid;
-          grid-template-columns: repeat(2, auto);
-          gap: 0.35rem 0.8rem;
-          align-items: center;
+          gap: 0.15rem;
+          justify-items: end;
           font-family: var(--font-mono);
         }
 
         .world-shell__time span,
         .world-shell__runtime span {
           color: var(--text-muted);
-          font-size: 0.74rem;
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
         }
 
         .world-shell__alert {
-          margin: 0 1rem;
-          border-radius: 18px;
-          padding: 0.75rem 1rem;
+          margin: 0 1rem 1rem;
+          padding: 0.8rem 1rem;
+          border-radius: 22px;
           display: flex;
-          gap: 0.9rem;
           align-items: center;
+          gap: 1rem;
         }
 
-        .world-shell__alert button {
-          margin-left: auto;
-          border: 0;
-          background: transparent;
+        .world-shell__alert span {
+          font-family: var(--font-mono);
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          font-size: 0.72rem;
+        }
+
+        .world-shell__alert strong {
+          flex: 1;
+        }
+
+        .world-shell__alert button,
+        .world-shell__hero-actions button {
+          border: 1px solid rgba(var(--accent-rgb), 0.18);
+          background: rgba(var(--accent-rgb), 0.08);
           color: var(--text-primary);
+          border-radius: 999px;
+          padding: 0.6rem 0.95rem;
           cursor: pointer;
         }
 
@@ -355,161 +428,140 @@ export const GameView: React.FC<GameViewProps> = ({
           flex: 1;
           overflow: auto;
           padding: 0 1rem 1rem;
+          display: grid;
+          gap: 1rem;
+        }
+
+        .world-shell__hero,
+        .world-shell__universe-card {
+          border-radius: 28px;
+          padding: 1.2rem;
         }
 
         .world-shell__hero {
-          border-radius: 28px;
-          padding: 1.2rem;
-          margin-bottom: 1rem;
+          display: grid;
+          gap: 1rem;
         }
 
         .world-shell__epoch span,
         .world-shell__card-kicker {
           font-family: var(--font-mono);
-          font-size: 0.72rem;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
           color: var(--text-muted);
-          margin-bottom: 0.35rem;
-          display: block;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          font-size: 0.72rem;
         }
 
         .world-shell__epoch strong {
+          display: block;
+          margin-top: 0.25rem;
           font-family: var(--font-display);
-          font-size: 1.5rem;
-          letter-spacing: 0.08em;
+          font-size: 1.7rem;
+          letter-spacing: 0.06em;
         }
 
         .world-shell__hero-copy h1 {
-          margin: 0.7rem 0 0.5rem;
-          font-size: clamp(1.6rem, 4.2vw, 3rem);
-          max-width: 15ch;
+          margin: 0;
+          font-family: var(--font-display);
+          font-size: clamp(1.8rem, 4vw, 3rem);
+          letter-spacing: 0.06em;
         }
 
         .world-shell__hero-copy p,
         .world-shell__summary {
-          margin: 0;
-          max-width: 58ch;
+          margin-top: 0.8rem;
           color: var(--text-secondary);
-          line-height: 1.6;
+          line-height: 1.7;
+          max-width: 72ch;
         }
 
         .world-shell__hero-actions {
           display: flex;
           flex-wrap: wrap;
-          gap: 0.7rem;
-          margin-top: 1rem;
-        }
-
-        .world-shell__hero-actions button {
-          border: 1px solid rgba(var(--accent-rgb), 0.18);
-          border-radius: 999px;
-          padding: 0.7rem 0.95rem;
-          background: rgba(var(--accent-rgb), 0.08);
-          color: var(--text-primary);
-          cursor: pointer;
+          gap: 0.75rem;
         }
 
         .world-shell__grid {
           display: grid;
-          grid-template-columns: repeat(12, minmax(0, 1fr));
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 1rem;
         }
 
         .world-shell__card {
-          grid-column: span 6;
           border-radius: 24px;
           padding: 1rem;
         }
 
         .world-shell__card--wide {
-          grid-column: span 12;
+          grid-column: 1 / -1;
         }
 
         .world-shell__stats {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0.75rem;
-          margin-top: 0.8rem;
+          margin-top: 0.9rem;
         }
 
         .world-shell__stats div,
-        .world-shell__console-item {
+        .world-shell__console-item,
+        .world-shell__bars div {
           border-radius: 18px;
-          background: rgba(11, 22, 40, 0.74);
-          border: 1px solid rgba(var(--accent-rgb), 0.08);
           padding: 0.85rem;
+          background: rgba(10, 22, 42, 0.72);
         }
 
         .world-shell__stats span,
-        .world-shell__console-item span {
+        .world-shell__console-item span,
+        .world-shell__bars label {
           display: block;
-          font-size: 0.72rem;
           color: var(--text-muted);
-          margin-bottom: 0.3rem;
+          font-size: 0.75rem;
+          margin-bottom: 0.35rem;
         }
 
         .world-shell__stats strong,
         .world-shell__console-item strong {
-          font-family: var(--font-mono);
+          color: var(--text-primary);
         }
 
         .world-shell__bars {
           display: grid;
-          gap: 0.7rem;
-          margin-top: 0.8rem;
-        }
-
-        .world-shell__bars div {
-          display: grid;
-          grid-template-columns: 110px 1fr auto;
-          gap: 0.7rem;
-          align-items: center;
-        }
-
-        .world-shell__bars label,
-        .world-shell__bars span {
-          color: var(--text-secondary);
+          gap: 0.75rem;
+          margin-top: 0.9rem;
         }
 
         .world-shell__bars progress {
           width: 100%;
-          height: 7px;
+          height: 0.55rem;
+          margin-bottom: 0.35rem;
         }
 
         .world-shell__console,
         .world-shell__timeline {
           display: grid;
           gap: 0.75rem;
-          margin-top: 0.85rem;
+          margin-top: 0.9rem;
         }
 
         .world-shell__console-item p {
-          margin: 0.35rem 0 0;
+          margin: 0.45rem 0 0;
           color: var(--text-secondary);
-          line-height: 1.5;
+          line-height: 1.6;
         }
 
-        .world-shell__console-item--warning {
-          border-color: rgba(255, 214, 0, 0.24);
-        }
-
-        .world-shell__console-item--error {
-          border-color: rgba(255, 56, 103, 0.28);
-        }
-
-        @media (max-width: 1024px) {
-          .world-shell__card {
-            grid-column: span 12;
-          }
-
+        @media (max-width: 980px) {
           .world-shell__topbar {
             grid-template-columns: 1fr;
+            justify-items: start;
           }
-        }
 
-        @media (max-width: 720px) {
-          .world-shell__bars div {
+          .world-shell__time,
+          .world-shell__runtime {
+            justify-items: start;
+          }
+
+          .world-shell__grid {
             grid-template-columns: 1fr;
           }
         }

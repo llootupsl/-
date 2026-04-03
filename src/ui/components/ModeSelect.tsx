@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import type { CapabilityProfile } from '@/runtime/capabilities';
+import CivilizationCapabilityUniverse from '@/ui/components/CivilizationCapabilityUniverse';
 
 export type AppPerformanceMode = 'apex' | 'extreme' | 'balanced' | 'eco';
 
@@ -16,39 +17,39 @@ export interface ModeConfig {
 export const MODES: ModeConfig[] = [
   {
     id: 'apex',
-    nameCN: '神谕映射',
+    nameCN: 'Apex Flagship',
     nameEN: 'APEX',
-    desc: '最大化 WebGPU、沉浸式整合与运行时观测层，让浏览器应用看起来像一台正在演化的文明引擎。',
+    desc: 'Maximum WebGPU, telemetry, and cinematic shell orchestration for high-end desktops.',
     color: 'var(--color-mode-apex)',
-    focus: '旗舰视觉 + 全能力编排',
-    payoff: '适合高性能桌面设备与演示场景',
+    focus: 'Flagship rendering + full capability staging',
+    payoff: 'Best for demos, recordings, and hardware showcase sessions.',
   },
   {
     id: 'extreme',
-    nameCN: '极限编排',
+    nameCN: 'Extreme Mesh',
     nameEN: 'EXTREME',
-    desc: '保留高强度沉浸路径，同时更强调动态装载、热路径控制与稳定帧率之间的平衡。',
+    desc: 'Keeps the dramatic runtime surface while leaning harder on dynamic loading and frame stability.',
     color: 'var(--color-mode-extreme)',
-    focus: '动态装载 + 性能压榨',
-    payoff: '适合现代桌面与中高配笔记本',
+    focus: 'Dynamic loading + stress-ready runtime',
+    payoff: 'Great for modern laptops and dense browser sessions.',
   },
   {
     id: 'balanced',
-    nameCN: '均衡主线',
+    nameCN: 'Balanced Mainline',
     nameEN: 'BALANCED',
-    desc: '真实能力优先，自动降级完整且可解释，是大多数设备上的旗舰默认方案。',
+    desc: 'Real capabilities stay first-class, fallbacks stay visible, and the experience remains shippable.',
     color: 'var(--color-mode-balanced)',
-    focus: '体验与稳定并重',
-    payoff: '适合绝大多数设备',
+    focus: 'Clarity, stability, and explainable fallbacks',
+    payoff: 'The default release path for most devices.',
   },
   {
     id: 'eco',
-    nameCN: '低耗生存',
+    nameCN: 'Eco Continuity',
     nameEN: 'ECO',
-    desc: '优先保证连续性、兼容性和能耗占用，让文明内核在轻设备上也能优雅运转。',
+    desc: 'Prioritizes continuity, battery, and low-friction delivery on constrained devices.',
     color: 'var(--color-mode-eco)',
-    focus: '兼容性 + 连续运行',
-    payoff: '适合移动端和低配设备',
+    focus: 'Compatibility + long-session continuity',
+    payoff: 'Best for mobile, low-power, or restricted browser environments.',
   },
 ];
 
@@ -58,6 +59,7 @@ export interface ModeSelectProps {
   onStart: () => void;
   currentMode: ModeConfig;
   capabilityProfile?: CapabilityProfile | null;
+  onOpenFeatureUniverse?: () => void;
 }
 
 function getRecommendedMode(profile?: CapabilityProfile | null): AppPerformanceMode {
@@ -70,6 +72,7 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
   onStart,
   currentMode,
   capabilityProfile,
+  onOpenFeatureUniverse,
 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const recommendedMode = getRecommendedMode(capabilityProfile);
@@ -116,39 +119,52 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
   return (
     <div className="mode-stage">
       <section className="mode-stage__hero">
-        <div className="mode-stage__badge">Flagship Runtime Select</div>
-        <h1>选择文明主线策略</h1>
-        <p>
-          这不是单纯的画质开关，而是一套浏览器能力编排策略。每种模式共享同一个文明内核，
-          只是对沉浸演出、子系统装载强度和自动降级阈值有不同取舍。
-        </p>
+        <div className="mode-stage__intro">
+          <div className="mode-stage__badge">Universe Entry</div>
+          <h1>See the capability universe before you choose the runtime stance.</h1>
+          <p>
+            This screen no longer treats performance mode as a simple graphics toggle. It decides
+            warmup intensity, capability orchestration, fallback posture, and how boldly the world
+            shell should expose the browser as a civilization engine.
+          </p>
 
-        <div className="mode-stage__metrics">
-          <div>
-            <span>Device tier</span>
-            <strong>{capabilityProfile?.device.level ?? '--'}</strong>
+          <div className="mode-stage__metrics">
+            <div>
+              <span>Device tier</span>
+              <strong>{capabilityProfile?.device.level ?? '--'}</strong>
+            </div>
+            <div>
+              <span>Recommended</span>
+              <strong>{recommendedMode.toUpperCase()}</strong>
+            </div>
+            <div>
+              <span>GPU</span>
+              <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>
+            </div>
+            <div>
+              <span>Native paths</span>
+              <strong>{capabilityHighlights.length}</strong>
+            </div>
           </div>
-          <div>
-            <span>Recommended</span>
-            <strong>{recommendedMode.toUpperCase()}</strong>
+
+          <div className="mode-stage__chips">
+            {capabilityHighlights.map((capability) => (
+              <span key={capability.id} className="mode-stage__chip">
+                {capability.label}
+              </span>
+            ))}
           </div>
-          <div>
-            <span>GPU</span>
-            <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>
-          </div>
-          <div>
-            <span>Native paths</span>
-            <strong>{capabilityHighlights.length}</strong>
-          </div>
+
+          {onOpenFeatureUniverse && (
+            <div className="mode-stage__hero-actions">
+              <button type="button" className="mode-stage__secondary" onClick={onOpenFeatureUniverse}>
+                Open Full Atlas
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="mode-stage__chips">
-          {capabilityHighlights.map((capability) => (
-            <span key={capability.id} className="mode-stage__chip">
-              {capability.label}
-            </span>
-          ))}
-        </div>
+        <CivilizationCapabilityUniverse capabilityProfile={capabilityProfile} variant="stage" />
       </section>
 
       <div ref={gridRef} className="mode-stage__grid" role="listbox" aria-label="Performance modes">
@@ -222,7 +238,14 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
         }
 
         .mode-stage__hero {
-          padding: 1.4rem;
+          padding: 1.3rem;
+          display: grid;
+          gap: 1rem;
+        }
+
+        .mode-stage__intro {
+          display: grid;
+          gap: 1rem;
         }
 
         .mode-stage__badge {
@@ -231,7 +254,6 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
           text-transform: uppercase;
           letter-spacing: 0.18em;
           color: var(--text-muted);
-          margin-bottom: 0.55rem;
         }
 
         .mode-stage__hero h1 {
@@ -242,139 +264,168 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
         }
 
         .mode-stage__hero p {
-          max-width: 68ch;
+          max-width: 72ch;
           color: var(--text-secondary);
           line-height: 1.7;
-          margin-top: 0.85rem;
         }
 
         .mode-stage__metrics {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
           gap: 0.8rem;
-          margin-top: 1rem;
         }
 
         .mode-stage__metrics div,
         .mode-card__meta div {
           border-radius: 18px;
-          background: rgba(11, 22, 40, 0.74);
-          padding: 0.85rem;
+          padding: 0.9rem;
+          background: rgba(10, 22, 42, 0.72);
         }
 
         .mode-stage__metrics span,
-        .mode-card__meta span,
-        .mode-stage__current span {
+        .mode-card__meta span {
           display: block;
           font-size: 0.72rem;
           color: var(--text-muted);
-          margin-bottom: 0.3rem;
+          margin-bottom: 0.35rem;
         }
 
         .mode-stage__metrics strong,
-        .mode-card__meta strong,
-        .mode-stage__current strong {
-          font-family: var(--font-mono);
-          font-size: 1rem;
+        .mode-card__meta strong {
+          font-size: 1.05rem;
+          color: var(--text-primary);
         }
 
         .mode-stage__chips {
           display: flex;
           flex-wrap: wrap;
           gap: 0.55rem;
-          margin-top: 1rem;
+        }
+
+        .mode-stage__hero-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
         }
 
         .mode-stage__chip {
-          padding: 0.45rem 0.7rem;
+          padding: 0.4rem 0.7rem;
           border-radius: 999px;
-          background: rgba(var(--accent-rgb), 0.08);
-          border: 1px solid rgba(var(--accent-rgb), 0.14);
-          color: var(--text-secondary);
+          background: rgba(var(--accent-rgb), 0.09);
+          border: 1px solid rgba(var(--accent-rgb), 0.16);
+          color: var(--text-primary);
           font-size: 0.78rem;
+        }
+
+        .mode-stage__secondary {
+          border-radius: 999px;
+          border: 1px solid rgba(var(--accent-rgb), 0.18);
+          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-primary);
+          padding: 0.7rem 1rem;
+          cursor: pointer;
         }
 
         .mode-stage__grid {
           display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 0.95rem;
         }
 
         .mode-card {
-          padding: 1rem;
+          padding: 1.1rem;
           text-align: left;
           cursor: pointer;
-          transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+          color: var(--text-primary);
+          transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .mode-card:hover,
-        .mode-card:focus-visible,
         .mode-card--selected {
           transform: translateY(-2px);
-          border-color: rgba(var(--accent-rgb), 0.3);
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+          border-color: rgba(var(--accent-rgb), 0.36);
+          box-shadow: 0 28px 56px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-card--recommended {
+          border-color: rgba(255, 214, 0, 0.38);
         }
 
         .mode-card__topline {
           display: flex;
           justify-content: space-between;
-          gap: 0.75rem;
-          margin-bottom: 1rem;
+          gap: 0.8rem;
           font-family: var(--font-mono);
-          font-size: 0.74rem;
+          font-size: 0.72rem;
           text-transform: uppercase;
+          letter-spacing: 0.12em;
           color: var(--text-muted);
         }
 
         .mode-card__topline strong {
-          color: var(--mode-accent);
+          color: #ffd600;
         }
 
         .mode-card__title {
+          margin-top: 0.8rem;
           font-family: var(--font-display);
-          font-size: 1.35rem;
-          letter-spacing: 0.06em;
+          font-size: 1.3rem;
+          letter-spacing: 0.08em;
           color: var(--mode-accent);
-          margin-bottom: 0.6rem;
         }
 
         .mode-card__desc {
-          min-height: 108px;
+          margin: 0.8rem 0 1rem;
           color: var(--text-secondary);
-          line-height: 1.6;
+          line-height: 1.65;
         }
 
         .mode-card__meta {
           display: grid;
-          gap: 0.7rem;
-          margin-top: 1rem;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.75rem;
         }
 
         .mode-stage__footer {
+          padding: 1rem 1.2rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 1rem;
-          padding: 1rem 1.2rem;
+        }
+
+        .mode-stage__current span {
+          display: block;
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--text-muted);
+          margin-bottom: 0.3rem;
+        }
+
+        .mode-stage__current strong {
+          font-family: var(--font-display);
+          font-size: 1.2rem;
         }
 
         .mode-stage__start {
-          border: 1px solid rgba(var(--accent-rgb), 0.24);
-          border-radius: 999px;
-          padding: 0.85rem 1.25rem;
-          background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.18), rgba(255, 56, 103, 0.18));
+          border: 1px solid rgba(var(--accent-rgb), 0.22);
+          background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.2), rgba(255, 214, 0, 0.18));
           color: var(--text-primary);
+          border-radius: 999px;
+          padding: 0.85rem 1.3rem;
           cursor: pointer;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          font-weight: 700;
         }
 
-        @media (max-width: 1100px) {
-          .mode-stage__grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+        @media (max-width: 780px) {
+          .mode-stage {
+            padding: 1rem;
           }
-        }
 
-        @media (max-width: 720px) {
-          .mode-stage__grid {
+          .mode-card__meta {
             grid-template-columns: 1fr;
           }
 

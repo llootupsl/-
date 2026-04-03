@@ -14,6 +14,9 @@ import { errorReporter } from './utils/ErrorReporter';
 import { logger } from './core/utils/Logger';
 
 const UniverseScene = lazy(() => import('./runtime/UniverseScene'));
+const FeatureUniversePanel = lazy(() =>
+  import('./ui/components/FeatureUniversePanel').then((module) => ({ default: module.FeatureUniversePanel })),
+);
 
 type AppPhase = 'loading' | 'select' | 'universe';
 
@@ -44,6 +47,7 @@ function App() {
   const [selectedMode, setSelectedMode] = useState<AppPerformanceMode>('balanced');
   const [isStarting, setIsStarting] = useState(false);
   const [showEmergencyStart, setShowEmergencyStart] = useState(false);
+  const [showFeatureUniverse, setShowFeatureUniverse] = useState(false);
 
   const {
     progress: loadProgress,
@@ -93,7 +97,7 @@ function App() {
 
   const handleEmergencyStart = useCallback(() => {
     setPhase('select');
-    toast.warning('已切换到安全启动模式', '你可以先进入主界面，其余模块会在后台继续补齐。');
+    toast.warning('Safe start enabled', 'You can enter the shell first while the rest of the runtime settles in the background.');
   }, []);
 
   const handleStart = useCallback(async () => {
@@ -102,7 +106,7 @@ function App() {
     }
 
     if (!loadComplete) {
-      toast.warning('初始化尚未完成', '请等待核心模块完成后再进入世界。');
+      toast.warning('Initialization still running', 'Wait for the core kernel to finish before entering the world.');
       return;
     }
 
@@ -129,11 +133,11 @@ function App() {
       logger.error('App', 'Failed to start game', appError);
       errorReporter.report(appError, 'initialization', {
         type: 'error',
-        title: '游戏启动失败',
+        title: 'World start failed',
         additionalData: { selectedMode },
       });
 
-      toast.error('启动失败', '进入世界时发生错误，请稍后重试。');
+      toast.error('World start failed', 'An error occurred while entering the civilization shell.');
     } finally {
       setIsStarting(false);
     }
@@ -158,6 +162,7 @@ function App() {
           isComplete={loadComplete}
           allowEmergencyStart={showEmergencyStart}
           onEmergencyStart={handleEmergencyStart}
+          onOpenFeatureUniverse={() => setShowFeatureUniverse(true)}
         />
       )}
 
@@ -168,12 +173,22 @@ function App() {
           onStart={handleStart}
           currentMode={currentMode}
           capabilityProfile={capabilityProfile}
+          onOpenFeatureUniverse={() => setShowFeatureUniverse(true)}
         />
       )}
 
       {phase === 'universe' && (
         <Suspense fallback={<div className="panel-loading">Loading...</div>}>
           <UniverseScene currentMode={currentMode} onExitToMenu={handleExitToMenu} />
+        </Suspense>
+      )}
+
+      {phase !== 'universe' && showFeatureUniverse && (
+        <Suspense fallback={<div className="panel-loading">Loading...</div>}>
+          <FeatureUniversePanel
+            isOpen={showFeatureUniverse}
+            onClose={() => setShowFeatureUniverse(false)}
+          />
         </Suspense>
       )}
 

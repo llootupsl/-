@@ -18,7 +18,10 @@ interface ObservatorySnapshot {
 function formatBytes(bytes: number): string {
   if (!bytes) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const unitIndex = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  );
   return `${(bytes / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
 }
 
@@ -30,7 +33,10 @@ function capabilityLabel(capability: CapabilityStatus): string {
   return formatRuntimeSourceLabel(capability.source);
 }
 
-export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, onClose }) => {
+export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const capabilityProfile = useRuntimeStore((state) => state.capabilityProfile);
   const traces = useRuntimeStore((state) => state.traces);
   const subsystems = useRuntimeStore((state) => state.subsystems);
@@ -64,13 +70,18 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
   );
 
   const subsystemList = useMemo(
-    () => Object.values(subsystems).sort((left, right) => left.label.localeCompare(right.label)),
+    () =>
+      Object.values(subsystems).sort((left, right) =>
+        left.label.localeCompare(right.label),
+      ),
     [subsystems],
   );
 
   const runtimeHealth = useMemo(() => {
     const readyCount = subsystemList.filter((item) => item.state === 'ready').length;
-    const degradedCount = subsystemList.filter((item) => item.state === 'degraded').length;
+    const degradedCount = subsystemList.filter(
+      (item) => item.state === 'degraded',
+    ).length;
     return { readyCount, degradedCount, total: subsystemList.length };
   }, [subsystemList]);
 
@@ -89,12 +100,24 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
           <div>
             <div className="observatory-kicker">Runtime Observatory</div>
             <h2>浏览器文明内核观测台</h2>
+            <p>
+              这里不是炫技附赠页，而是能力宇宙图背后的证据层：当前设备支持什么、
+              哪些能力走了降级、哪些子系统真的在运行，都在这里直接可见。
+            </p>
           </div>
           <div className="observatory-actions">
-            <button type="button" className="observatory-btn" onClick={refresh}>
+            <button
+              type="button"
+              className="observatory-btn"
+              onClick={refresh}
+            >
               Refresh
             </button>
-            <button type="button" className="observatory-btn observatory-btn--ghost" onClick={onClose}>
+            <button
+              type="button"
+              className="observatory-btn observatory-btn--ghost"
+              onClick={onClose}
+            >
               Close
             </button>
           </div>
@@ -102,7 +125,7 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
 
         <div className="observatory-grid">
           <section className="observatory-card observatory-card--hero">
-            <div className="hero-chip">Engineering-first telemetry</div>
+            <div className="hero-chip">Evidence-first telemetry</div>
             <div className="hero-metrics">
               <div>
                 <span className="metric-label">Device score</span>
@@ -122,9 +145,11 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
               </div>
             </div>
             <div className="hero-copy">
-              当前设备被归类为 <strong>{capabilityProfile?.device.level ?? '--'}</strong> 档，
-              GPU 厂商为 <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>。
-              系统默认优先走真实浏览器能力，不支持时自动切到一等降级路径，并在这里给出原因解释。
+              当前设备被归类为{' '}
+              <strong>{capabilityProfile?.device.level ?? '--'}</strong> 档，
+              GPU 厂商为{' '}
+              <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>。
+              系统始终优先走真实浏览器能力，不支持时自动切换到一等降级路径，并在这里解释原因。
             </div>
           </section>
 
@@ -132,7 +157,10 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
             <div className="card-title">Capability Graph</div>
             <div className="capability-list">
               {capabilityList.map((capability) => (
-                <article key={capability.id} className={`capability-pill capability-pill--${capabilityTone(capability)}`}>
+                <article
+                  key={capability.id}
+                  className={`capability-pill capability-pill--${capabilityTone(capability)}`}
+                >
                   <div>
                     <strong>{capability.label}</strong>
                     <p>{capability.note}</p>
@@ -147,7 +175,10 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
             <div className="card-title">Subsystem Registry</div>
             <div className="subsystem-list">
               {subsystemList.map((subsystem) => (
-                <article key={subsystem.id} className={`subsystem-card subsystem-card--${subsystem.state}`}>
+                <article
+                  key={subsystem.id}
+                  className={`subsystem-card subsystem-card--${subsystem.state}`}
+                >
                   <div className="subsystem-head">
                     <strong>{subsystem.label}</strong>
                     <span>{subsystem.state}</span>
@@ -189,23 +220,43 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
             </div>
 
             <div className="observatory-note">
-              高级控制只在这里暴露，用于主动重试真实设备能力或验证降级路径是否可恢复。
+              高级控制只在这里暴露，用于主动重试真实设备能力，或确认当前降级路径是否已恢复。
             </div>
 
             <div className="observatory-controls">
-              <button type="button" className="observatory-btn" onClick={() => void systemIntegrator.startP2P()}>
+              <button
+                type="button"
+                className="observatory-btn"
+                onClick={() => void systemIntegrator.startP2P()}
+              >
                 Retry P2P
               </button>
-              <button type="button" className="observatory-btn" onClick={() => void systemIntegrator.startEyeTracking()}>
+              <button
+                type="button"
+                className="observatory-btn"
+                onClick={() => void systemIntegrator.startEyeTracking()}
+              >
                 Start eye tracking
               </button>
-              <button type="button" className="observatory-btn" onClick={() => void systemIntegrator.calibrateEyeTracking()}>
+              <button
+                type="button"
+                className="observatory-btn"
+                onClick={() => void systemIntegrator.calibrateEyeTracking()}
+              >
                 Calibrate
               </button>
-              <button type="button" className="observatory-btn" onClick={() => void systemIntegrator.startVoiceControl()}>
+              <button
+                type="button"
+                className="observatory-btn"
+                onClick={() => void systemIntegrator.startVoiceControl()}
+              >
                 Voice on
               </button>
-              <button type="button" className="observatory-btn observatory-btn--ghost" onClick={() => systemIntegrator.stopVoiceControl()}>
+              <button
+                type="button"
+                className="observatory-btn observatory-btn--ghost"
+                onClick={() => systemIntegrator.stopVoiceControl()}
+              >
                 Voice off
               </button>
             </div>
@@ -214,15 +265,21 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
           <section className="observatory-card observatory-card--timeline">
             <div className="card-title">Boot Trace</div>
             <div className="trace-list">
-              {traces.slice().reverse().map((trace) => (
-                <article key={trace.id} className={`trace-item trace-item--${trace.severity}`}>
-                  <div className="trace-head">
-                    <strong>{trace.title}</strong>
-                    <span>{new Date(trace.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                  {trace.detail && <p>{trace.detail}</p>}
-                </article>
-              ))}
+              {traces
+                .slice()
+                .reverse()
+                .map((trace) => (
+                  <article
+                    key={trace.id}
+                    className={`trace-item trace-item--${trace.severity}`}
+                  >
+                    <div className="trace-head">
+                      <strong>{trace.title}</strong>
+                      <span>{new Date(trace.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    {trace.detail && <p>{trace.detail}</p>}
+                  </article>
+                ))}
             </div>
           </section>
         </div>
@@ -258,6 +315,13 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
             justify-content: space-between;
             gap: 1rem;
             margin-bottom: 1.25rem;
+          }
+
+          .observatory-header p {
+            margin: 0.7rem 0 0;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            max-width: 62ch;
           }
 
           .observatory-kicker {
@@ -296,10 +360,7 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
             padding: 1rem;
           }
 
-          .observatory-card--hero {
-            grid-column: span 12;
-          }
-
+          .observatory-card--hero,
           .observatory-card--timeline {
             grid-column: span 12;
           }
@@ -359,15 +420,10 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
             line-height: 1.6;
           }
 
-          .observatory-note {
-            margin-bottom: 0.9rem;
-          }
-
           .capability-list,
           .subsystem-list,
           .trace-list {
-            display: flex;
-            flex-direction: column;
+            display: grid;
             gap: 0.75rem;
           }
 
@@ -375,90 +431,79 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({ isOpen, on
           .subsystem-card,
           .trace-item {
             border-radius: 18px;
-            padding: 0.85rem 0.95rem;
+            padding: 0.85rem;
             background: rgba(10, 22, 42, 0.72);
-            border: 1px solid rgba(var(--accent-rgb), 0.08);
           }
 
           .capability-pill {
             display: flex;
             justify-content: space-between;
-            gap: 0.8rem;
-          }
-
-          .capability-pill strong,
-          .subsystem-head strong,
-          .trace-head strong {
-            display: block;
-            margin-bottom: 0.25rem;
+            gap: 0.9rem;
+            align-items: flex-start;
           }
 
           .capability-pill p,
           .subsystem-card p,
           .trace-item p {
-            margin: 0;
+            margin: 0.35rem 0 0;
             color: var(--text-secondary);
-            line-height: 1.5;
+            line-height: 1.55;
           }
 
           .capability-pill span,
-          .subsystem-head span,
-          .trace-head span,
-          .subsystem-card small {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
+          .subsystem-card small,
+          .trace-head span {
             color: var(--text-muted);
+            font-size: 0.76rem;
           }
 
           .capability-pill--supported {
-            border-color: rgba(30, 235, 170, 0.25);
+            border: 1px solid rgba(48, 210, 159, 0.14);
           }
 
           .capability-pill--fallback,
-          .subsystem-card--degraded,
-          .trace-item--warning {
-            border-color: rgba(255, 214, 0, 0.28);
+          .subsystem-card--degraded {
+            border: 1px solid rgba(255, 214, 0, 0.14);
           }
 
           .subsystem-card--error,
           .trace-item--error {
-            border-color: rgba(255, 56, 103, 0.28);
+            border: 1px solid rgba(255, 56, 103, 0.18);
           }
 
           .subsystem-head,
           .trace-head {
             display: flex;
             justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.4rem;
+            gap: 1rem;
+            align-items: center;
           }
 
           .observatory-controls {
             display: flex;
+            gap: 0.75rem;
             flex-wrap: wrap;
-            gap: 0.6rem;
+            margin-top: 1rem;
           }
 
           .observatory-btn {
-            border: 1px solid rgba(var(--accent-rgb), 0.2);
-            background: rgba(var(--accent-rgb), 0.1);
-            color: var(--text-primary);
+            border: 1px solid rgba(var(--accent-rgb), 0.18);
             border-radius: 999px;
-            padding: 0.65rem 1rem;
+            background: rgba(var(--accent-rgb), 0.12);
+            color: var(--text-primary);
+            padding: 0.55rem 0.9rem;
             cursor: pointer;
-            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-          }
-
-          .observatory-btn:hover {
-            transform: translateY(-1px);
-            border-color: rgba(var(--accent-rgb), 0.35);
           }
 
           .observatory-btn--ghost {
             background: transparent;
           }
 
-          @media (max-width: 900px) {
+          @media (max-width: 960px) {
+            .observatory-header {
+              flex-direction: column;
+            }
+
             .observatory-card {
               grid-column: span 12;
             }

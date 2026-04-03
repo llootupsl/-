@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-const MODE_HEADING = '选择文明主线策略';
+const MODE_HEADING = 'See the capability universe before you choose the runtime stance.';
 const START_BUTTON = 'Enter Civilization';
 
 test.describe('Civilization smoke flow', () => {
   test('boots into mode selection with a stable title', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page).toHaveTitle(/世界文明模拟器|OMNIS APIEN/);
+    await expect(page).toHaveTitle(/世界文明模拟器\s*\|\s*OMNIS APIEN/);
     await expect(page.getByRole('heading', { name: MODE_HEADING })).toBeVisible({
       timeout: 60_000,
     });
@@ -25,7 +25,7 @@ test.describe('Civilization smoke flow', () => {
     await ecoOption.click();
     await expect(ecoOption).toHaveAttribute('aria-selected', 'true');
 
-    await expect(page.locator('.mode-stage__current strong')).toContainText('低耗生存');
+    await expect(page.locator('.mode-stage__current strong')).toContainText('Eco Continuity');
     await expect(page.getByRole('button', { name: START_BUTTON })).toBeVisible();
   });
 });

@@ -3,6 +3,7 @@ node_modules/
 dist/
 dev-dist/
 release-dist/
+test-results/
 *.tsbuildinfo
 
 # Logs
@@ -28,3 +29,7 @@ wasm-pack-init.exe
 vs_buildtools.exe
 
 .vercel
+
+# Private planning and requirement sources stay outside the public snapshot
+docs/
+需求/
