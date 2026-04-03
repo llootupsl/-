@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { GameView } from '@/ui/components/GameView';
 import { WebGPUCanvas } from '@/ui/components/WebGPUCanvas';
 import { audioEngine, SoundType } from '@/audio/AudioEngine';
@@ -50,6 +50,30 @@ const BenchmarkPanel = lazy(() =>
 );
 const DAOPanel = lazy(() =>
   import('@/ui/components/DAOPanel').then((module) => ({ default: module.DAOPanel })),
+);
+const SocietyFeaturePanel = lazy(() =>
+  import('@/ui/components/SocietyFeaturePanel').then((module) => ({ default: module.SocietyFeaturePanel })),
+);
+const EconomyFeaturePanel = lazy(() =>
+  import('@/ui/components/EconomyFeaturePanel').then((module) => ({ default: module.EconomyFeaturePanel })),
+);
+const IdentityFeaturePanel = lazy(() =>
+  import('@/ui/components/IdentityFeaturePanel').then((module) => ({ default: module.IdentityFeaturePanel })),
+);
+const PersistenceFeaturePanel = lazy(() =>
+  import('@/ui/components/PersistenceFeaturePanel').then((module) => ({ default: module.PersistenceFeaturePanel })),
+);
+const RenderingFeaturePanel = lazy(() =>
+  import('@/ui/components/RenderingFeaturePanel').then((module) => ({ default: module.RenderingFeaturePanel })),
+);
+const ConflictClimateFeaturePanel = lazy(() =>
+  import('@/ui/components/ConflictClimateFeaturePanel').then((module) => ({ default: module.ConflictClimateFeaturePanel })),
+);
+const SpaceConnectionFeaturePanel = lazy(() =>
+  import('@/ui/components/SpaceConnectionFeaturePanel').then((module) => ({ default: module.SpaceConnectionFeaturePanel })),
+);
+const PluginEcosystemFeaturePanel = lazy(() =>
+  import('@/ui/components/PluginEcosystemFeaturePanel').then((module) => ({ default: module.PluginEcosystemFeaturePanel })),
 );
 const SpaceWarpPanel = lazy(() =>
   import('@/network/p2p/SpaceWarpPanel').then((module) => ({ default: module.SpaceWarpPanel })),
@@ -152,6 +176,14 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
   const [showGenesisTwin, setShowGenesisTwin] = useState(false);
   const [showBenchmark, setShowBenchmark] = useState(false);
   const [showDao, setShowDao] = useState(false);
+  const [showSocietyFeature, setShowSocietyFeature] = useState(false);
+  const [showEconomyFeature, setShowEconomyFeature] = useState(false);
+  const [showIdentityFeature, setShowIdentityFeature] = useState(false);
+  const [showPersistenceFeature, setShowPersistenceFeature] = useState(false);
+  const [showRenderingFeature, setShowRenderingFeature] = useState(false);
+  const [showConflictClimateFeature, setShowConflictClimateFeature] = useState(false);
+  const [showSpaceConnectionFeature, setShowSpaceConnectionFeature] = useState(false);
+  const [showPluginEcosystemFeature, setShowPluginEcosystemFeature] = useState(false);
   const [showSpaceWarp, setShowSpaceWarp] = useState(false);
   const [llmManager, setLlmManager] = useState<LLMManager | null>(null);
   const peerIdentityRef = useRef({
@@ -166,7 +198,7 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
   const startTutorial = useTutorialStore((state) => state.startTutorial);
 
   const { isOpen: isHelpOpen, toggleHelp, closeHelp, contextualPanel } = useHelpStore();
-  const panelFallback = <div className="panel-loading panel-loading--glass">载入模块中...</div>;
+  const panelFallback = <div className="panel-loading panel-loading--glass">模块加载中…</div>;
 
   const setupEventBindings = useCallback(() => {
     const handleCitizenBorn = (citizen: { id: string; needs: Record<string, unknown> }) => {
@@ -193,7 +225,7 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         economicImpact: -0.1,
       });
 
-      useGameStore.getState().addNarrative(`市民消逝：${citizenId.slice(0, 8)}`, 'event');
+      useGameStore.getState().addNarrative(`市民离世：${citizenId.slice(0, 8)}`, 'event');
     };
 
     const handleTechCompleted = (tech: { name: string }) => {
@@ -269,7 +301,7 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         logger.error('TechTree', 'Update failed', appError);
         errorReporter.report(appError, 'unknown', {
           type: 'warning',
-          title: '科技树更新失败',
+        title: '科技树更新失败',
         });
       }
     }
@@ -420,7 +452,7 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
             typeof change.newValue === 'number' &&
             Math.abs(change.newValue - (change.oldValue as number)) > 0.1
           ) {
-            state.addNarrative(`市民 ${citizen.id.slice(0, 8)} ${change.reason}`, 'event');
+        state.addNarrative(`市民 ${citizen.id.slice(0, 8)} ${change.reason}`, 'event');
           }
         }
       }
@@ -570,6 +602,46 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
     setShowDao(true);
   }, [playClick]);
 
+  const handleOpenSocietyFeature = useCallback(() => {
+    playClick();
+    setShowSocietyFeature(true);
+  }, [playClick]);
+
+  const handleOpenEconomyFeature = useCallback(() => {
+    playClick();
+    setShowEconomyFeature(true);
+  }, [playClick]);
+
+  const handleOpenIdentityFeature = useCallback(() => {
+    playClick();
+    setShowIdentityFeature(true);
+  }, [playClick]);
+
+  const handleOpenPersistenceFeature = useCallback(() => {
+    playClick();
+    setShowPersistenceFeature(true);
+  }, [playClick]);
+
+  const handleOpenRenderingFeature = useCallback(() => {
+    playClick();
+    setShowRenderingFeature(true);
+  }, [playClick]);
+
+  const handleOpenConflictClimateFeature = useCallback(() => {
+    playClick();
+    setShowConflictClimateFeature(true);
+  }, [playClick]);
+
+  const handleOpenSpaceConnectionFeature = useCallback(() => {
+    playClick();
+    setShowSpaceConnectionFeature(true);
+  }, [playClick]);
+
+  const handleOpenPluginEcosystemFeature = useCallback(() => {
+    playClick();
+    setShowPluginEcosystemFeature(true);
+  }, [playClick]);
+
   const handleOpenSpaceWarp = useCallback(() => {
     playClick();
     setShowSpaceWarp(true);
@@ -641,6 +713,14 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         onOpenGenesisTwin={handleOpenGenesisTwin}
         onOpenBenchmark={handleOpenBenchmark}
         onOpenDao={handleOpenDao}
+        onOpenSocietyFeature={handleOpenSocietyFeature}
+        onOpenEconomyFeature={handleOpenEconomyFeature}
+        onOpenIdentityFeature={handleOpenIdentityFeature}
+        onOpenPersistenceFeature={handleOpenPersistenceFeature}
+        onOpenRenderingFeature={handleOpenRenderingFeature}
+        onOpenConflictClimateFeature={handleOpenConflictClimateFeature}
+        onOpenSpaceConnectionFeature={handleOpenSpaceConnectionFeature}
+        onOpenPluginEcosystemFeature={handleOpenPluginEcosystemFeature}
         onOpenSpaceWarp={handleOpenSpaceWarp}
         onOpenSystemStatus={handleOpenSystemStatus}
       />
@@ -650,10 +730,10 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
         <button
           className="universe-utility-btn"
           onClick={handleOpenSystemStatus}
-          aria-label="Open system status"
-          title="System status (S)"
+          aria-label="打开系统观测台"
+          title="系统观测台（S）"
         >
-          Observatory
+          观测台
         </button>
       </div>
 
@@ -672,6 +752,103 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
               onMessage={(message) => logger.debug('Chat', message.content)}
             />
             <button className="chat-close" onClick={() => setShowChat(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showSocietyFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <SocietyFeaturePanel />
+            <button className="feature-overlay__close" onClick={() => setShowSocietyFeature(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showEconomyFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <EconomyFeaturePanel />
+            <button className="feature-overlay__close" onClick={() => setShowEconomyFeature(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showIdentityFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <IdentityFeaturePanel />
+            <button className="feature-overlay__close" onClick={() => setShowIdentityFeature(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showPersistenceFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <PersistenceFeaturePanel />
+            <button className="feature-overlay__close" onClick={() => setShowPersistenceFeature(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showRenderingFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <RenderingFeaturePanel />
+            <button className="feature-overlay__close" onClick={() => setShowRenderingFeature(false)}>
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showConflictClimateFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <ConflictClimateFeaturePanel />
+            <button
+              className="feature-overlay__close"
+              onClick={() => setShowConflictClimateFeature(false)}
+            >
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showSpaceConnectionFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <SpaceConnectionFeaturePanel />
+            <button
+              className="feature-overlay__close"
+              onClick={() => setShowSpaceConnectionFeature(false)}
+            >
+              关闭
+            </button>
+          </div>
+        </Suspense>
+      )}
+
+      {showPluginEcosystemFeature && (
+        <Suspense fallback={panelFallback}>
+          <div className="feature-overlay">
+            <PluginEcosystemFeaturePanel />
+            <button
+              className="feature-overlay__close"
+              onClick={() => setShowPluginEcosystemFeature(false)}
+            >
               关闭
             </button>
           </div>
@@ -864,3 +1041,5 @@ export function UniverseScene({ currentMode, onExitToMenu }: UniverseSceneProps)
 }
 
 export default UniverseScene;
+
+

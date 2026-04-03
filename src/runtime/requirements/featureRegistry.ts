@@ -1,6 +1,8 @@
 import {
+  getFeatureSourceClauses,
   requirementFeatureCatalog,
   requirementUniverseGroups,
+  type RequirementEntryMetadata,
   type RequirementExperienceStatus,
   type RequirementPanelAction,
 } from './index';
@@ -24,6 +26,7 @@ export interface RequirementFeatureDescriptor {
   status: RequirementFeatureStatus;
   sourceDoc: string[];
   sourceClauses: string[];
+  sourceClauseRefs: string[];
   experienceEntry: string;
   experienceEntryEN: string;
   runtimeSubsystem: string;
@@ -31,6 +34,12 @@ export interface RequirementFeatureDescriptor {
   readmeSummary: string;
   readmeSummaryEN: string;
   panelAction: RequirementPanelAction;
+  entrySurfaceCN: string;
+  entrySurfaceEN: string;
+  entryActionCN: string;
+  entryActionEN: string;
+  implementationTier: RequirementEntryMetadata['implementationTier'];
+  verificationId: string;
 }
 
 export interface RequirementUniverseSectionDescriptor {
@@ -61,6 +70,7 @@ export const requirementFeatureRegistry: RequirementFeatureDescriptor[] =
     const group = requirementUniverseGroups.find(
       (candidate) => candidate.id === feature.universeGroup,
     ) ?? requirementUniverseGroups[0];
+    const sourceClauses = getFeatureSourceClauses(feature);
 
     return {
       id: feature.id,
@@ -70,8 +80,9 @@ export const requirementFeatureRegistry: RequirementFeatureDescriptor[] =
       sectionLabelCN: group.title,
       sectionLabelEN: group.titleEN,
       status: feature.status,
-      sourceDoc: [feature.sourceDoc],
-      sourceClauses: feature.coveredClauses,
+      sourceDoc: [...new Set(sourceClauses.map((clause) => clause.docId))],
+      sourceClauses: sourceClauses.map((clause) => clause.clause),
+      sourceClauseRefs: sourceClauses.map((clause) => `${clause.docId}:${clause.clause}`),
       experienceEntry: feature.experienceEntry,
       experienceEntryEN: feature.experienceEntryEN,
       runtimeSubsystem: feature.runtimeSubsystem,
@@ -79,17 +90,21 @@ export const requirementFeatureRegistry: RequirementFeatureDescriptor[] =
       readmeSummary: feature.readmeSummary,
       readmeSummaryEN: feature.readmeSummaryEN,
       panelAction: feature.panelAction,
+      entrySurfaceCN: feature.entrySurfaceCN,
+      entrySurfaceEN: feature.entrySurfaceEN,
+      entryActionCN: feature.entryActionCN,
+      entryActionEN: feature.entryActionEN,
+      implementationTier: feature.implementationTier,
+      verificationId: feature.verificationId,
     };
   });
 
 export function getRequirementStatusLabel(status: RequirementFeatureStatus): string {
   switch (status) {
     case 'mainline-native':
-      return 'native';
+      return '原生';
     case 'mainline-fallback':
-      return 'fallback';
-    case 'mainline-simulated-with-explicit-label':
-      return 'simulated';
+      return '降级';
     default:
       return status;
   }
@@ -98,11 +113,9 @@ export function getRequirementStatusLabel(status: RequirementFeatureStatus): str
 export function getRequirementStatusDescription(status: RequirementFeatureStatus): string {
   switch (status) {
     case 'mainline-native':
-      return 'The real browser or local runtime path is active.';
+      return '当前正在使用真实浏览器能力或本地运行路径。';
     case 'mainline-fallback':
-      return 'The mainline experience stays available through a first-class fallback route.';
-    case 'mainline-simulated-with-explicit-label':
-      return 'This release exposes the cluster honestly as a clearly labeled simulation.';
+      return '主线体验正通过一等降级路径持续可用。';
     default:
       return status;
   }
@@ -110,16 +123,12 @@ export function getRequirementStatusDescription(status: RequirementFeatureStatus
 
 export function getRequirementStatusTone(
   status: RequirementFeatureStatus,
-): 'native' | 'fallback' | 'simulated' {
+): 'native' | 'fallback' {
   if (status === 'mainline-native') {
     return 'native';
   }
 
-  if (status === 'mainline-fallback') {
-    return 'fallback';
-  }
-
-  return 'simulated';
+  return 'fallback';
 }
 
 export function getRequirementFeaturesBySection(
@@ -141,6 +150,6 @@ export function getRequirementUniverseSummary(): Record<string, number> {
       summary[key] = (summary[key] ?? 0) + 1;
       return summary;
     },
-    { native: 0, fallback: 0, simulated: 0 },
+    { 原生: 0, 降级: 0 },
   );
 }

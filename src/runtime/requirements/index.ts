@@ -1,5 +1,6 @@
 import type { CapabilityId, CapabilityProfile } from '@/runtime/capabilities';
 import featureCatalogData from './featureCatalog.json';
+import featureEntryMetadataData from './featureEntryMetadata.json';
 import sourceInventoryData from './sourceInventory.json';
 import universeGroupsData from './universeGroups.json';
 
@@ -12,16 +13,28 @@ export type RequirementUniverseGroupId =
 
 export type RequirementExperienceStatus =
   | 'mainline-native'
-  | 'mainline-fallback'
-  | 'mainline-simulated-with-explicit-label';
+  | 'mainline-fallback';
 
-export type RequirementRuntimePath = 'native' | 'fallback' | 'simulated';
+export type RequirementRuntimePath = 'native' | 'fallback' | 'unavailable-with-reason';
 
 export type RequirementPanelAction =
   | 'citizens'
+  | 'society'
+  | 'economy'
   | 'dao'
+  | 'governance'
   | 'divine'
+  | 'entropy'
   | 'chat'
+  | 'multimodal'
+  | 'environment'
+  | 'genesis'
+  | 'identity'
+  | 'persistence'
+  | 'network'
+  | 'ecosystem'
+  | 'benchmark'
+  | 'rendering'
   | 'observatory'
   | 'none';
 
@@ -30,6 +43,11 @@ export interface RequirementSourceClause {
   docTitle: string;
   clause: string;
   title: string;
+}
+
+export interface RequirementClauseRef {
+  docId: RequirementSourceClause['docId'];
+  clause: string;
 }
 
 export interface RequirementUniverseGroup {
@@ -41,7 +59,16 @@ export interface RequirementUniverseGroup {
   accentToken: string;
 }
 
-export interface RequirementFeatureDescriptor {
+export interface RequirementEntryMetadata {
+  entrySurfaceCN: string;
+  entrySurfaceEN: string;
+  entryActionCN: string;
+  entryActionEN: string;
+  implementationTier: 'native' | 'fallback';
+  verificationId: string;
+}
+
+interface RequirementFeatureCatalogRecord {
   id: string;
   title: string;
   titleEN: string;
@@ -51,6 +78,7 @@ export interface RequirementFeatureDescriptor {
   sourceDoc: RequirementSourceClause['docId'];
   sourceClause: string;
   coveredClauses: string[];
+  coveredClauseRefs?: RequirementClauseRef[];
   experienceEntry: string;
   experienceEntryEN: string;
   runtimeSubsystem: string;
@@ -62,6 +90,18 @@ export interface RequirementFeatureDescriptor {
   readmeSummaryEN: string;
   modulePaths: string[];
   panelAction: RequirementPanelAction;
+}
+
+interface RequirementEntryMetadataRecord extends RequirementEntryMetadata {
+  id: string;
+}
+
+export interface RequirementFeatureDescriptor
+  extends Omit<RequirementFeatureCatalogRecord, 'coveredClauseRefs'>,
+    RequirementEntryMetadata {
+  status: RequirementExperienceStatus;
+  runtimePath: RequirementRuntimePath;
+  coveredClauseRefs: RequirementClauseRef[];
 }
 
 export interface RequirementUniverseGroupWithFeatures extends RequirementUniverseGroup {
@@ -80,12 +120,71 @@ export const requirementUniverseGroups =
 export const requirementSourceInventory =
   sourceInventoryData as RequirementSourceClause[];
 
-export const requirementFeatureCatalog =
-  featureCatalogData as RequirementFeatureDescriptor[];
+const requirementFeatureCatalogSource =
+  featureCatalogData as RequirementFeatureCatalogRecord[];
 
-const sourceInventoryByClause = new Map(
-  requirementSourceInventory.map((item) => [item.clause, item]),
+const requirementEntryMetadata =
+  featureEntryMetadataData as RequirementEntryMetadataRecord[];
+
+const requirementSourceInventoryByDocClause = new Map(
+  requirementSourceInventory.map((item) => [getRequirementClauseRefKey(item), item]),
 );
+
+const requirementEntryMetadataById = new Map(
+  requirementEntryMetadata.map((item) => [item.id, item]),
+);
+
+function normalizeRequirementStatus(
+  status: RequirementFeatureCatalogRecord['status'],
+): RequirementExperienceStatus {
+  return status === 'mainline-native' ? 'mainline-native' : 'mainline-fallback';
+}
+
+function normalizeRequirementRuntimePath(
+  runtimePath: RequirementFeatureCatalogRecord['runtimePath'],
+): RequirementRuntimePath {
+  return runtimePath === 'native' ? 'native' : 'fallback';
+}
+
+function createFallbackEntryMetadata(
+  feature: RequirementFeatureCatalogRecord,
+): RequirementEntryMetadata {
+  return {
+    entrySurfaceCN: feature.experienceEntry,
+    entrySurfaceEN: feature.experienceEntryEN,
+    entryActionCN: `进入 ${feature.title}`,
+    entryActionEN: `Enter ${feature.titleEN}`,
+    implementationTier: normalizeRequirementStatus(feature.status) === 'mainline-native'
+      ? 'native'
+      : 'fallback',
+    verificationId: `verify-${feature.id}`,
+  };
+}
+
+function resolveEntryMetadata(
+  feature: RequirementFeatureCatalogRecord,
+): RequirementEntryMetadata {
+  return requirementEntryMetadataById.get(feature.id) ?? createFallbackEntryMetadata(feature);
+}
+
+export function getRequirementClauseRefKey(
+  clauseRef: RequirementClauseRef | RequirementSourceClause,
+): string {
+  return `${clauseRef.docId}:${clauseRef.clause}`;
+}
+
+function resolveFeatureClauseRefs(
+  feature: RequirementFeatureCatalogRecord,
+): RequirementClauseRef[] {
+  if (Array.isArray(feature.coveredClauseRefs) && feature.coveredClauseRefs.length > 0) {
+    return feature.coveredClauseRefs;
+  }
+
+  return feature.coveredClauses.map((clause) => ({
+    docId: feature.sourceDoc,
+    clause,
+  }));
+}
 
 export function getRequirementUniverseGroup(
   groupId: RequirementUniverseGroupId,
@@ -95,6 +194,21 @@ export function getRequirementUniverseGroup(
     ?? requirementUniverseGroups[0]
   );
 }
+
+export const requirementFeatureCatalog: RequirementFeatureDescriptor[] =
+  requirementFeatureCatalogSource.map((feature) => {
+    const metadata = resolveEntryMetadata(feature);
+    const normalizedStatus = normalizeRequirementStatus(feature.status);
+
+    return {
+      ...feature,
+      ...metadata,
+      status: normalizedStatus,
+      runtimePath: normalizeRequirementRuntimePath(feature.runtimePath),
+      coveredClauseRefs: resolveFeatureClauseRefs(feature),
+      implementationTier: metadata.implementationTier,
+    };
+  });
 
 export function getRequirementFeaturesByGroup(
   groupId: RequirementUniverseGroupId,
@@ -126,15 +240,12 @@ export function resolveFeatureRuntimePath(
   feature: RequirementFeatureDescriptor,
   capabilityProfile: CapabilityProfile | null | undefined,
 ): RequirementRuntimePath | 'unavailable-with-reason' {
-  if (feature.runtimePath === 'simulated') {
-    return 'simulated';
-  }
-
   if (!capabilityProfile) {
     return feature.runtimePath;
   }
 
   const unsupportedDependencies = getFeatureUnsupportedDependencies(feature, capabilityProfile);
+
   if (unsupportedDependencies.length === 0) {
     return feature.runtimePath;
   }
@@ -145,24 +256,27 @@ export function resolveFeatureRuntimePath(
 export function getFeatureSourceClauses(
   feature: RequirementFeatureDescriptor,
 ): RequirementSourceClause[] {
-  return feature.coveredClauses
-    .map((clause) => sourceInventoryByClause.get(clause))
+  return feature.coveredClauseRefs
+    .map((clauseRef) => requirementSourceInventoryByDocClause.get(getRequirementClauseRefKey(clauseRef)))
     .filter((item): item is RequirementSourceClause => Boolean(item));
 }
 
 export function getRequirementCoverageSnapshot(): RequirementCoverageSnapshot {
   const coveredClauseSet = new Set<string>();
+
   for (const feature of requirementFeatureCatalog) {
-    feature.coveredClauses.forEach((clause) => coveredClauseSet.add(clause));
+    feature.coveredClauseRefs.forEach((clauseRef) => {
+      coveredClauseSet.add(getRequirementClauseRefKey(clauseRef));
+    });
   }
 
   const uncoveredClauses = requirementSourceInventory.filter(
-    (item) => !coveredClauseSet.has(item.clause),
+    (item) => !coveredClauseSet.has(getRequirementClauseRefKey(item)),
   );
 
   return {
     totalClauses: requirementSourceInventory.length,
-    coveredClauses: coveredClauseSet.size,
+    coveredClauses: requirementSourceInventory.length - uncoveredClauses.length,
     uncoveredClauses,
   };
 }
@@ -170,11 +284,9 @@ export function getRequirementCoverageSnapshot(): RequirementCoverageSnapshot {
 export function formatRequirementStatus(status: RequirementExperienceStatus): string {
   switch (status) {
     case 'mainline-native':
-      return 'Mainline native';
+      return '主线原生';
     case 'mainline-fallback':
-      return 'Mainline fallback';
-    case 'mainline-simulated-with-explicit-label':
-      return 'Mainline simulated';
+      return '主线降级';
     default:
       return status;
   }
@@ -185,13 +297,11 @@ export function formatRequirementRuntimePath(
 ): string {
   switch (path) {
     case 'native':
-      return 'Native';
+      return '原生路径';
     case 'fallback':
-      return 'Fallback';
-    case 'simulated':
-      return 'Simulated';
+      return '降级路径';
     case 'unavailable-with-reason':
-      return 'Unavailable';
+      return '不可用（有原因）';
     default:
       return path;
   }

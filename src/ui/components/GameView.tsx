@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import {
   useCitizenStats,
   useEmotion,
@@ -16,21 +16,21 @@ import type { RequirementPanelAction } from '@/runtime/requirements';
 import type { ModeConfig } from './ModeSelect';
 
 const EPOCH_LABELS = {
-  golden: 'Golden Era',
-  stable: 'Stable Era',
-  pressure: 'Pressure Era',
-  crisis: 'Crisis Era',
-  collapse: 'Collapse Edge',
-  entropy: 'Entropy Era',
+  golden: '黄金纪元',
+  stable: '稳定纪元',
+  pressure: '压力纪元',
+  crisis: '危机纪元',
+  collapse: '崩塌边缘',
+  entropy: '熵增纪元',
 } as const;
 
 const EPOCH_COLORS: Record<(typeof EPOCH_LABELS)[keyof typeof EPOCH_LABELS], string> = {
-  'Golden Era': 'var(--color-epoch-golden)',
-  'Stable Era': 'var(--color-epoch-stable)',
-  'Pressure Era': 'var(--color-epoch-pressure)',
-  'Crisis Era': 'var(--color-epoch-crisis)',
-  'Collapse Edge': 'var(--color-epoch-collapse)',
-  'Entropy Era': 'var(--color-entropy)',
+  黄金纪元: 'var(--color-epoch-golden)',
+  稳定纪元: 'var(--color-epoch-stable)',
+  压力纪元: 'var(--color-epoch-pressure)',
+  危机纪元: 'var(--color-epoch-crisis)',
+  崩塌边缘: 'var(--color-epoch-collapse)',
+  熵增纪元: 'var(--color-entropy)',
 };
 
 export interface GameViewProps {
@@ -40,6 +40,14 @@ export interface GameViewProps {
   onOpenEightChars: () => void;
   onOpenDivine: () => void;
   onOpenCitizen: () => void;
+  onOpenSocietyFeature?: () => void;
+  onOpenEconomyFeature?: () => void;
+  onOpenIdentityFeature?: () => void;
+  onOpenPersistenceFeature?: () => void;
+  onOpenRenderingFeature?: () => void;
+  onOpenConflictClimateFeature?: () => void;
+  onOpenSpaceConnectionFeature?: () => void;
+  onOpenPluginEcosystemFeature?: () => void;
   onOpenGenesisTwin: () => void;
   onOpenBenchmark: () => void;
   onOpenDao: () => void;
@@ -54,6 +62,14 @@ export const GameView: React.FC<GameViewProps> = ({
   onOpenEightChars,
   onOpenDivine,
   onOpenCitizen,
+  onOpenSocietyFeature,
+  onOpenEconomyFeature,
+  onOpenIdentityFeature,
+  onOpenPersistenceFeature,
+  onOpenRenderingFeature,
+  onOpenConflictClimateFeature,
+  onOpenSpaceConnectionFeature,
+  onOpenPluginEcosystemFeature,
   onOpenGenesisTwin,
   onOpenBenchmark,
   onOpenDao,
@@ -112,18 +128,51 @@ export const GameView: React.FC<GameViewProps> = ({
   const criticalSignals = runtimeTraces.slice(-4).reverse();
 
   const handleUniverseAction = (action: RequirementPanelAction) => {
-    switch (action) {
+    switch (action as string) {
       case 'citizens':
         onOpenCitizen();
         break;
+      case 'society':
+        onOpenSocietyFeature?.();
+        break;
+      case 'economy':
+        onOpenEconomyFeature?.();
+        break;
       case 'dao':
+      case 'governance':
         onOpenDao();
         break;
       case 'divine':
+      case 'entropy':
         onOpenDivine();
         break;
       case 'chat':
+      case 'multimodal':
         onOpenChat();
+        break;
+      case 'environment':
+        onOpenConflictClimateFeature?.();
+        break;
+      case 'genesis':
+        onOpenGenesisTwin();
+        break;
+      case 'identity':
+        onOpenIdentityFeature?.();
+        break;
+      case 'persistence':
+        onOpenPersistenceFeature?.();
+        break;
+      case 'ecosystem':
+        onOpenPluginEcosystemFeature?.();
+        break;
+      case 'network':
+        onOpenSpaceConnectionFeature?.();
+        break;
+      case 'benchmark':
+        onOpenBenchmark();
+        break;
+      case 'rendering':
+        onOpenRenderingFeature?.();
         break;
       case 'observatory':
         onOpenSystemStatus();
@@ -134,25 +183,25 @@ export const GameView: React.FC<GameViewProps> = ({
   };
 
   const alertMessage = warnings.criticalEntropy
-    ? 'Entropy is approaching the critical threshold.'
+    ? '熵值正在逼近危险阈值。'
     : warnings.populationZero
-      ? 'Population has collapsed to zero.'
+      ? '人口已经归零，文明主循环中断。'
       : warnings.resourceDepleted.length > 0
-        ? `Depleted resources: ${warnings.resourceDepleted.join(', ')}`
+        ? `资源耗尽：${warnings.resourceDepleted.join('、')}`
         : '';
 
   return (
     <div className="world-shell">
       <header className="world-shell__topbar">
         <div className="world-shell__brand">
-          <button type="button" className="world-shell__back" onClick={onBack} aria-label="Back to mode select">
-            Back
+          <button type="button" className="world-shell__back" onClick={onBack} aria-label="返回模式选择">
+            返回
           </button>
           <div>
             <div className="world-shell__mode" style={{ color: currentMode.color }}>
-              {currentMode.nameEN}
+              {currentMode.nameCN}
             </div>
-            <div className="world-shell__title">Civilization Command</div>
+            <div className="world-shell__title">文明控制台</div>
           </div>
         </div>
 
@@ -164,19 +213,19 @@ export const GameView: React.FC<GameViewProps> = ({
         </div>
 
         <div className="world-shell__runtime">
-          <span>Boot</span>
+          <span>启动阶段</span>
           <strong>{bootPhase}</strong>
-          <span>FPS</span>
+          <span>帧率</span>
           <strong>{fps}</strong>
         </div>
       </header>
 
       {alertMessage && (
         <div className="world-shell__alert">
-          <span>System Alert</span>
+          <span>系统警告</span>
           <strong>{alertMessage}</strong>
           <button type="button" onClick={() => clearWarning('resourceDepleted')}>
-            Dismiss
+            关闭
           </button>
         </div>
       )}
@@ -184,27 +233,33 @@ export const GameView: React.FC<GameViewProps> = ({
       <main className="world-shell__content">
         <section className="world-shell__hero">
           <div className="world-shell__epoch">
-            <span>Epoch</span>
+            <span>纪元</span>
             <strong style={{ color: EPOCH_COLORS[epoch] }}>{epoch}</strong>
           </div>
           <div className="world-shell__hero-copy">
-            <h1>The requirement universe is now a live runtime surface.</h1>
+            <h1>需求宇宙已经变成可操作的运行时界面。</h1>
             <p>
-              Capability clusters, strategic signals, emotional pressure, and subsystem truth live
-              together on the main stage so both players and reviewers can see what is native,
-              what is gracefully falling back, and what remains explicitly simulated.
+              能力簇、战略信号、情绪压力和子系统真相现在同时出现在主舞台上。你能直接看见哪些路径正在原生运行，哪些能力正在一等降级，以及浏览器还能把这个文明推到什么上限。
             </p>
           </div>
           <div className="world-shell__hero-actions">
-            <button type="button" onClick={onOpenCitizen}>Citizen Kernel</button>
-            <button type="button" onClick={onOpenDivine}>Divine Layer</button>
-            <button type="button" onClick={onOpenChat}>Runtime Chat</button>
-            <button type="button" onClick={onOpenEightChars}>Identity and Fate</button>
-            <button type="button" onClick={onOpenGenesisTwin}>Genesis Twin</button>
-            <button type="button" onClick={onOpenBenchmark}>Benchmark</button>
-            <button type="button" onClick={onOpenDao}>DAO Center</button>
-            <button type="button" onClick={onOpenSpaceWarp}>Space Warp</button>
-            <button type="button" onClick={onOpenSystemStatus}>Observatory</button>
+            <button type="button" onClick={onOpenCitizen}>市民内核</button>
+            <button type="button" onClick={() => onOpenSocietyFeature?.()}>社会织网</button>
+            <button type="button" onClick={() => onOpenConflictClimateFeature?.()}>风险控制台</button>
+            <button type="button" onClick={() => onOpenEconomyFeature?.()}>经济账本</button>
+            <button type="button" onClick={() => onOpenIdentityFeature?.()}>身份保险库</button>
+            <button type="button" onClick={() => onOpenPersistenceFeature?.()}>持久化档案</button>
+            <button type="button" onClick={() => onOpenRenderingFeature?.()}>渲染工坊</button>
+            <button type="button" onClick={onOpenDivine}>神谕层</button>
+            <button type="button" onClick={onOpenChat}>运行时对话</button>
+            <button type="button" onClick={onOpenEightChars}>命理档案</button>
+            <button type="button" onClick={onOpenGenesisTwin}>创世纪</button>
+            <button type="button" onClick={onOpenBenchmark}>基准测试</button>
+            <button type="button" onClick={onOpenDao}>DAO 中心</button>
+            <button type="button" onClick={() => onOpenSpaceConnectionFeature?.()}>桥接控制台</button>
+            <button type="button" onClick={() => onOpenPluginEcosystemFeature?.()}>生态锻炉</button>
+            <button type="button" onClick={onOpenSpaceWarp}>空间折跃</button>
+            <button type="button" onClick={onOpenSystemStatus}>观测台</button>
           </div>
         </section>
 
@@ -220,42 +275,42 @@ export const GameView: React.FC<GameViewProps> = ({
 
         <section className="world-shell__grid">
           <article className="world-shell__card">
-            <div className="world-shell__card-kicker">Civilization KPIs</div>
+            <div className="world-shell__card-kicker">文明指标</div>
             <div className="world-shell__stats">
               <div>
-                <span>Citizens</span>
+                <span>市民数量</span>
                 <strong>{citizenStats.total.toLocaleString()}</strong>
               </div>
               <div>
-                <span>Core energy</span>
+                <span>核心能源</span>
                 <strong>{resources.coreEnergy.toFixed(0)}</strong>
               </div>
               <div>
-                <span>Compute</span>
+                <span>算力配额</span>
                 <strong>{resources.computeQuota.toFixed(0)}</strong>
               </div>
               <div>
-                <span>Entropy</span>
+                <span>熵值</span>
                 <strong>{entropy.toFixed(1)}%</strong>
               </div>
             </div>
           </article>
 
           <article className="world-shell__card">
-            <div className="world-shell__card-kicker">Emotion Mesh</div>
+            <div className="world-shell__card-kicker">情绪网络</div>
             <div className="world-shell__bars">
               <div>
-                <label>Hope</label>
+                <label>希望值</label>
                 <progress value={emotion.hope} max={100} />
                 <span>{emotion.hope.toFixed(0)}%</span>
               </div>
               <div>
-                <label>Discontent</label>
+                <label>不满值</label>
                 <progress value={emotion.discontent} max={100} />
                 <span>{emotion.discontent.toFixed(0)}%</span>
               </div>
               <div>
-                <label>Rebellion risk</label>
+                <label>暴乱风险</label>
                 <progress value={emotion.rebellionRisk} max={100} />
                 <span>{emotion.rebellionRisk.toFixed(0)}%</span>
               </div>
@@ -263,33 +318,32 @@ export const GameView: React.FC<GameViewProps> = ({
           </article>
 
           <article className="world-shell__card">
-            <div className="world-shell__card-kicker">Runtime Health</div>
+            <div className="world-shell__card-kicker">运行时健康</div>
             <div className="world-shell__stats">
               <div>
-                <span>Ready systems</span>
+                <span>就绪子系统</span>
                 <strong>{readySubsystems.length}</strong>
               </div>
               <div>
-                <span>Fallback paths</span>
+                <span>降级路径</span>
                 <strong>{degradedSubsystems.length}</strong>
               </div>
               <div>
-                <span>World phase</span>
+                <span>世界阶段</span>
                 <strong>{phase}</strong>
               </div>
               <div>
-                <span>Mode focus</span>
+                <span>模式焦点</span>
                 <strong>{currentMode.focus}</strong>
               </div>
             </div>
             <p className="world-shell__summary">
-              The main stage keeps only strategic signals. Deep telemetry and runtime proof stay in
-              the observatory instead of crowding the front page.
+              主舞台现在把高价值入口直接摆到前面。更深的遥测与运行时证据仍留在观测台里，但核心功能已经可以从这里直接打开，不必再绕路找旧入口。
             </p>
           </article>
 
           <article className="world-shell__card">
-            <div className="world-shell__card-kicker">Strategic Signals</div>
+            <div className="world-shell__card-kicker">战略信号</div>
             <div className="world-shell__console">
               {criticalSignals.map((trace) => (
                 <div key={trace.id} className={`world-shell__console-item world-shell__console-item--${trace.severity}`}>
@@ -302,7 +356,7 @@ export const GameView: React.FC<GameViewProps> = ({
           </article>
 
           <article className="world-shell__card world-shell__card--wide">
-            <div className="world-shell__card-kicker">Narrative Stream</div>
+            <div className="world-shell__card-kicker">叙事流</div>
             <div className="world-shell__timeline">
               {narrative.slice(-6).reverse().map((item) => (
                 <div key={item.id} className={`world-shell__console-item world-shell__console-item--${item.type}`}>
@@ -571,3 +625,4 @@ export const GameView: React.FC<GameViewProps> = ({
 };
 
 export default GameView;
+

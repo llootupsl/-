@@ -107,12 +107,11 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
     <div className="boot-shell">
       <div className="boot-shell__content">
         <section className="boot-shell__hero">
-          <div className="boot-shell__badge">Boot Shell</div>
+          <div className="boot-shell__badge">启动壳 / Boot Shell</div>
           <div className="boot-shell__title">OMNIS APIEN</div>
           <p className="boot-shell__subtitle">
-            The browser civilization kernel is locking native paths, fallback posture, and startup
-            stability before the world opens. Once this phase is complete, the feature universe and
-            the main world loop join as a single surface.
+            浏览器文明内核会先锁定原生路径、降级姿态和启动稳定性，再把世界真正展开。
+            一旦这一阶段完成，功能宇宙和主世界循环会汇成同一块可操作表面。
           </p>
 
           <div className="boot-shell__meter">
@@ -123,27 +122,27 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
               <strong>{status}</strong>
               <span>
                 {capabilityProfile
-                  ? `${capabilityProfile.device.type} / ${capabilityProfile.device.level} / recommended ${capabilityProfile.device.recommendedMode}`
-                  : 'Probing browser capabilities...'}
+                  ? `${capabilityProfile.device.type} / ${capabilityProfile.device.level} / 推荐 ${capabilityProfile.device.recommendedMode}`
+                  : '正在探测浏览器能力…'}
               </span>
             </div>
           </div>
 
           <div className="boot-shell__capability-strip">
             <div>
-              <small>Native paths</small>
+              <small>原生路径</small>
               <strong>{supportedCapabilities.length}</strong>
             </div>
             <div>
-              <small>Fallback paths</small>
+              <small>降级路径</small>
               <strong>{fallbackCapabilities.length}</strong>
             </div>
             <div>
-              <small>CPU cores</small>
+              <small>CPU 核心</small>
               <strong>{capabilityProfile?.device.cpuCores ?? '--'}</strong>
             </div>
             <div>
-              <small>Memory</small>
+              <small>内存</small>
               <strong>{capabilityProfile?.device.memoryGB ?? '--'} GB</strong>
             </div>
           </div>
@@ -157,7 +156,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
                   onClick={onRetry}
                   disabled={isRetrying}
                 >
-                  {isRetrying ? 'Retrying...' : 'Retry Boot'}
+                  {isRetrying ? '正在重试…' : '重试启动'}
                 </button>
               )}
               {allowEmergencyStart && onEmergencyStart && !errorMessage && (
@@ -166,7 +165,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
                   className="boot-shell__button boot-shell__button--ghost"
                   onClick={onEmergencyStart}
                 >
-                  Safe Start
+                  安全启动
                 </button>
               )}
             </div>
@@ -179,7 +178,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
                 className="boot-shell__button boot-shell__button--ghost"
                 onClick={onOpenFeatureUniverse}
               >
-                Open Feature Atlas
+                打开功能宇宙图
               </button>
             </div>
           )}
@@ -189,8 +188,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
 
         <section className="boot-shell__panel">
           <header>
-            <div className="boot-shell__panel-kicker">Core Kernel</div>
-            <h2>Boot matrix</h2>
+            <div className="boot-shell__panel-kicker">核心内核</div>
+            <h2>启动矩阵</h2>
           </header>
           <div className="boot-shell__step-list">
             {coreSteps.map((step) => (
@@ -198,7 +197,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
                 key={step.id}
                 className={`boot-shell__step boot-shell__step--${step.status}`}
               >
-                <div className="boot-shell__step-icon">{STEP_ICON[step.id] || 'Node'}</div>
+                <div className="boot-shell__step-icon">{STEP_ICON[step.id] || '节点'}</div>
                 <div className="boot-shell__step-body">
                   <strong>{step.name}</strong>
                   <p>{step.description}</p>
@@ -211,14 +210,14 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
 
           <div className="boot-shell__divider" />
 
-          <div className="boot-shell__panel-kicker">Enhancements</div>
+          <div className="boot-shell__panel-kicker">增强层</div>
           <div className="boot-shell__step-list">
             {enhancementSteps.map((step) => (
               <article
                 key={step.id}
                 className={`boot-shell__step boot-shell__step--${step.status}`}
               >
-                <div className="boot-shell__step-icon">{STEP_ICON[step.id] || 'Edge'}</div>
+                <div className="boot-shell__step-icon">{STEP_ICON[step.id] || '边缘'}</div>
                 <div className="boot-shell__step-body">
                   <strong>{step.name}</strong>
                   <p>{step.description}</p>
@@ -230,8 +229,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
 
         <section className="boot-shell__panel">
           <header>
-            <div className="boot-shell__panel-kicker">Capability Graph</div>
-            <h2>Native paths and fallback posture</h2>
+            <div className="boot-shell__panel-kicker">能力图谱</div>
+            <h2>原生路径与降级姿态</h2>
           </header>
 
           <div className="boot-shell__chip-grid">
@@ -258,8 +257,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
 
         <section className="boot-shell__panel boot-shell__panel--wide">
           <header>
-            <div className="boot-shell__panel-kicker">Boot Trace</div>
-            <h2>Runtime load sequence</h2>
+            <div className="boot-shell__panel-kicker">启动轨迹</div>
+            <h2>运行时加载序列</h2>
           </header>
           <div className="boot-shell__trace-list">
             {latestEvents.map((event) => (
@@ -277,7 +276,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           </div>
           {isComplete && (
             <div className="boot-shell__ready-flag">
-              World kernel is standing by.
+              世界内核已经待命。
             </div>
           )}
         </section>
@@ -285,7 +284,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
         <section className="boot-shell__panel boot-shell__panel--wide">
           <FeatureUniversePreview
             onOpen={onOpenFeatureUniverse}
-            ctaLabel="Review the feature atlas"
+            ctaLabel="查看功能宇宙图"
           />
         </section>
       </div>

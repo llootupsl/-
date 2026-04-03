@@ -18,8 +18,6 @@ function toneClass(path: ReturnType<typeof resolveFeatureRuntimePath>): string {
       return 'native';
     case 'fallback':
       return 'fallback';
-    case 'simulated':
-      return 'simulated';
     case 'unavailable-with-reason':
       return 'unavailable';
     default:
@@ -30,13 +28,13 @@ function toneClass(path: ReturnType<typeof resolveFeatureRuntimePath>): string {
 export function FeatureUniversePreview({
   className,
   onOpen,
-  ctaLabel = 'Open the feature atlas',
+  ctaLabel = '打开功能图谱',
 }: FeatureUniversePreviewProps) {
   const capabilityProfile = useRuntimeStore((state) => state.capabilityProfile);
   const groups = useMemo(() => getRequirementUniverseGroupsWithFeatures(), []);
   const coverage = useMemo(() => getRequirementCoverageSnapshot(), []);
   const statusSummary = useMemo(() => {
-    const counts = { native: 0, fallback: 0, simulated: 0, unavailable: 0 };
+    const counts = { native: 0, fallback: 0, unavailable: 0 };
     for (const group of groups) {
       for (const feature of group.features) {
         const path = resolveFeatureRuntimePath(feature, capabilityProfile);
@@ -188,11 +186,11 @@ export function FeatureUniversePreview({
 
       <div className="feature-universe-preview__header">
         <div>
-          <div className="feature-universe-preview__eyebrow">Feature Universe</div>
-          <h2>Civilization Capability Atlas</h2>
+          <div className="feature-universe-preview__eyebrow">功能宇宙</div>
+          <h2>文明能力图谱</h2>
           <p>
-            The public atlas condenses the private requirement source into five runtime-facing layers
-            and seventeen capability clusters. What you see here is the actual release surface.
+            公开图谱把私有需求源压缩成五个面向运行时的层级和十七个能力簇。你在这里看到的是
+            真实发布面。
           </p>
         </div>
         <div className="feature-universe-preview__actions">
@@ -206,20 +204,20 @@ export function FeatureUniversePreview({
 
       <div className="feature-universe-preview__metrics">
         <div className="feature-universe-preview__metric">
-          <span>Derived clauses</span>
+          <span>派生条款</span>
           <strong>{coverage.coveredClauses}/{coverage.totalClauses}</strong>
         </div>
         <div className="feature-universe-preview__metric">
-          <span>Native clusters</span>
+          <span>主线原生簇</span>
           <strong>{statusSummary.native}</strong>
         </div>
         <div className="feature-universe-preview__metric">
-          <span>Fallback-visible clusters</span>
+          <span>可见降级簇</span>
           <strong>{statusSummary.fallback + statusSummary.unavailable}</strong>
         </div>
         <div className="feature-universe-preview__metric">
-          <span>Explicit simulations</span>
-          <strong>{statusSummary.simulated}</strong>
+          <span>不可用簇</span>
+          <strong>{statusSummary.unavailable}</strong>
         </div>
       </div>
 
@@ -228,16 +226,16 @@ export function FeatureUniversePreview({
           <article key={group.id} className="feature-universe-preview__group">
             <div className="feature-universe-preview__group-head">
               <div>
-                <h3>{group.titleEN}</h3>
-                <small>{group.features.length} clusters</small>
+                <h3>{group.title}</h3>
+                <small>{group.features.length} 个簇</small>
               </div>
               <strong>{group.features.length}</strong>
             </div>
-            <p>{group.summaryEN}</p>
+            <p>{group.summary}</p>
             <div className="feature-universe-preview__list">
               {group.features.slice(0, 3).map((feature) => (
                 <span key={feature.id} className="feature-universe-preview__chip">
-                  {feature.titleEN}
+                  {feature.title}
                 </span>
               ))}
             </div>

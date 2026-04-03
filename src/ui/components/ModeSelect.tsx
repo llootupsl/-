@@ -17,39 +17,39 @@ export interface ModeConfig {
 export const MODES: ModeConfig[] = [
   {
     id: 'apex',
-    nameCN: 'Apex Flagship',
+    nameCN: '顶峰旗舰（Apex Flagship）',
     nameEN: 'APEX',
-    desc: 'Maximum WebGPU, telemetry, and cinematic shell orchestration for high-end desktops.',
+    desc: '面向高端桌面，拉满 WebGPU、遥测与电影级外壳编排能力。',
     color: 'var(--color-mode-apex)',
-    focus: 'Flagship rendering + full capability staging',
-    payoff: 'Best for demos, recordings, and hardware showcase sessions.',
+    focus: '旗舰渲染 + 全能力预热（flagship rendering + full capability staging）',
+    payoff: '适合演示、录制和硬件展示。',
   },
   {
     id: 'extreme',
-    nameCN: 'Extreme Mesh',
+    nameCN: '极限织网（Extreme Mesh）',
     nameEN: 'EXTREME',
-    desc: 'Keeps the dramatic runtime surface while leaning harder on dynamic loading and frame stability.',
+    desc: '保留强烈的运行时张力，同时更依赖动态加载与帧稳定性。',
     color: 'var(--color-mode-extreme)',
-    focus: 'Dynamic loading + stress-ready runtime',
-    payoff: 'Great for modern laptops and dense browser sessions.',
+    focus: '动态加载 + 抗压运行（dynamic loading + stress-ready runtime）',
+    payoff: '适合现代笔记本和高密度浏览器会话。',
   },
   {
     id: 'balanced',
-    nameCN: 'Balanced Mainline',
+    nameCN: '均衡主线（Balanced Mainline）',
     nameEN: 'BALANCED',
-    desc: 'Real capabilities stay first-class, fallbacks stay visible, and the experience remains shippable.',
+    desc: '真实能力保持一等，降级路径保持可见，整体体验依然可交付。',
     color: 'var(--color-mode-balanced)',
-    focus: 'Clarity, stability, and explainable fallbacks',
-    payoff: 'The default release path for most devices.',
+    focus: '清晰、稳定、可解释的降级（clarity, stability, and explainable fallbacks）',
+    payoff: '大多数设备的默认发布路径。',
   },
   {
     id: 'eco',
-    nameCN: 'Eco Continuity',
+    nameCN: '节能续航（Eco Continuity）',
     nameEN: 'ECO',
-    desc: 'Prioritizes continuity, battery, and low-friction delivery on constrained devices.',
+    desc: '优先保证连续性、电量与低摩擦交付，适合受限设备。',
     color: 'var(--color-mode-eco)',
-    focus: 'Compatibility + long-session continuity',
-    payoff: 'Best for mobile, low-power, or restricted browser environments.',
+    focus: '兼容性 + 长会话续航（compatibility + long-session continuity）',
+    payoff: '适合移动端、低功耗或受限浏览器环境。',
   },
 ];
 
@@ -120,29 +120,28 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
     <div className="mode-stage">
       <section className="mode-stage__hero">
         <div className="mode-stage__intro">
-          <div className="mode-stage__badge">Universe Entry</div>
-          <h1>See the capability universe before you choose the runtime stance.</h1>
+          <div className="mode-stage__badge">宇宙入口（Universe Entry）</div>
+          <h1>先看能力宇宙，再选择你的运行姿态。</h1>
           <p>
-            This screen no longer treats performance mode as a simple graphics toggle. It decides
-            warmup intensity, capability orchestration, fallback posture, and how boldly the world
-            shell should expose the browser as a civilization engine.
+            这里不把性能模式当成单纯的画质开关，而是决定预热强度、能力编排、降级姿态，
+            以及世界外壳应该多大胆地把浏览器暴露成一台文明引擎。
           </p>
 
           <div className="mode-stage__metrics">
             <div>
-              <span>Device tier</span>
+              <span>设备等级</span>
               <strong>{capabilityProfile?.device.level ?? '--'}</strong>
             </div>
             <div>
-              <span>Recommended</span>
+              <span>推荐模式（Recommended）</span>
               <strong>{recommendedMode.toUpperCase()}</strong>
             </div>
             <div>
               <span>GPU</span>
-              <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>
+              <strong>{capabilityProfile?.device.gpuVendor ?? '未知'}</strong>
             </div>
             <div>
-              <span>Native paths</span>
+              <span>原生路径数（Native paths）</span>
               <strong>{capabilityHighlights.length}</strong>
             </div>
           </div>
@@ -155,10 +154,10 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
             ))}
           </div>
 
-          {onOpenFeatureUniverse && (
+              {onOpenFeatureUniverse && (
             <div className="mode-stage__hero-actions">
               <button type="button" className="mode-stage__secondary" onClick={onOpenFeatureUniverse}>
-                Open Full Atlas
+                打开完整图谱
               </button>
             </div>
           )}
@@ -167,7 +166,7 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
         <CivilizationCapabilityUniverse capabilityProfile={capabilityProfile} variant="stage" />
       </section>
 
-      <div ref={gridRef} className="mode-stage__grid" role="listbox" aria-label="Performance modes">
+      <div ref={gridRef} className="mode-stage__grid" role="listbox" aria-label="性能模式 / Performance modes">
         {MODES.map((mode, index) => {
           const isSelected = selectedMode === mode.id;
           const isRecommended = recommendedMode === mode.id;
@@ -185,18 +184,18 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
               style={{ '--mode-accent': mode.color } as React.CSSProperties}
             >
               <div className="mode-card__topline">
-                <span>{mode.nameEN}</span>
-                {isRecommended && <strong>Recommended</strong>}
+                <span>{mode.nameCN}</span>
+                {isRecommended && <strong>推荐</strong>}
               </div>
               <div className="mode-card__title">{mode.nameCN}</div>
               <p className="mode-card__desc">{mode.desc}</p>
               <div className="mode-card__meta">
                 <div>
-                  <span>Focus</span>
+                  <span>聚焦 / Focus</span>
                   <strong>{mode.focus}</strong>
                 </div>
                 <div>
-                  <span>Payoff</span>
+                  <span>收益 / Payoff</span>
                   <strong>{mode.payoff}</strong>
                 </div>
               </div>
@@ -207,11 +206,11 @@ export const ModeSelect: React.FC<ModeSelectProps> = ({
 
       <div className="mode-stage__footer">
         <div className="mode-stage__current">
-          <span>Current strategy</span>
+          <span>当前策略</span>
           <strong style={{ color: currentMode.color }}>{currentMode.nameCN}</strong>
         </div>
         <button type="button" className="mode-stage__start" onClick={onStart}>
-          Enter Civilization
+          进入文明
         </button>
       </div>
 

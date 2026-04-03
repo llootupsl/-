@@ -11,6 +11,8 @@
     "build:clean": "npm run clean && npm run build",
     "serve:dist": "vite preview --host 0.0.0.0 --port 4173",
     "verify:release": "npm run typecheck -- --pretty false && npm run test -- --run && npm run build",
+    "audit:requirements:private": "node scripts/audit-private-requirements.mjs",
+    "render:readme": "node scripts/render-readme.mjs",
     "deploy:vercel": "npm run verify:release && npx vercel deploy --prod --yes",
     "deploy:netlify": "npm run verify:release && npx netlify deploy --prod --dir=release-dist",
     "deploy:netlify:anon": "npm run verify:release && npx netlify deploy --prod --dir=release-dist --json --allow-anonymous",

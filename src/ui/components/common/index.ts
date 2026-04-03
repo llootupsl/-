@@ -32,6 +32,16 @@ export type { AvatarProps, AvatarSize } from './Avatar';
 export { Progress } from './Progress';
 export type { ProgressProps, ProgressStatus } from './Progress';
 
+export {
+  FeaturePanelFrame,
+} from './FeaturePanelFrame';
+export type {
+  FeaturePanelFrameProps,
+  FeaturePanelMetric,
+  FeaturePanelStatus,
+  FeaturePanelTone,
+} from './FeaturePanelFrame';
+
 export { Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
 

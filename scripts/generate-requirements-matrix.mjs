@@ -1,119 +1,120 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import registry from '../src/runtime/requirements/featureRegistry.data.json' with { type: 'json' };
+import { buildPublicRequirementView } from '../src/runtime/requirements/publicRegistry.mjs';
 
 const ROOT = process.cwd();
 const OUTPUT_PATH = path.join(ROOT, 'docs', 'REQUIREMENTS_MATRIX.md');
 
-const DOCS = [
-  {
-    label: 'v12.2 主需求',
-    file: path.join(ROOT, '需求', '顶级无后端网站需求.txt'),
-  },
-  {
-    label: '性能补充',
-    file: path.join(ROOT, '需求', '无后端网站的补充.txt'),
-  },
-  {
-    label: 'V13 高级补充',
-    file: path.join(ROOT, '需求', '顶级无后端网站需求_v13_高级补充协议.md'),
-  },
-];
-
-const headingPattern = /^#{2,4}\s+((?:\d+\.)+\d+)\s+(.+)$/;
-
-function publicStatus(status) {
-  if (status === 'mainline-native') {
-    return 'native';
-  }
-
-  if (status === 'mainline-fallback') {
-    return 'fallback';
-  }
-
-  return 'simulated';
+function cleanText(value) {
+  return String(value).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ').trim();
 }
 
-function sanitizeInline(text) {
-  return text.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ').trim();
+function table(headers, rows) {
+  const headerRow = `| ${headers.join(' | ')} |`;
+  const separator = `| ${headers.map(() => '---').join(' | ')} |`;
+  const body = rows.map((row) => `| ${row.join(' | ')} |`).join('\n');
+  return [headerRow, separator, body].join('\n');
 }
 
-function extractClauses(doc) {
-  const content = fs.readFileSync(doc.file, 'utf8').split(/\r?\n/);
+function renderClauseRows(view, locale) {
+  return view.coverage.rows.map(({ clause, feature }) => {
+    if (locale === 'cn') {
+      return [
+        `${clause.docTitle} ${clause.clause}`,
+        cleanText(clause.title),
+        cleanText(feature.title),
+        cleanText(feature.entrySurfaceCN),
+        cleanText(feature.entryActionCN),
+        feature.status === 'mainline-native' ? '主线原生' : '主线降级',
+        feature.implementationTier === 'native' ? '原生' : '降级',
+        feature.verificationId,
+      ];
+    }
 
-  return content
-    .map((line) => {
-      const match = line.match(headingPattern);
-      if (!match) {
-        return null;
-      }
-
-      return {
-        id: match[1],
-        title: sanitizeInline(match[2]),
-        source: doc.label,
-      };
-    })
-    .filter(Boolean);
+    return [
+      `${clause.docTitle} ${clause.clause}`,
+      cleanText(clause.title),
+      cleanText(feature.titleEN),
+      cleanText(feature.entrySurfaceEN),
+      cleanText(feature.entryActionEN),
+      feature.status === 'mainline-native' ? 'Mainline native' : 'Mainline fallback',
+      feature.implementationTier === 'native' ? 'Native' : 'Fallback',
+      feature.verificationId,
+    ];
+  });
 }
 
-const extractedClauses = DOCS.flatMap(extractClauses);
-const rows = extractedClauses.map((clause) => {
-  const feature = registry.find((entry) => entry.sourceClauses.includes(clause.id));
+function renderMatrix(view, locale) {
+  const summaryRows = [
+    locale === 'cn'
+      ? ['主线原生 / Mainline native', String(view.summary['mainline-native'])]
+      : ['Mainline native', String(view.summary['mainline-native'])],
+    locale === 'cn'
+      ? ['主线降级 / Mainline fallback', String(view.summary['mainline-fallback'])]
+      : ['Mainline fallback', String(view.summary['mainline-fallback'])],
+  ];
 
-  if (!feature) {
-    return {
-      clause,
-      feature: {
-        titleCN: '未映射',
-        status: 'unavailable-with-reason',
-        experienceEntry: '待补齐',
-        runtimeSubsystem: '待补齐',
-        fallbackMode: '该条款尚未完成需求注册表映射。',
-        validationScenario: '需求注册表测试应阻止发布。',
-      },
-    };
+  const layerRows = view.groupRows.map(({ group, groupFeatures, counts }) => {
+    if (locale === 'cn') {
+      return [
+        `${cleanText(group.title)} / ${cleanText(group.titleEN)}`,
+        String(groupFeatures.length),
+        String(counts['mainline-native']),
+        String(counts['mainline-fallback']),
+      ];
+    }
+
+    return [
+      `${cleanText(group.titleEN)} / ${cleanText(group.title)}`,
+      String(groupFeatures.length),
+      String(counts['mainline-native']),
+      String(counts['mainline-fallback']),
+    ];
+  });
+
+  const clauseHeaders = locale === 'cn'
+    ? ['来源', '条款', '功能簇', '入口界面', '入口动作', '状态', '实现层级', '验证 ID']
+    : ['Source', 'Clause', 'Cluster', 'Entry Surface', 'Entry Action', 'Status', 'Implementation Tier', 'Verification ID'];
+
+  const clauseTable = table(clauseHeaders, renderClauseRows(view, locale));
+
+  if (locale === 'cn') {
+    return [
+      '公开矩阵直接从 `src/runtime/requirements/` 生成，覆盖全部来源条款，并只保留主线原生与主线降级两态。',
+      '',
+      table(['状态', '数量'], summaryRows),
+      '',
+      table(['层级', '功能簇', '原生', '降级'], layerRows),
+      '',
+      clauseTable,
+    ].join('\n');
   }
 
-  return { clause, feature };
-});
+  return [
+    'This public matrix is generated from `src/runtime/requirements/`, covers every source clause, and keeps only the mainline native and mainline fallback states.',
+    '',
+    table(['Status', 'Count'], summaryRows),
+    '',
+    table(['Layer', 'Clusters', 'Native', 'Fallback'], layerRows),
+    '',
+    clauseTable,
+  ].join('\n');
+}
 
-const summary = registry.reduce(
-  (accumulator, feature) => {
-    const key = publicStatus(feature.status);
-    accumulator[key] += 1;
-    return accumulator;
-  },
-  { native: 0, fallback: 0, simulated: 0 },
-);
+const view = buildPublicRequirementView(ROOT);
+const markdown = [
+  '# 需求闭环矩阵 / Requirements Closure Matrix',
+  '',
+  '## 中文',
+  '',
+  renderMatrix(view, 'cn'),
+  '',
+  '## English',
+  '',
+  renderMatrix(view, 'en'),
+  '',
+].join('\n');
 
-const markdown = `# 需求对照矩阵
-更新时间：${new Date().toISOString().slice(0, 10)}
-
-此文档由 \`src/runtime/requirements/featureRegistry.data.json\` 生成，是 README、UI 宇宙图、测试与交付说明的统一需求真相源。
-
-## 主线状态词汇
-
-- \`native\`：真实主线路径，浏览器或本地运行时可以直接驱动。
-- \`fallback\`：主线保留，但设备或权限不足时进入一等降级路径。
-- \`simulated\`：主线存在，但当前路径必须显式标注为本地模拟、受限模式或受控替代。
-
-## 宇宙图摘要
-
-| 状态 | 数量 |
-| --- | ---: |
-| native | ${summary.native} |
-| fallback | ${summary.fallback} |
-| simulated | ${summary.simulated} |
-
-## 逐条映射
-
-| 来源 | 条款 | 原始标题 | 功能簇 | 主线状态 | 产品入口 | 运行时子系统 | 回退/说明 | 验收方式 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows
-  .map(({ clause, feature }) => `| ${clause.source} | \`${clause.id}\` | ${clause.title} | ${sanitizeInline(feature.titleCN)} | \`${publicStatus(feature.status)}\` | ${sanitizeInline(feature.experienceEntry)} | ${sanitizeInline(feature.runtimeSubsystem)} | ${sanitizeInline(feature.fallbackMode)} | ${sanitizeInline(feature.validationScenario)} |`)
-  .join('\n')}
-`;
-
+fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
 fs.writeFileSync(OUTPUT_PATH, markdown, 'utf8');
 console.log(`Generated ${path.relative(ROOT, OUTPUT_PATH)}`);

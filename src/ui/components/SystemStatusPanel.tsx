@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { systemIntegrator } from '@/core/SystemIntegrator';
 import { useRuntimeStore } from '@/runtime/runtimeStore';
 import type { CapabilityStatus } from '@/runtime/capabilities';
@@ -31,6 +31,23 @@ function capabilityTone(capability: CapabilityStatus): string {
 
 function capabilityLabel(capability: CapabilityStatus): string {
   return formatRuntimeSourceLabel(capability.source);
+}
+
+function formatSubsystemState(state: string): string {
+  switch (state) {
+    case 'ready':
+      return '就绪';
+    case 'degraded':
+      return '降级';
+    case 'error':
+      return '错误';
+    case 'idle':
+      return '待机';
+    case 'loading':
+      return '加载中';
+    default:
+      return state;
+  }
 }
 
 export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
@@ -94,15 +111,15 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
       <section
         className="observatory-panel"
         onClick={(event) => event.stopPropagation()}
-        aria-label="Runtime observatory"
+        aria-label="运行时观测台"
       >
         <header className="observatory-header">
           <div>
-            <div className="observatory-kicker">Runtime Observatory</div>
+            <div className="observatory-kicker">运行时观测台</div>
             <h2>浏览器文明内核观测台</h2>
             <p>
-              这里不是炫技附赠页，而是能力宇宙图背后的证据层：当前设备支持什么、
-              哪些能力走了降级、哪些子系统真的在运行，都在这里直接可见。
+              这里不是额外附赠的炫技页面，而是能力宇宙图背后的证据层。
+              当前设备支持什么、哪些能力走了降级、哪些子系统真的在运行，都在这里直接可见。
             </p>
           </div>
           <div className="observatory-actions">
@@ -111,36 +128,36 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
               className="observatory-btn"
               onClick={refresh}
             >
-              Refresh
+              刷新
             </button>
             <button
               type="button"
               className="observatory-btn observatory-btn--ghost"
               onClick={onClose}
             >
-              Close
+              关闭
             </button>
           </div>
         </header>
 
         <div className="observatory-grid">
           <section className="observatory-card observatory-card--hero">
-            <div className="hero-chip">Evidence-first telemetry</div>
+            <div className="hero-chip">证据优先遥测（Evidence-first telemetry）</div>
             <div className="hero-metrics">
               <div>
-                <span className="metric-label">Device score</span>
+                <span className="metric-label">设备评分</span>
                 <strong>{capabilityProfile?.device.score ?? '--'}</strong>
               </div>
               <div>
-                <span className="metric-label">Recommended mode</span>
+                <span className="metric-label">推荐模式</span>
                 <strong>{capabilityProfile?.device.recommendedMode ?? '--'}</strong>
               </div>
               <div>
-                <span className="metric-label">Active systems</span>
+                <span className="metric-label">活跃系统</span>
                 <strong>{snapshot.activeSystems.length}</strong>
               </div>
               <div>
-                <span className="metric-label">Fallback paths</span>
+                <span className="metric-label">降级路径</span>
                 <strong>{runtimeHealth.degradedCount}</strong>
               </div>
             </div>
@@ -148,13 +165,12 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
               当前设备被归类为{' '}
               <strong>{capabilityProfile?.device.level ?? '--'}</strong> 档，
               GPU 厂商为{' '}
-              <strong>{capabilityProfile?.device.gpuVendor ?? 'Unknown'}</strong>。
-              系统始终优先走真实浏览器能力，不支持时自动切换到一等降级路径，并在这里解释原因。
+              <strong>{capabilityProfile?.device.gpuVendor ?? '未知'}</strong>。系统始终优先真实浏览器能力；如果某条能力无法启用，会保留一等降级而不是悄悄切换，并在这里解释原因。
             </div>
           </section>
 
           <section className="observatory-card">
-            <div className="card-title">Capability Graph</div>
+            <div className="card-title">能力图谱</div>
             <div className="capability-list">
               {capabilityList.map((capability) => (
                 <article
@@ -172,7 +188,7 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
           </section>
 
           <section className="observatory-card">
-            <div className="card-title">Subsystem Registry</div>
+            <div className="card-title">子系统注册表</div>
             <div className="subsystem-list">
               {subsystemList.map((subsystem) => (
                 <article
@@ -181,7 +197,7 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
                 >
                   <div className="subsystem-head">
                     <strong>{subsystem.label}</strong>
-                    <span>{subsystem.state}</span>
+                    <span>{formatSubsystemState(subsystem.state)}</span>
                   </div>
                   <p>{subsystem.detail}</p>
                   <small>{formatRuntimeSourceLabel(subsystem.source)}</small>
@@ -191,36 +207,36 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
           </section>
 
           <section className="observatory-card">
-            <div className="card-title">Live Runtime</div>
+            <div className="card-title">实时运行态</div>
             <div className="observatory-stats">
               <div>
-                <span>Peer count</span>
+                <span>对等节点数</span>
                 <strong>{snapshot.integratorState.p2p.peerCount}</strong>
               </div>
               <div>
-                <span>GI probes</span>
+                <span>GI 探针数</span>
                 <strong>{snapshot.integratorState.gi.probeCount}</strong>
               </div>
               <div>
-                <span>Gaussian points</span>
+                <span>高斯点数</span>
                 <strong>{snapshot.integratorState.gaussian.pointCount}</strong>
               </div>
               <div>
-                <span>DAO votes</span>
+                <span>DAO 投票数</span>
                 <strong>{snapshot.integratorState.dao.totalVotes}</strong>
               </div>
               <div>
-                <span>Uploaded</span>
+                <span>已上传</span>
                 <strong>{formatBytes(snapshot.contribution.uploadedBytes)}</strong>
               </div>
               <div>
-                <span>Seed count</span>
+                <span>做种数</span>
                 <strong>{snapshot.contribution.seedCount}</strong>
               </div>
             </div>
 
             <div className="observatory-note">
-              高级控制只在这里暴露，用于主动重试真实设备能力，或确认当前降级路径是否已恢复。
+              高级控制只在这里暴露，用于主动重试真实设备能力，或确认当前降级路径是否已经恢复。
             </div>
 
             <div className="observatory-controls">
@@ -229,41 +245,41 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
                 className="observatory-btn"
                 onClick={() => void systemIntegrator.startP2P()}
               >
-                Retry P2P
+                重试 P2P
               </button>
               <button
                 type="button"
                 className="observatory-btn"
                 onClick={() => void systemIntegrator.startEyeTracking()}
               >
-                Start eye tracking
+                启动眼动追踪
               </button>
               <button
                 type="button"
                 className="observatory-btn"
                 onClick={() => void systemIntegrator.calibrateEyeTracking()}
               >
-                Calibrate
+                校准
               </button>
               <button
                 type="button"
                 className="observatory-btn"
                 onClick={() => void systemIntegrator.startVoiceControl()}
               >
-                Voice on
+                开启语音
               </button>
               <button
                 type="button"
                 className="observatory-btn observatory-btn--ghost"
                 onClick={() => systemIntegrator.stopVoiceControl()}
               >
-                Voice off
+                关闭语音
               </button>
             </div>
           </section>
 
           <section className="observatory-card observatory-card--timeline">
-            <div className="card-title">Boot Trace</div>
+            <div className="card-title">启动轨迹</div>
             <div className="trace-list">
               {traces
                 .slice()
@@ -515,3 +531,4 @@ export const SystemStatusPanel: React.FC<SystemStatusPanelProps> = ({
 };
 
 export default SystemStatusPanel;
+

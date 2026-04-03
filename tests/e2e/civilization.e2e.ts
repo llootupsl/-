@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-const MODE_HEADING = 'See the capability universe before you choose the runtime stance.';
-const START_BUTTON = 'Enter Civilization';
+const MODE_HEADING = '先看能力宇宙，再选择你的运行姿态。';
+const START_BUTTON = '进入文明';
 
 test.describe('Civilization smoke flow', () => {
   test('boots into mode selection with a stable title', async ({ page }) => {
@@ -21,11 +21,11 @@ test.describe('Civilization smoke flow', () => {
       timeout: 60_000,
     });
 
-    const ecoOption = page.getByRole('option', { name: /ECO/ });
+    const ecoOption = page.getByRole('option', { name: /节能续航|ECO/ });
     await ecoOption.click();
     await expect(ecoOption).toHaveAttribute('aria-selected', 'true');
 
-    await expect(page.locator('.mode-stage__current strong')).toContainText('Eco Continuity');
+    await expect(page.locator('.mode-stage__current strong')).toContainText('节能续航');
     await expect(page.getByRole('button', { name: START_BUTTON })).toBeVisible();
   });
 });

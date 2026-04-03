@@ -1,0 +1,155 @@
+[
+  {
+    "id": "citizen-runtime",
+    "entrySurfaceCN": "主 HUD / 市民内核",
+    "entrySurfaceEN": "Main HUD / Citizen Kernel",
+    "entryActionCN": "打开市民内核",
+    "entryActionEN": "Open Citizen Kernel",
+    "implementationTier": "fallback",
+    "verificationId": "verify-citizen-runtime"
+  },
+  {
+    "id": "society-culture",
+    "entrySurfaceCN": "功能宇宙图 / 社会文化簇",
+    "entrySurfaceEN": "Feature Universe / Society Cluster",
+    "entryActionCN": "打开社会文化簇",
+    "entryActionEN": "Open the Society Cluster",
+    "implementationTier": "fallback",
+    "verificationId": "verify-society-culture"
+  },
+  {
+    "id": "economy-industry",
+    "entrySurfaceCN": "主 HUD / 经济与基建",
+    "entrySurfaceEN": "Main HUD / Economy and Infrastructure",
+    "entryActionCN": "打开经济与基建",
+    "entryActionEN": "Open Economy and Infrastructure",
+    "implementationTier": "native",
+    "verificationId": "verify-economy-industry"
+  },
+  {
+    "id": "governance-law",
+    "entrySurfaceCN": "DAO 治理中心 / 法律层",
+    "entrySurfaceEN": "DAO Center / Governance Layer",
+    "entryActionCN": "打开治理中心",
+    "entryActionEN": "Open Governance Center",
+    "implementationTier": "fallback",
+    "verificationId": "verify-governance-law"
+  },
+  {
+    "id": "conflict-environment",
+    "entrySurfaceCN": "功能宇宙图 / 风险与生态簇",
+    "entrySurfaceEN": "Feature Universe / Risk and Ecology Cluster",
+    "entryActionCN": "打开风险与生态簇",
+    "entryActionEN": "Open the Risk and Ecology Cluster",
+    "implementationTier": "fallback",
+    "verificationId": "verify-conflict-environment"
+  },
+  {
+    "id": "entropy-survival",
+    "entrySurfaceCN": "主 HUD / 纪元与神谕层",
+    "entrySurfaceEN": "Main HUD / Epoch and Oracle Layer",
+    "entryActionCN": "打开纪元与神谕层",
+    "entryActionEN": "Open the Epoch and Oracle Layer",
+    "implementationTier": "fallback",
+    "verificationId": "verify-entropy-survival"
+  },
+  {
+    "id": "visual-interface",
+    "entrySurfaceCN": "启动壳 / 模式选择 / 主 HUD",
+    "entrySurfaceEN": "Boot Shell / Mode Select / Main HUD",
+    "entryActionCN": "查看界面与观测台",
+    "entryActionEN": "Inspect the Interface and Observatory",
+    "implementationTier": "fallback",
+    "verificationId": "verify-visual-interface"
+  },
+  {
+    "id": "multimodal-command",
+    "entrySurfaceCN": "运行时对话 / 帮助系统",
+    "entrySurfaceEN": "Runtime Chat / Help System",
+    "entryActionCN": "打开多模态指令层",
+    "entryActionEN": "Open the Multimodal Command Layer",
+    "implementationTier": "fallback",
+    "verificationId": "verify-multimodal-command"
+  },
+  {
+    "id": "reality-twin",
+    "entrySurfaceCN": "启动壳 / 创世纪现实锚点",
+    "entrySurfaceEN": "Boot Shell / Genesis Reality Anchor",
+    "entryActionCN": "打开创世纪现实锚点",
+    "entryActionEN": "Open the Genesis Reality Anchor",
+    "implementationTier": "fallback",
+    "verificationId": "verify-reality-twin"
+  },
+  {
+    "id": "chain-evidence",
+    "entrySurfaceCN": "DAO 治理中心 / 身份与证据层",
+    "entrySurfaceEN": "DAO Center / Identity and Evidence Layer",
+    "entryActionCN": "打开身份与证据层",
+    "entryActionEN": "Open the Identity and Evidence Layer",
+    "implementationTier": "fallback",
+    "verificationId": "verify-chain-evidence"
+  },
+  {
+    "id": "storage-ghost-time",
+    "entrySurfaceCN": "持久化层 / 幽灵时间控制台",
+    "entrySurfaceEN": "Persistence Layer / Ghost Time Console",
+    "entryActionCN": "打开持久化与幽灵时间",
+    "entryActionEN": "Open Persistence and Ghost Time",
+    "implementationTier": "fallback",
+    "verificationId": "verify-storage-ghost-time"
+  },
+  {
+    "id": "inter-civilization",
+    "entrySurfaceCN": "功能宇宙图 / 空间连接层",
+    "entrySurfaceEN": "Feature Universe / Space Connection Layer",
+    "entryActionCN": "打开跨文明连接层",
+    "entryActionEN": "Open the Cross-Civilization Connection Layer",
+    "implementationTier": "fallback",
+    "verificationId": "verify-inter-civilization"
+  },
+  {
+    "id": "p2p-federation",
+    "entrySurfaceCN": "空间连接层 / P2P 联邦控制台",
+    "entrySurfaceEN": "Space Connection Layer / P2P Federation Console",
+    "entryActionCN": "打开 P2P 联邦控制台",
+    "entryActionEN": "Open the P2P Federation Console",
+    "implementationTier": "fallback",
+    "verificationId": "verify-p2p-federation"
+  },
+  {
+    "id": "open-ecosystem",
+    "entrySurfaceCN": "功能宇宙图 / 开放生态锻炉",
+    "entrySurfaceEN": "Feature Universe / Open Ecosystem Forge",
+    "entryActionCN": "打开开放生态锻炉",
+    "entryActionEN": "Open the Open Ecosystem Forge",
+    "implementationTier": "fallback",
+    "verificationId": "verify-open-ecosystem"
+  },
+  {
+    "id": "performance-orchestration",
+    "entrySurfaceCN": "启动壳 / 性能观测台",
+    "entrySurfaceEN": "Boot Shell / Performance Observatory",
+    "entryActionCN": "打开性能观测台",
+    "entryActionEN": "Open the Performance Observatory",
+    "implementationTier": "native",
+    "verificationId": "verify-performance-orchestration"
+  },
+  {
+    "id": "benchmark-and-stress",
+    "entrySurfaceCN": "性能模式 / 基准与压测台",
+    "entrySurfaceEN": "Performance Modes / Benchmark and Stress Console",
+    "entryActionCN": "打开基准与压测台",
+    "entryActionEN": "Open the Benchmark and Stress Console",
+    "implementationTier": "fallback",
+    "verificationId": "verify-benchmark-and-stress"
+  },
+  {
+    "id": "hardware-acceleration",
+    "entrySurfaceCN": "渲染内核 / WebGPU 观测面",
+    "entrySurfaceEN": "Render Kernel / WebGPU Observatory",
+    "entryActionCN": "打开渲染内核观测面",
+    "entryActionEN": "Open the Render Kernel Observatory",
+    "implementationTier": "fallback",
+    "verificationId": "verify-hardware-acceleration"
+  }
+]

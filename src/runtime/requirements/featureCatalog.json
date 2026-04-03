@@ -1,7 +1,7 @@
 [
   {
     "id": "citizen-runtime",
-    "title": "市民智能与命理内核",
+    "title": "市民智能内核",
     "titleEN": "Citizen Intelligence Kernel",
     "universeGroup": "civilization-systems",
     "status": "mainline-fallback",
@@ -37,14 +37,18 @@
       "3.26.7",
       "3.26.8"
     ],
-    "experienceEntry": "主 HUD → 市民层 / 命理系统 / 运行时对话",
-    "experienceEntryEN": "Main HUD → Citizen Layer / Fate System / Runtime Chat",
+    "experienceEntry": "主 HUD -> 市民内核 / 命理层 / 运行时对话",
+    "experienceEntryEN": "Main HUD -> Citizen Layer / Fate System / Runtime Chat",
     "runtimeSubsystem": "Citizen runtime, quantum-neural cognition, genome plugins, fate mapping, and custom AI routing",
-    "capabilityDependencies": ["wasm", "webgpu", "opfs"],
-    "dataSource": "本地市民状态、长期记忆、八字种子与用户配置的 AI 路径",
-    "fallbackMode": "WASM 或端侧模型不可用时回落到 JavaScript 推理、预置对话和受限认知密度，并明确显示来源。",
-    "validationScenario": "进入市民层、命理系统和运行时对话，确认市民、记忆、命理和 AI 配置入口都能被用户触达。",
-    "readmeSummary": "三态市民、量子/SNN、基因插件、八字命理和自定义 AI 配置被收拢为同一套市民意识内核。",
+    "capabilityDependencies": [
+      "wasm",
+      "webgpu",
+      "opfs"
+    ],
+    "dataSource": "本地市民状态、八字数据、向量记忆与用户配置的 AI 路由",
+    "fallbackMode": "WASM、WebGPU 或外部 AI 不可用时回退到本地 JavaScript 与端侧路径，但入口、状态和说明保持可见。",
+    "validationScenario": "从主 HUD 进入市民主线，验证认知、命理、对话和 AI 路由在原生与降级场景下都能工作。",
+    "readmeSummary": "三态市民、量子/SNN 认知、基因插件、八字命理和自定义 AI 路由被收束成一个可操作的数字生命内核。",
     "readmeSummaryEN": "Three-state citizens, quantum/SNN logic, gene plugins, BaZi fate mapping, and custom AI routing are unified as one cognition stack.",
     "modulePaths": [
       "src/citizen/CitizenManager.ts",
@@ -59,8 +63,8 @@
     "title": "社会文化与叙事网络",
     "titleEN": "Society, Culture, and Narrative Mesh",
     "universeGroup": "civilization-systems",
-    "status": "mainline-simulated-with-explicit-label",
-    "runtimePath": "simulated",
+    "status": "mainline-fallback",
+    "runtimePath": "fallback",
     "sourceDoc": "v12",
     "sourceClause": "3.2.1",
     "coveredClauses": [
@@ -73,25 +77,28 @@
       "3.8.2",
       "3.16"
     ],
-    "experienceEntry": "文明能力宇宙图 → 社会文化簇 / 运行时对话",
-    "experienceEntryEN": "Feature Universe → Society Cluster / Runtime Chat",
+    "experienceEntry": "功能宇宙图 -> 社会文化簇 / 运行时对话",
+    "experienceEntryEN": "Feature Universe -> Society Cluster / Runtime Chat",
     "runtimeSubsystem": "Media, education, religion, social graph, and live narrative synthesis",
-    "capabilityDependencies": ["webgpu", "opfs"],
-    "dataSource": "本地社会图谱、叙事事件流与文化规则集合",
-    "fallbackMode": "对尚未具备独立面板的社会链路使用显式模拟摘要展示，不伪装成真实联网服务。",
-    "validationScenario": "在宇宙图中查看社会文化簇详情，并从运行时对话和编年流中看到对应的社会叙事存在感。",
-    "readmeSummary": "媒体、教育、宗教、社交图谱和动态叙事被集中展示为同一张社会文化网络。",
+    "capabilityDependencies": [
+      "webgpu",
+      "opfs"
+    ],
+    "dataSource": "新闻生成、教育传播、宗教意识形态与社会图谱的本地演化数据",
+    "fallbackMode": "高阶图计算或扩展能力不可用时，社会文化面板仍会保留真实状态、指标和叙事输出，只降低复杂度。",
+    "validationScenario": "从功能宇宙图进入社会文化面板，检查媒体、教育、宗教、社交图与动态叙事的主线入口。",
+    "readmeSummary": "媒体、教育、宗教、社交图谱与动态叙事不再散落在说明里，而是作为同一张社会文化网络进入主线体验。",
     "readmeSummaryEN": "Media, education, religion, social graphs, and dynamic narrative are presented as one social-cultural network.",
     "modulePaths": [
       "src/society/MediaEducationReligion.ts",
       "src/ai/SocialGNN.ts",
       "src/narrative/NarrativeEngine.ts"
     ],
-    "panelAction": "chat"
+    "panelAction": "society"
   },
   {
     "id": "economy-industry",
-    "title": "经济、产业与基础设施",
+    "title": "经济产业与基础设施",
     "titleEN": "Economy, Industry, and Infrastructure",
     "universeGroup": "civilization-systems",
     "status": "mainline-native",
@@ -106,14 +113,17 @@
       "3.3.4",
       "3.6.5"
     ],
-    "experienceEntry": "主 HUD → 文明指标 / 供应链与基建可视化",
-    "experienceEntryEN": "Main HUD → Civilization Metrics / Supply Chain and Infrastructure Views",
+    "experienceEntry": "主 HUD -> 经济指标 / 经济与基建控制台",
+    "experienceEntryEN": "Main HUD -> Civilization Metrics / Economy and Infrastructure Console",
     "runtimeSubsystem": "Economic system, technology tree, supply chain graph, and infrastructure simulation",
-    "capabilityDependencies": ["wasm", "webgpu"],
-    "dataSource": "本地资源流、科技树进度、供需网络和基建状态",
-    "fallbackMode": "高阶分析不可用时保留资源与产能主线，供应链图和基建反馈回落为轻量视图。",
-    "validationScenario": "在主 HUD 与宇宙图中检查资源、科技、供应链、基建信息是否都能形成完整入口。",
-    "readmeSummary": "科技树、供应链、职业分工、基础设施和现实锚定经济被组织成一套可运行的文明产能系统。",
+    "capabilityDependencies": [
+      "wasm",
+      "webgpu"
+    ],
+    "dataSource": "本地经济系统、供应链、科技树、职业分工与基础设施模拟数据",
+    "fallbackMode": "即使高性能渲染不可用，经济层仍保持原生数据路径，只在可视化复杂度上做降级。",
+    "validationScenario": "从主 HUD 打开经济与基建面板，验证科技树、供应链、基础设施和现实锚定经济的连续操作路径。",
+    "readmeSummary": "科技树、供应链、职业分工、基础设施和现实锚定经济被组织成一个连续可读的生产栈。",
     "readmeSummaryEN": "Technology, supply chains, labor specialization, infrastructure, and anchored virtual economy form one production stack.",
     "modulePaths": [
       "src/economy/EconomicSystem.ts",
@@ -121,11 +131,11 @@
       "src/economy/InfrastructureSystem.ts",
       "src/economy/TechTree.ts"
     ],
-    "panelAction": "observatory"
+    "panelAction": "economy"
   },
   {
     "id": "governance-law",
-    "title": "治理、法律与民主机器",
+    "title": "治理机制与民主机器",
     "titleEN": "Governance and Democratic Machinery",
     "universeGroup": "civilization-systems",
     "status": "mainline-fallback",
@@ -140,29 +150,32 @@
       "3.4.4",
       "3.4.5"
     ],
-    "experienceEntry": "DAO 治理中心 / 神谕层",
+    "experienceEntry": "DAO 治理中心 / 法律层 / 神谕层",
     "experienceEntryEN": "DAO Governance Center / Oracle Layer",
     "runtimeSubsystem": "DAO proposals, law execution, judicial flow, and ethical policy constraints",
-    "capabilityDependencies": ["webAuthn", "opfs"],
-    "dataSource": "本地治理法案、投票记录、司法事件和道德约束规则",
-    "fallbackMode": "WebAuthn 或链路缺失时改走本地信任治理路径，仍保留治理入口和状态解释。",
-    "validationScenario": "打开 DAO 治理中心，确认法案、治理指标与身份校验提示在无后端条件下可重复访问。",
-    "readmeSummary": "DAO 宪法、经济治理、司法系统、伦理约束和流动民主被合并为可操作的治理主线。",
+    "capabilityDependencies": [
+      "webAuthn",
+      "opfs"
+    ],
+    "dataSource": "本地 DAO 提案、法案执行、司法流程、投票委托和伦理约束数据",
+    "fallbackMode": "WebAuthn 或高阶信任能力不可用时，治理面仍保留 DAO、投票和法案路径，并显式标注信任层降级。",
+    "validationScenario": "进入 DAO 治理中心，验证提案、投票、法典和伦理约束都能从同一条治理主线访问。",
+    "readmeSummary": "DAO 宪法、经济治理、司法流程、伦理约束与流动民主共用同一条治理主线，而不是分裂成若干孤立按钮。",
     "readmeSummaryEN": "DAO constitutional logic, economic governance, judiciary, ethics constraints, and liquid democracy form one governance surface.",
     "modulePaths": [
       "src/governance/DAOSystem.ts",
       "src/ui/components/DAOPanel.tsx",
       "src/auth/WebAuthnManager.ts"
     ],
-    "panelAction": "dao"
+    "panelAction": "governance"
   },
   {
     "id": "conflict-environment",
     "title": "冲突、流行病与气候生态",
     "titleEN": "Conflict, Epidemics, and Climate",
     "universeGroup": "civilization-systems",
-    "status": "mainline-simulated-with-explicit-label",
-    "runtimePath": "simulated",
+    "status": "mainline-fallback",
+    "runtimePath": "fallback",
     "sourceDoc": "v12",
     "sourceClause": "3.5.1",
     "coveredClauses": [
@@ -175,25 +188,28 @@
       "3.6.3",
       "3.6.4"
     ],
-    "experienceEntry": "文明能力宇宙图 → 环境与冲突簇 / 系统观测台",
-    "experienceEntryEN": "Feature Universe → Environment and Conflict Cluster / Observatory",
+    "experienceEntry": "功能宇宙图 -> 风险与生态簇 / 观测台",
+    "experienceEntryEN": "Feature Universe -> Risk and Ecology Cluster / Observatory",
     "runtimeSubsystem": "Crime, war, diplomacy, epidemic spread, climate, ecology, and chaos warnings",
-    "capabilityDependencies": ["webgpu", "opfs"],
-    "dataSource": "本地危机事件、生态状态、疫情统计与混沌阈值",
-    "fallbackMode": "对尚未拥有完整独立操控面板的危机链路使用显式模拟摘要卡，不隐藏当前实现边界。",
-    "validationScenario": "在宇宙图与观测台中检查冲突、疫情、气候与预警状态卡是否可见且文案一致。",
-    "readmeSummary": "犯罪、战争、外交、流行病、气候与混沌预警被并入同一个危机与生态簇。",
+    "capabilityDependencies": [
+      "webgpu",
+      "opfs"
+    ],
+    "dataSource": "本地犯罪、战争、外交、疫情、气候、生态和混沌预警系统数据",
+    "fallbackMode": "当高阶并行能力受限时，风险面板仍通过本地模型维持冲突、流行病和生态的可操作视图。",
+    "validationScenario": "从功能宇宙图进入风险面板，检查冲突、疫情、气候和生态控制台能否持续输出真实状态。",
+    "readmeSummary": "犯罪、战争、外交、疫情、气候、生态与混沌预警被放进一套风险控制台，保持实时可视、可解释、可回退。",
     "readmeSummaryEN": "Crime, war, diplomacy, epidemics, climate, and chaos warnings are exposed as one crisis-and-ecology cluster.",
     "modulePaths": [
       "src/conflict/CrimeWarSystem.ts",
       "src/world/EpidemicClimateSystem.ts",
       "src/ui/components/EnvironmentPanel.tsx"
     ],
-    "panelAction": "observatory"
+    "panelAction": "environment"
   },
   {
     "id": "entropy-survival",
-    "title": "熵增纪元与轮回生存",
+    "title": "熵增纪元与生存循环",
     "titleEN": "Entropy Era and Survival Loop",
     "universeGroup": "civilization-systems",
     "status": "mainline-fallback",
@@ -215,25 +231,29 @@
       "3.24.6",
       "3.24.7"
     ],
-    "experienceEntry": "主 HUD → 纪元信号 / 神谕层",
-    "experienceEntryEN": "Main HUD → Epoch Signals / Oracle Layer",
+    "experienceEntry": "主 HUD -> 纪元信号 / 神谕层",
+    "experienceEntryEN": "Main HUD -> Epoch Signals / Oracle Layer",
     "runtimeSubsystem": "Observation value loop, divine interventions, entropy epoch, and roguelike reincarnation",
-    "capabilityDependencies": ["webgpu", "serviceWorker", "periodicSync"],
-    "dataSource": "本地熵值、希望与暴乱网络、纪元事件和阿卡夏轮回数据",
-    "fallbackMode": "后台与高阶演算受限时保留前台纪元推进、神力干预和显式降级说明。",
-    "validationScenario": "在主 HUD 中确认纪元状态、熵值与干预入口可用，并能从宇宙图看到轮回与纪元能力。",
-    "readmeSummary": "观测值、神力干预、熵增纪元、末世法典与 Roguelike 轮回被归并成统一的生存循环。",
+    "capabilityDependencies": [
+      "webgpu",
+      "serviceWorker",
+      "periodicSync"
+    ],
+    "dataSource": "观测值、神力干预、熵增纪元、末世法典和 Roguelike 轮回的本地循环状态",
+    "fallbackMode": "后台能力不可用时，熵增纪元仍保留前台可玩的生存循环，只把部分后台结算切换到显式降级模式。",
+    "validationScenario": "从主 HUD 打开纪元与神谕面板，验证观测值、神力、法典和轮回路径保持连通。",
+    "readmeSummary": "观测值、神力干预、熵增纪元、末世法典和 Roguelike 轮回共用一条生存循环，而不是停留在世界观文案里。",
     "readmeSummaryEN": "Observation value, divine interventions, entropy era, apocalypse laws, and roguelike reincarnation form one survival loop.",
     "modulePaths": [
       "src/game/ObservationValueSystem.ts",
       "src/game/EntropyEpochSystem.ts",
       "src/game/RoguelikeReincarnationSystem.ts"
     ],
-    "panelAction": "divine"
+    "panelAction": "entropy"
   },
   {
     "id": "visual-interface",
-    "title": "中文赛博视觉与观察者界面",
+    "title": "中文赛博可视界面",
     "titleEN": "Chinese Cyberpunk Visual Interface",
     "universeGroup": "perception-and-input",
     "status": "mainline-fallback",
@@ -249,14 +269,17 @@
       "3.14.6",
       "4.5"
     ],
-    "experienceEntry": "启动壳 / 模式选择 / 主 HUD / 系统观测台",
+    "experienceEntry": "启动壳 / 模式选择 / 主 HUD / 观测台",
     "experienceEntryEN": "Boot Shell / Mode Select / Main HUD / Observatory",
     "runtimeSubsystem": "Cyberpunk shell, Chinese UI, observer effects, memory splats, and native view transitions",
-    "capabilityDependencies": ["webgpu", "webgl"],
-    "dataSource": "运行时状态、情绪映射、汉字视觉层与观察者聚焦信号",
-    "fallbackMode": "WebGPU 或高阶视觉不可用时回落到 2D / WebGL 视觉层，但保留相同的信息结构和节奏。",
-    "validationScenario": "冷启动、模式切换和世界界面应稳定显示中文赛博风格，并可进入系统观测台。",
-    "readmeSummary": "汉字代码雨、视觉 LOD、观察者效应和 3D 记忆可视化被收束成同一个旗舰界面系统。",
+    "capabilityDependencies": [
+      "webgpu",
+      "webgl"
+    ],
+    "dataSource": "运行时能力探测、渲染层状态、界面动效与视觉主题配置",
+    "fallbackMode": "WebGPU 不可用时会回退到 WebGL 或 Canvas 路径，但视觉层级、主题与状态文案保持一致。",
+    "validationScenario": "验证启动壳、模式选择和主 HUD 在桌面与移动端都能稳定加载，并清晰显示当前能力路径。",
+    "readmeSummary": "启动仪式、模式选择、主 HUD、观察者效应、记忆可视化与渲染降级被整合为同一套浏览器前台表演层。",
     "readmeSummaryEN": "Code rain, visual LOD, observer effects, and memory splats are unified into one flagship interface system.",
     "modulePaths": [
       "src/ui/components/LoadingScreen.tsx",
@@ -268,7 +291,7 @@
   },
   {
     "id": "multimodal-command",
-    "title": "多模态指令、音频与盲眼玩法",
+    "title": "多模态指令与盲眼先知玩法",
     "titleEN": "Multimodal Command and Blind-Oracle Play",
     "universeGroup": "perception-and-input",
     "status": "mainline-fallback",
@@ -285,7 +308,17 @@
       "3.29.2",
       "3.29.3"
     ],
-    "experienceEntry": "运行时对话 / 帮助系统 / 系统观测台",
+    "coveredClauseRefs": [
+      { "docId": "v12", "clause": "3.14.4" },
+      { "docId": "v12", "clause": "3.14.7" },
+      { "docId": "v12", "clause": "3.14.8" },
+      { "docId": "v12", "clause": "3.19" },
+      { "docId": "v13", "clause": "3.29" },
+      { "docId": "v13", "clause": "3.29.1" },
+      { "docId": "v13", "clause": "3.29.2" },
+      { "docId": "v13", "clause": "3.29.3" }
+    ],
+    "experienceEntry": "运行时对话 / 帮助系统 / 观测台",
     "experienceEntryEN": "Runtime Chat / Help System / Observatory",
     "runtimeSubsystem": "Speech command, speech synthesis, spatial audio, haptics, blind mode, and tutorial guidance",
     "capabilityDependencies": [
@@ -295,10 +328,10 @@
       "haptics",
       "webBluetooth"
     ],
-    "dataSource": "本地语音输入输出、空间音频、盲眼模式语义树与外设反馈",
-    "fallbackMode": "权限被拒或设备不支持时，回落到键鼠入口、字幕提示和显式不可用说明。",
-    "validationScenario": "验证语音、盲眼模式、帮助系统和触觉/近场提示在支持与不支持环境下都能给出清晰状态。",
-    "readmeSummary": "语音指令、空间音频、盲眼模式、手柄触觉和近场裂隙一起定义了感知与输入层。",
+    "dataSource": "语音识别、语音合成、空间音频、触觉反馈、盲视模式和帮助系统状态",
+    "fallbackMode": "语音、触觉或蓝牙能力缺失时，会切换到键鼠与文字提示路径，同时保留能力状态说明。",
+    "validationScenario": "打开多模态指令层，验证语音、盲视模式、音频和触觉反馈的可用与降级路径。",
+    "readmeSummary": "语音、空间音频、盲视模式、触觉反馈和帮助系统共用同一条多模态输入链，失败时也会显式解释降级原因。",
     "readmeSummaryEN": "Speech commands, spatial audio, blind mode, haptics, and proximity rifts define the perception-and-input layer.",
     "modulePaths": [
       "src/multimodal/VoiceController.ts",
@@ -306,11 +339,11 @@
       "src/output/HapticsManager.ts",
       "src/network/nearby/SpacetimeRift.ts"
     ],
-    "panelAction": "chat"
+    "panelAction": "multimodal"
   },
   {
     "id": "reality-twin",
-    "title": "现实数据孪生与反事实分支",
+    "title": "现实孪生与反事实分支",
     "titleEN": "Reality Twin and Counterfactual Branches",
     "universeGroup": "reality-sync",
     "status": "mainline-fallback",
@@ -327,25 +360,27 @@
       "3.22.3",
       "3.22.5"
     ],
-    "experienceEntry": "启动壳 → 创世纪 / 现实锚点状态",
-    "experienceEntryEN": "Boot Shell → Genesis / Reality Anchor State",
+    "experienceEntry": "启动壳 -> 创世纪 / 现实锚点状态",
+    "experienceEntryEN": "Boot Shell -> Genesis / Reality Anchor State",
     "runtimeSubsystem": "Genesis twin, macro-economic miracles, reality seeding, and counterfactual branches",
-    "capabilityDependencies": ["serviceWorker"],
-    "dataSource": "公开天气/经济 API、本地缓存种子与模拟分支记录",
-    "fallbackMode": "在线 API 不可用时使用缓存或本地生成数据，并明确标注当前来源。",
-    "validationScenario": "在启动阶段和系统观测台中确认创世纪、天气、经济联动与分支说明都可见。",
-    "readmeSummary": "创世纪天气、现实经济联动和反事实分支被放回主线，而不是藏在实验角落里。",
+    "capabilityDependencies": [
+      "serviceWorker"
+    ],
+    "dataSource": "地理、天气、宏观经济和本地反事实分支的现实锚点数据",
+    "fallbackMode": "外部 API 不可用时使用本地种子与缓存回放，仍明确标出当前现实锚点来源与回退原因。",
+    "validationScenario": "验证创世纪天气、现实种子和反事实分支在在线与离线场景下都能形成稳定入口。",
+    "readmeSummary": "创世纪天气、现实种子、宏观经济锚点与反事实分支被作为真正的初始化和现实联动路径，而不是隐藏实验项。",
     "readmeSummaryEN": "Genesis weather, real-economy hooks, and counterfactual branches are treated as mainline features rather than hidden experiments.",
     "modulePaths": [
       "src/api/GenesisTwin.ts",
       "src/api/MacroEconomy.ts",
       "src/api/GenesisTwinPanel.tsx"
     ],
-    "panelAction": "observatory"
+    "panelAction": "genesis"
   },
   {
     "id": "chain-evidence",
-    "title": "身份确权、链上证据与合规护栏",
+    "title": "身份、链上证据与合规护栏",
     "titleEN": "Identity, Chain Evidence, and Compliance",
     "universeGroup": "reality-sync",
     "status": "mainline-fallback",
@@ -363,25 +398,39 @@
       "3.28.1",
       "5.4"
     ],
-    "experienceEntry": "DAO 治理中心 / 系统观测台 → 身份与证据",
-    "experienceEntryEN": "DAO Center / Observatory → Identity and Evidence",
+    "coveredClauseRefs": [
+      { "docId": "v12", "clause": "3.1.6" },
+      { "docId": "v12", "clause": "3.10" },
+      { "docId": "v12", "clause": "3.10.1" },
+      { "docId": "v12", "clause": "3.10.2" },
+      { "docId": "v12", "clause": "3.18" },
+      { "docId": "v12", "clause": "3.22.4" },
+      { "docId": "v13", "clause": "3.28" },
+      { "docId": "v13", "clause": "3.28.1" },
+      { "docId": "v12", "clause": "5.4" }
+    ],
+    "experienceEntry": "DAO 中心 / 身份与证据层 / 观测台",
+    "experienceEntryEN": "DAO Center / Observatory -> Identity and Evidence",
     "runtimeSubsystem": "WebAuthn trust anchor, blockchain snapshot sync, and privacy-safety constraints",
-    "capabilityDependencies": ["webAuthn", "opfs"],
-    "dataSource": "本地密钥锚点、快照哈希、链同步状态与隐私规则",
-    "fallbackMode": "硬件凭证缺失时转入本地信任模式，但身份与证据面板仍保留清晰状态说明。",
-    "validationScenario": "在治理或系统观测台中检查身份确权、快照上链和隐私边界文案是否保持一致。",
-    "readmeSummary": "WebAuthn、快照上链、零知识身份和本地数据主权被收拢为同一条可信执行主线。",
+    "capabilityDependencies": [
+      "webAuthn",
+      "opfs"
+    ],
+    "dataSource": "WebAuthn、快照上链、身份凭证、链同步与隐私合规模块的本地状态",
+    "fallbackMode": "硬件认证或链节点不可用时，会切换到本地信任锚和模拟链路，同时明确展示降级来源。",
+    "validationScenario": "进入身份与证据层，检查认证、链快照、隐私护栏和同步状态在主线里是否连贯可见。",
+    "readmeSummary": "WebAuthn、链上快照、零知识身份和数据主权共同构成信任与证据路径，既服务玩法也服务工程边界。",
     "readmeSummaryEN": "WebAuthn, snapshot anchoring, zero-knowledge identity, and data sovereignty are treated as one trust-and-evidence path.",
     "modulePaths": [
       "src/auth/WebAuthnManager.ts",
       "src/api/BlockchainSync.ts",
       "src/auth/BiometricWallet.ts"
     ],
-    "panelAction": "dao"
+    "panelAction": "identity"
   },
   {
     "id": "storage-ghost-time",
-    "title": "存储档案、时间旅行与幽灵时间",
+    "title": "持久化、时间旅行与幽灵时间",
     "titleEN": "Persistence, Time Travel, and Ghost Time",
     "universeGroup": "reality-sync",
     "status": "mainline-fallback",
@@ -399,29 +448,45 @@
       "4.12",
       "4.12.1"
     ],
-    "experienceEntry": "启动壳 / PWA / 系统观测台 → 持久化与后台结算",
-    "experienceEntryEN": "Boot Shell / PWA / Observatory → Persistence and Background Settlement",
+    "coveredClauseRefs": [
+      { "docId": "v12", "clause": "3.15" },
+      { "docId": "v12", "clause": "3.15.1" },
+      { "docId": "v12", "clause": "3.15.2" },
+      { "docId": "v12", "clause": "3.15.3" },
+      { "docId": "v12", "clause": "3.21" },
+      { "docId": "v12", "clause": "4.1" },
+      { "docId": "v12", "clause": "4.2" },
+      { "docId": "v13", "clause": "4.12" },
+      { "docId": "v13", "clause": "4.12.1" }
+    ],
+    "experienceEntry": "启动壳 / PWA / 持久化层 -> 幽灵时间控制台",
+    "experienceEntryEN": "Boot Shell / PWA / Observatory -> Persistence and Background Settlement",
     "runtimeSubsystem": "OPFS, SQLite, shared worker kernel, time snapshots, offline shell, and background settlement",
-    "capabilityDependencies": ["opfs", "serviceWorker", "periodicSync", "sharedWorker"],
-    "dataSource": "本地数据库、文明快照、后台结算状态与缓存壳",
-    "fallbackMode": "后台唤醒不可用时退回前台结算和手动同步，但保留同一套持久化视图和术语。",
-    "validationScenario": "检查 PWA、后台结算、持久化说明和时间回溯描述在 UI 中是否形成完整链路。",
-    "readmeSummary": "OPFS、SQLite、时间旅行、多宇宙分支和幽灵时间后台结算被统一成档案层。",
+    "capabilityDependencies": [
+      "opfs",
+      "serviceWorker",
+      "periodicSync",
+      "sharedWorker"
+    ],
+    "dataSource": "OPFS、SQLite、时间快照、后台结算与多宇宙分支的本地存储状态",
+    "fallbackMode": "OPFS、Periodic Sync 或 SharedWorker 受限时，仍提供本地存储与前台结算路径，并展示不可用原因。",
+    "validationScenario": "验证持久化层、时间快照和幽灵时间结算在 PWA 与普通页面模式下都可访问。",
+    "readmeSummary": "OPFS、SQLite、时间快照、多宇宙分支和后台结算被统一成一层可验证的文明档案系统。",
     "readmeSummaryEN": "OPFS, SQLite, time travel, multiverse branches, and ghost-time settlement are unified as one archival layer.",
     "modulePaths": [
       "src/storage/StorageManager.ts",
       "src/sw/BackgroundSync.ts",
       "src/core/SystemIntegrator.ts"
     ],
-    "panelAction": "observatory"
+    "panelAction": "persistence"
   },
   {
     "id": "inter-civilization",
-    "title": "跨文明、跨平台与星际扩展",
+    "title": "跨文明交互与星际扩张",
     "titleEN": "Cross-Civilization and Interplanetary Expansion",
     "universeGroup": "space-and-network",
-    "status": "mainline-simulated-with-explicit-label",
-    "runtimePath": "simulated",
+    "status": "mainline-fallback",
+    "runtimePath": "fallback",
     "sourceDoc": "v12",
     "sourceClause": "3.7.1",
     "coveredClauses": [
@@ -432,25 +497,27 @@
       "3.20",
       "4.3"
     ],
-    "experienceEntry": "文明能力宇宙图 → 空间连接层 / 系统观测台",
-    "experienceEntryEN": "Feature Universe → Space Layer / Observatory",
+    "experienceEntry": "功能宇宙图 -> 空间连接层 / 观测台",
+    "experienceEntryEN": "Feature Universe -> Space Connection Layer / Observatory",
     "runtimeSubsystem": "Multi-civilization exchange, metaverse interoperability, and WebTransport-class networking intent",
-    "capabilityDependencies": ["webrtc"],
-    "dataSource": "本地文明世界线、网络编排状态与跨平台映射意图",
-    "fallbackMode": "对跨平台和星际扩展保留显式模拟状态卡，说明当前浏览器内可验证的边界。",
-    "validationScenario": "在宇宙图中确认跨文明、世界议会、星际殖民和元宇宙互操作能力被明确展示。",
-    "readmeSummary": "多文明实例、国际组织、星际殖民和跨平台同步被收口为空间连接层的扩展宇宙。",
+    "capabilityDependencies": [
+      "webrtc"
+    ],
+    "dataSource": "跨文明实例、元宇宙互操作、世界级协作与星际扩张的网络状态",
+    "fallbackMode": "跨设备或跨实例网络受限时，仍提供本地世界扩张与联邦说明视图，并保留连接状态提示。",
+    "validationScenario": "从功能宇宙图进入空间连接层，验证跨文明、元宇宙互操作和扩张路径的真实入口。",
+    "readmeSummary": "多文明实例、世界级协作、跨世界同步、元宇宙互操作与星际扩张被组织成浏览器内可达的连接层。",
     "readmeSummaryEN": "Multi-civilization instances, world governance, space colonization, and metaverse sync are framed as the expansion universe.",
     "modulePaths": [
       "src/network/P2PNetwork.ts",
       "src/core/systems/NetworkProtocol.ts",
       "src/network/SyncProtocol.ts"
     ],
-    "panelAction": "observatory"
+    "panelAction": "network"
   },
   {
     "id": "p2p-federation",
-    "title": "空间折跃与联邦分发",
+    "title": "空间折跃与 P2P 联邦分发",
     "titleEN": "Space Warp and Federation Distribution",
     "universeGroup": "space-and-network",
     "status": "mainline-fallback",
@@ -467,14 +534,28 @@
       "4.11",
       "4.11.1"
     ],
-    "experienceEntry": "系统观测台 → P2P 联邦 / 设备接力状态",
-    "experienceEntryEN": "Observatory → P2P Federation / Device Relay",
+    "coveredClauseRefs": [
+      { "docId": "v12", "clause": "3.12" },
+      { "docId": "v12", "clause": "3.12.1" },
+      { "docId": "v12", "clause": "3.12.2" },
+      { "docId": "v12", "clause": "3.12.3" },
+      { "docId": "v13", "clause": "4.10" },
+      { "docId": "v13", "clause": "4.10.1" },
+      { "docId": "v13", "clause": "4.11" },
+      { "docId": "v13", "clause": "4.11.1" }
+    ],
+    "experienceEntry": "观测台 -> P2P 联邦 / 设备接力",
+    "experienceEntryEN": "Observatory -> P2P Federation / Device Relay",
     "runtimeSubsystem": "Volunteer compute, QR handoff, WebRTC sync, and WebTorrent model distribution",
-    "capabilityDependencies": ["webrtc", "barcodeDetector", "webTorrent"],
-    "dataSource": "本地节点状态、二维码载荷、做种贡献和联邦分发指标",
-    "fallbackMode": "扫码或 WebTorrent 不可用时切换到手动交接与本地模式，但状态流转仍然清晰可见。",
-    "validationScenario": "在系统观测台中验证 P2P、二维码握手、联邦分发和做种贡献状态都能被读到。",
-    "readmeSummary": "自愿算力节点、二维码设备接力和 WebTorrent 联邦分发被合并为真正可解释的 P2P 主线。",
+    "capabilityDependencies": [
+      "webrtc",
+      "barcodeDetector",
+      "webTorrent"
+    ],
+    "dataSource": "二维码握手、WebRTC 联机、WebTorrent 分发、自愿算力节点与设备接力状态",
+    "fallbackMode": "WebTorrent 或扫码能力不可用时，系统会保留设备接力与联邦说明路径，并显式提示回退方案。",
+    "validationScenario": "验证二维码接力、P2P 联邦、设备同步和联邦分发在支持与不支持场景下都可重复进入。",
+    "readmeSummary": "二维码接力、WebRTC 联机、WebTorrent 分发和自愿算力节点不再只做演示，而是形成一条可解释的联邦网络路径。",
     "readmeSummaryEN": "Volunteer compute, QR handoff, and WebTorrent federation are presented as one explainable P2P path.",
     "modulePaths": [
       "src/network/TorrentClient.ts",
@@ -482,15 +563,15 @@
       "src/network/p2p/QRHandshake.ts",
       "src/network/p2p/SpaceWarp.ts"
     ],
-    "panelAction": "observatory"
+    "panelAction": "network"
   },
   {
     "id": "open-ecosystem",
-    "title": "插件市场与开源文明生态",
+    "title": "开放生态与插件锻炉",
     "titleEN": "Plugin Marketplace and Open Civilization Ecosystem",
     "universeGroup": "space-and-network",
-    "status": "mainline-simulated-with-explicit-label",
-    "runtimePath": "simulated",
+    "status": "mainline-fallback",
+    "runtimePath": "fallback",
     "sourceDoc": "v12",
     "sourceClause": "3.13.1",
     "coveredClauses": [
@@ -498,24 +579,26 @@
       "3.13.1",
       "3.13.2"
     ],
-    "experienceEntry": "文明能力宇宙图 → 开放生态簇",
-    "experienceEntryEN": "Feature Universe → Open Ecosystem Cluster",
+    "experienceEntry": "功能宇宙图 -> 开放生态锻炉",
+    "experienceEntryEN": "Feature Universe -> Open Ecosystem Forge",
     "runtimeSubsystem": "Plugin marketplace, decentralized versioning, and world forking narrative",
-    "capabilityDependencies": ["opfs"],
-    "dataSource": "本地插件槽位、世界快照和分叉信息",
-    "fallbackMode": "当前以显式模拟生态说明卡呈现，不冒充已接入的真实链上插件市场。",
-    "validationScenario": "确认宇宙图中对插件市场、版本控制和世界 fork/merge 能力有清晰说明。",
-    "readmeSummary": "插件市场、去中心化版本控制和文明 fork/merge 被保留为开放生态簇，并明确当前实现边界。",
+    "capabilityDependencies": [
+      "opfs"
+    ],
+    "dataSource": "基因插件注册表、世界 fork、合并请求和开放生态市场状态",
+    "fallbackMode": "当真实分发能力受限时，生态锻炉仍保留插件注册、fork 负载和合并演练的本地路径。",
+    "validationScenario": "打开开放生态锻炉，验证插件注册、fork、merge 和分发路径在前端内保持可操作。",
+    "readmeSummary": "基因插件、世界 fork、去中心化版本流和开放生态市场被收束成一块可操作的生态锻炉。",
     "readmeSummaryEN": "Plugin markets, decentralized versioning, and world forking live as an explicit open-ecosystem cluster.",
     "modulePaths": [
       "src/citizen/GenePluginSystem.ts",
       "src/citizen/GenePluginExamples.ts"
     ],
-    "panelAction": "none"
+    "panelAction": "ecosystem"
   },
   {
     "id": "performance-orchestration",
-    "title": "启动预热、性能编排与用户体验边界",
+    "title": "预热、性能编排与体验包络",
     "titleEN": "Warmup, Performance Orchestration, and UX Envelope",
     "universeGroup": "rendering-and-performance",
     "status": "mainline-native",
@@ -551,14 +634,49 @@
       "5.5",
       "5.6"
     ],
-    "experienceEntry": "启动壳 / 模式选择 / 系统观测台",
+    "coveredClauseRefs": [
+      { "docId": "v12", "clause": "3.17" },
+      { "docId": "supplement", "clause": "4.6" },
+      { "docId": "supplement", "clause": "4.6.1" },
+      { "docId": "supplement", "clause": "4.6.2" },
+      { "docId": "supplement", "clause": "4.6.3" },
+      { "docId": "supplement", "clause": "4.6.4" },
+      { "docId": "supplement", "clause": "4.6.5" },
+      { "docId": "supplement", "clause": "4.6.6" },
+      { "docId": "supplement", "clause": "4.6.7" },
+      { "docId": "supplement", "clause": "4.7" },
+      { "docId": "supplement", "clause": "4.7.1" },
+      { "docId": "supplement", "clause": "4.7.2" },
+      { "docId": "supplement", "clause": "4.7.3" },
+      { "docId": "supplement", "clause": "4.7.4" },
+      { "docId": "supplement", "clause": "4.7.5" },
+      { "docId": "supplement", "clause": "4.7.6" },
+      { "docId": "supplement", "clause": "4.7.7" },
+      { "docId": "supplement", "clause": "4.7.8" },
+      { "docId": "supplement", "clause": "4.9" },
+      { "docId": "supplement", "clause": "4.9.1" },
+      { "docId": "supplement", "clause": "4.9.2" },
+      { "docId": "supplement", "clause": "4.9.3" },
+      { "docId": "v12", "clause": "5.1" },
+      { "docId": "v12", "clause": "5.2" },
+      { "docId": "v12", "clause": "5.3" },
+      { "docId": "v12", "clause": "5.5" },
+      { "docId": "v12", "clause": "5.6" }
+    ],
+    "experienceEntry": "启动壳 / 模式选择 / 观测台",
     "experienceEntryEN": "Boot Shell / Mode Select / Observatory",
     "runtimeSubsystem": "Warmup manager, mode orchestration, render scheduling, telemetry, and UX safeguards",
-    "capabilityDependencies": ["wasm", "webgpu", "webgl", "opfs", "sharedWorker"],
-    "dataSource": "设备画像、能力图谱、预热结果、模式配置与性能遥测",
-    "fallbackMode": "不支持的硬件路径进入回退模式，但仍执行完整预热编排和可解释的加载反馈。",
-    "validationScenario": "冷启动、模式选择、性能指标与系统观测台应共享同一套能力与性能语言。",
-    "readmeSummary": "极速预热、模式编排、渲染调度、性能监控和移动端策略被汇成同一条性能主线。",
+    "capabilityDependencies": [
+      "wasm",
+      "webgpu",
+      "webgl",
+      "opfs",
+      "sharedWorker"
+    ],
+    "dataSource": "预热管理器、性能模式、运行时遥测、渲染调度和移动端策略数据",
+    "fallbackMode": "部分硬件能力不可用时，仍会执行等价的回退预热路径，并在观测面中说明当前模式与代价。",
+    "validationScenario": "验证预热、性能模式、遥测和运行时包络在三种模式下都能稳定切换与展示。",
+    "readmeSummary": "启动预热、模式编排、运行时遥测、渲染调度与移动端策略被当作主线能力，而不是一堆分散的优化技巧。",
     "readmeSummaryEN": "Warmup, mode orchestration, render scheduling, telemetry, and mobile performance strategy form one performance backbone.",
     "modulePaths": [
       "src/hooks/useAppInitialization.ts",
@@ -570,7 +688,7 @@
   },
   {
     "id": "benchmark-and-stress",
-    "title": "性能基准与极限压测",
+    "title": "基准测试与压力演练",
     "titleEN": "Benchmarking and Stress Harness",
     "universeGroup": "rendering-and-performance",
     "status": "mainline-fallback",
@@ -593,25 +711,30 @@
       "4.8.4",
       "4.8.5"
     ],
-    "experienceEntry": "性能模式 / 系统观测台 → 基准与压测",
-    "experienceEntryEN": "Performance Modes / Observatory → Benchmark and Stress",
+    "experienceEntry": "性能模式 / 观测台 -> 基准与压测台",
+    "experienceEntryEN": "Performance Modes / Observatory -> Benchmark and Stress",
     "runtimeSubsystem": "Benchmark suite, stress harness, exportable reports, and long-session telemetry",
-    "capabilityDependencies": ["wasm", "webgpu", "opfs", "sharedWorker"],
-    "dataSource": "CPU/GPU/内存/存储测试结果、压力日志和导出报告",
-    "fallbackMode": "高压测试能力不足时保留基准面板与导出链路，并标注受限项。",
-    "validationScenario": "确认性能基准入口、压力测试说明与导出状态能够在观测台中被触达。",
-    "readmeSummary": "专业级基准测试、长期性能日志和极限压测被保留为渲染与性能层的重型工具带。",
+    "capabilityDependencies": [
+      "wasm",
+      "webgpu",
+      "opfs",
+      "sharedWorker"
+    ],
+    "dataSource": "CPU、GPU、内存、网络、存储与长期遥测的基准测试结果",
+    "fallbackMode": "高压测试能力受限时，仍保留基准报告、告警提示和导出路径，只降低测试强度而不隐藏入口。",
+    "validationScenario": "进入基准与压测台，验证快速、标准和高压路径都能运行并给出可理解报告。",
+    "readmeSummary": "内置基准测试、长期遥测、导出报告和极限压测形成同一条性能评估路径，让项目既能玩也能测。",
     "readmeSummaryEN": "Professional benchmarks, long-session telemetry, and stress harnesses form the heavyweight tool belt of the performance layer.",
     "modulePaths": [
       "src/bench/BenchmarkSuite.ts",
       "src/bench/BenchmarkPanel.tsx",
       "src/benchmark/PerformanceBenchmark.ts"
     ],
-    "panelAction": "observatory"
+    "panelAction": "benchmark"
   },
   {
     "id": "hardware-acceleration",
-    "title": "硬件加速、录制与全局光照",
+    "title": "硬件加速与全局光照内核",
     "titleEN": "Hardware Acceleration and Global Illumination",
     "universeGroup": "rendering-and-performance",
     "status": "mainline-fallback",
@@ -626,14 +749,25 @@
       "3.30",
       "3.30.1"
     ],
-    "experienceEntry": "WebGPU 画布 / 系统观测台 → 渲染内核",
-    "experienceEntryEN": "WebGPU Canvas / Observatory → Render Kernel",
+    "coveredClauseRefs": [
+      { "docId": "v12", "clause": "3.11" },
+      { "docId": "v12", "clause": "3.11.1" },
+      { "docId": "v12", "clause": "3.11.2" },
+      { "docId": "v12", "clause": "4.4" },
+      { "docId": "v13", "clause": "3.30" },
+      { "docId": "v13", "clause": "3.30.1" }
+    ],
+    "experienceEntry": "WebGPU 画布 / 观测台 -> 渲染内核",
+    "experienceEntryEN": "WebGPU Canvas / Observatory -> Render Kernel",
     "runtimeSubsystem": "WebGPU renderer, compute GI, hardware recording, and mixed hardware scheduling",
-    "capabilityDependencies": ["webgpu", "wasm"],
-    "dataSource": "GPU 设备画像、渲染统计、GI 探针与录制管线状态",
-    "fallbackMode": "不支持 WebGPU 或硬件编码时回退到轻量渲染，但保留统一观测入口和状态标签。",
-    "validationScenario": "确认 WebGPU 画布、GI/高斯统计和硬件加速说明在系统观测台中一致。",
-    "readmeSummary": "WebGPU 全局光照、硬件录制和混合调度一起定义了项目的旗舰渲染上限。",
+    "capabilityDependencies": [
+      "webgpu",
+      "wasm"
+    ],
+    "dataSource": "WebGPU、全局光照、硬件录制和混合调度的渲染内核状态",
+    "fallbackMode": "WebGPU 或硬件录制不可用时，会切换到可用渲染内核并明确展示不可用原因与替代路径。",
+    "validationScenario": "从渲染内核进入 WebGPU 与全局光照控制台，验证原生和降级渲染路径都能稳定工作。",
+    "readmeSummary": "WebGPU、计算着色器、全局光照、硬件录制与混合硬件调度一起构成渲染上限，并保留清晰可见的降级路线。",
     "readmeSummaryEN": "WebGPU global illumination, hardware recording, and mixed scheduling define the flagship rendering ceiling.",
     "modulePaths": [
       "src/rendering/WebGPURenderer.ts",
@@ -641,6 +775,6 @@
       "src/ui/components/WebGPUCanvas.tsx",
       "src/warmup/VideoPreheater.ts"
     ],
-    "panelAction": "observatory"
+    "panelAction": "rendering"
   }
 ]
