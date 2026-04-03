@@ -38,8 +38,9 @@
 - 以 `public/manifest.json` 作为唯一运行时清单来源，避免多处 manifest 漂移。
 - 补齐真实存在的图标资源：`public/favicon.svg`、`public/app-icon.svg`、`public/app-icon-maskable.svg`、`public/app-icon-192.png`、`public/app-icon-512.png`、`public/apple-touch-icon.png`。
 - 删除原先不存在的图标、截图和 `favicon.ico` 虚假引用，避免线上 404 与安装元数据异常。
-- Service Worker 改为在最终产物全部就位后由 `scripts/build-release.mjs` 使用 `workbox-build` 生成，避免 precache 只扫到局部文件的顺序问题。
+- Service Worker 改为在最终产物全部就位后由 `scripts/build-release.mjs` 直接生成，避免 precache 只扫到局部文件的顺序问题。
 - 生产环境中的 Service Worker 注册由运行时代码显式完成，不再依赖构建时自动注入。
+- `webtorrent` 从本地 `npm` 依赖中移除，改为固定版本 CDN 按需加载，避免把浏览器端能力误绑定到本地 Node 依赖链。
 
 ### 5. 静态部署头部统一
 
@@ -57,9 +58,9 @@
 - PWA 预缓存清单已恢复为完整产物扫描，本轮构建的 `sw.js` 预缓存条目为 `49` 项。
 - 发布资源不再引用缺失文件，PWA 安装面与仓库首页保持一致。
 - `release-dist/` 可稳定生成干净产物，适合静态托管与 fresh-clone 验证。
+- `npm audit` 已归零，发布仓库不再携带已知高危依赖告警。
 
 ## 后续观察项
 
-- `npm audit` 仍会报告来自 `webtorrent` 和 `workbox-build` 依赖链的上游漏洞告警。
-- 这些问题不阻断当前版本的静态部署，但属于后续依赖治理议题，应在不破坏功能闭环的前提下单独处理。
-- README 与最终审计文档已经把这些项明确写为非阻断债务，避免和主链路缺陷混淆。
+- WebTorrent 仍是外部浏览器能力入口，因此未来升级时应继续固定版本并验证 CDN 资源可用性。
+- 自定义 Service Worker 生成逻辑属于仓库内构建资产，后续若扩展缓存策略，需要同步更新 `scripts/build-release.mjs` 与运行时验证。

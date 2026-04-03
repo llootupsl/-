@@ -200,7 +200,7 @@ export class TorrentClient extends EventEmitter<TorrentEvents> {
 
     return new Promise((resolve) => {
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js';
+      script.src = 'https://cdn.jsdelivr.net/npm/webtorrent@2.8.5/webtorrent.min.js';
       script.onload = () => {
         const win = window as unknown as WindowExtended;
         if (win.WebTorrent) {
