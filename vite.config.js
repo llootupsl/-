@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
+import viteCompression from "vite-plugin-compression";
 import path from "path";
 
 function normalizeId(id) {
@@ -59,6 +60,18 @@ export default defineConfig({
     react(),
     wasm(),
     topLevelAwait(),
+    viteCompression({
+      algorithm: 'gzip',
+      ext: '.gz',
+      threshold: 10240,
+      deleteOriginFile: false,
+    }),
+    viteCompression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      threshold: 10240,
+      deleteOriginFile: false,
+    }),
   ],
   resolve: {
     alias: {
@@ -97,9 +110,22 @@ export default defineConfig({
     target: "esnext",
     outDir: "release-dist",
     emptyOutDir: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    sourcemap: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: createManualChunks,
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
       },
       external: ["@mlc-ai/web-llm", "@mlc.ai/web-llm"],
     },
